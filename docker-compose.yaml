@@ -1,0 +1,57 @@
+version: "3.8"
+services:
+  redis:
+    container_name: redis_container
+    image: redis:7.2.4-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --loglevel warning
+    volumes:
+      - ./docker-volumes/redis-data:/data
+  mongodb:
+    container_name: mongodb_container
+    image: mongo:latest
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - ./docker-volumes/mongo-data:/data/db
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=freedome
+      - POSTGRES_PASSWORD=api
+      - POSTGRES_DB=freedome_reviews
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker-volumes/postgres-data:/var/lib/postgresql
+  mysql:
+    container_name: mysql_container
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      - MYSQL_USER=freedome
+      - MYSQL_DATABASE=freedome_auth
+      - MYSQL_ROOT_PASSWORD=api
+      - MYSQL_PASSWORD=api
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker-volumes/mysql-data:/var/lib/mysql
+  rabbitmq:
+    container_name: rabbitmq_container
+    image: rabbitmq:3.13-rc-management-alpine
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=freedome
+      - RABBITMQ_DEFAULT_PASS=freedomepass
+    ports:
+      # AMQP protocol port
+      - "5672:5672"
+      # Management UI
+      - "15672:15672"
