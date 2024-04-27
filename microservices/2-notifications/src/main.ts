@@ -19,7 +19,7 @@ async function bootstrap(): Promise<void> {
   );
 
   app.use(helmet());
-  await app.listen(appConfig.port);
+  await app.listen(appConfig.appPort);
 }
 bootstrap()
   .then(() => {

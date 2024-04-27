@@ -5,16 +5,42 @@ import { ConfigService } from '@nestjs/config';
 export class AppConfigService {
   constructor(private configService: ConfigService) {}
 
-  get name(): string {
-    return this.configService.get<string>('app.name', { infer: true }) ?? '';
+  get appPort(): number {
+    return Number(this.configService.get<number>('APP_PORT'));
   }
-  get env(): string {
-    return this.configService.get<string>('app.env', { infer: true }) ?? '';
+  get enableApm(): number {
+    return Number(this.configService.get<number>('ENABLE_APM'));
   }
-  get url(): string {
-    return this.configService.get<string>('app.url', { infer: true }) ?? '';
+
+  get nodeEnv(): string {
+    return this.configService.get<string>('NODE_ENV');
   }
-  get port(): number {
-    return Number(this.configService.get<number>('app.port'));
+
+  get clientUrl(): string {
+    return this.configService.get<string>('CLIENT_URL');
+  }
+
+  get rabbitmqEndpoint(): string {
+    return this.configService.get<string>('RABBITMQ_ENDPOINT');
+  }
+
+  get senderEmail(): string {
+    return this.configService.get<string>('SENDER_EMAIL');
+  }
+
+  get senderEmailPassword(): string {
+    return this.configService.get<string>('SENDER_EMAIL_PASSWORD');
+  }
+
+  get elasticSearchUrl(): string {
+    return this.configService.get<string>('ELASTIC_SEARCH_URL');
+  }
+
+  get elasticApmServerUrl(): string {
+    return this.configService.get<string>('ELASTIC_APM_SERVER_URL');
+  }
+
+  get elasticApmSecretToken(): string {
+    return this.configService.get<string>('ELASTIC_APM_SECRET_TOKEN');
   }
 }
