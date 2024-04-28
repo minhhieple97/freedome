@@ -9,7 +9,6 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   const appConfig: AppConfigService = app.get(AppConfigService);
-
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
@@ -17,7 +16,6 @@ async function bootstrap(): Promise<void> {
       forbidNonWhitelisted: true,
     }),
   );
-
   app.use(helmet());
   await app.listen(appConfig.appPort);
 }
