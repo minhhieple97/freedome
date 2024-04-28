@@ -6,6 +6,6 @@ export class HealthController {
   @Get()
   @HealthCheck()
   check(): string {
-    return 'Service is up';
+    return 'Notifications service is up';
   }
 }
