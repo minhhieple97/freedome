@@ -3,8 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './configuration';
 import { AppConfigService } from './config.service';
-import { DEFAULT_PORT } from 'src/common/constants/constants';
-
+import { DEFAULT_PORT } from '../../common/constants/constants';
 
 @Module({
   imports: [
