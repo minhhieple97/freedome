@@ -3,5 +3,8 @@ import { ElasticsearchService as ElasticSearchService } from '@nestjs/elasticsea
 
 @Injectable()
 export class ElasticsearchService {
-  constructor(private readonly elasticsearchService: ElasticSearchService) { }
+  constructor(private readonly elasticsearchService: ElasticSearchService) {}
+  checkElasticsearchConnection() {
+    return this.elasticsearchService.ping();
+  }
 }
