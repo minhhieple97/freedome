@@ -1,41 +1,34 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import helmet from 'helmet';
-
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app/config.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { winstonLogger } from '@app/common';
 import { WinstonModule } from 'nest-winston';
 import { Transport } from '@nestjs/microservices';
-
+import {
+  AUTH_EMAIL_QUEUE_NAME,
+  ORDER_EMAIL_QUEUE_NAME,
+} from './common/constants/constants';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    bodyParser: true,
     logger: WinstonModule.createLogger({
       instance: winstonLogger('Notifications Service', 'debug'),
     }),
   });
   const appConfig: AppConfigService = app.get(AppConfigService);
-  app.connectMicroservice({
-    transport: Transport.RMQ,
-    options: {
-      urls: [appConfig.rabbitmqEndpoint],
-      queue: 'cats_queue',
-      queueOptions: {
-        durable: false,
+  for (const queueName of [AUTH_EMAIL_QUEUE_NAME, ORDER_EMAIL_QUEUE_NAME]) {
+    app.connectMicroservice({
+      transport: Transport.RMQ,
+      options: {
+        urls: [appConfig.rabbitmqEndpoint],
+        queue: queueName,
+        queueOptions: {
+          durable: true,
+        },
       },
-    },
-  });
-  app.setGlobalPrefix('api');
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-  app.use(helmet());
-  await app.listen(appConfig.appPort);
+    });
+  }
+  await app.startAllMicroservices();
 }
 bootstrap()
   .then(() => {
