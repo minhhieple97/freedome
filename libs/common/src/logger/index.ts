@@ -1,46 +1,49 @@
-import winston, { Logger } from 'winston';
+import * as winston from 'winston';
 import {
   ElasticsearchTransformer,
   ElasticsearchTransport,
   LogData,
   TransformedData,
 } from 'winston-elasticsearch';
+import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
 
 const esTransformer = (logData: LogData): TransformedData => {
   return ElasticsearchTransformer(logData);
 };
 
-export const winstonLogger = (
-  elasticsearchNode: string,
-  name: string,
-  level: string,
-): Logger => {
+export const winstonLogger = (name: string, level: string): winston.Logger => {
+  const esTransport: ElasticsearchTransport = new ElasticsearchTransport({
+    level,
+    transformer: esTransformer,
+    clientOpts: {
+      node: process.env.ELASTIC_SEARCH_URL,
+      maxRetries: 2,
+      requestTimeout: 10000,
+      sniffOnStart: false,
+    },
+  });
   const options = {
-    console: {
-      level,
-      handleExceptions: true,
-      json: false,
-      colorize: true,
-    },
-    elasticsearch: {
-      level,
-      transformer: esTransformer,
-      clientOpts: {
-        node: elasticsearchNode,
-        log: level,
-        maxRetries: 2,
-        requestTimeout: 10000,
-        sniffOnStart: false,
-      },
-    },
-  };
-  const esTransport: ElasticsearchTransport = new ElasticsearchTransport(
-    options.elasticsearch,
-  );
-  const logger: Logger = winston.createLogger({
     exitOnError: false,
     defaultMeta: { service: name },
-    transports: [new winston.transports.Console(options.console), esTransport],
-  });
+    level,
+    json: false,
+    colorize: true,
+    handleExceptions: true,
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.ms(),
+          nestWinstonModuleUtilities.format.nestLike(name, {
+            colors: true,
+            prettyPrint: true,
+          }),
+        ),
+      }),
+      esTransport,
+    ],
+  };
+
+  const logger: winston.Logger = winston.createLogger(options);
   return logger;
 };
