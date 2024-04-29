@@ -7,6 +7,8 @@ import { AppConfigService } from './config/app/config.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { winstonLogger } from '@app/common';
 import { WinstonModule } from 'nest-winston';
+import { Transport } from '@nestjs/microservices';
+
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: true,
@@ -15,6 +17,16 @@ async function bootstrap(): Promise<void> {
     }),
   });
   const appConfig: AppConfigService = app.get(AppConfigService);
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [appConfig.rabbitmqEndpoint],
+      queue: 'cats_queue',
+      queueOptions: {
+        durable: false,
+      },
+    },
+  });
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({

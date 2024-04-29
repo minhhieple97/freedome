@@ -98,7 +98,7 @@ services:
   notifications:
     build:
       context: .
-      dockerfile: ./microservices/2-notifications/Dockerfile
+      dockerfile: ./microservices/notifications/Dockerfile
       target: development
     command: pnpm run start:dev notifications
     ports:
@@ -106,7 +106,7 @@ services:
     volumes:
       - .:/usr/src/app
     env_file:
-      - ./microservices/2-notifications/.env
+      - ./microservices/notifications/.env
     networks:
       - elastic
 
