@@ -4,10 +4,16 @@ import helmet from 'helmet';
 
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app/config.service';
-
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { winstonLogger } from '@app/common';
+import { WinstonModule } from 'nest-winston';
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
-
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: true,
+    logger: WinstonModule.createLogger({
+      instance: winstonLogger('Notifications Service', 'debug'),
+    }),
+  });
   const appConfig: AppConfigService = app.get(AppConfigService);
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
