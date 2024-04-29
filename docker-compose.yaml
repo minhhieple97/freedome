@@ -9,6 +9,8 @@ services:
     command: redis-server --loglevel warning
     volumes:
       - ./docker-volumes/redis-data:/data
+    networks:
+      - elastic
   mongodb:
     container_name: mongodb_container
     image: mongo:latest
@@ -17,6 +19,8 @@ services:
       - 27017:27017
     volumes:
       - ./docker-volumes/mongo-data:/data/db
+    networks:
+      - elastic
   postgres:
     container_name: postgres_container
     image: postgres
@@ -29,6 +33,8 @@ services:
       - '5432:5432'
     volumes:
       - ./docker-volumes/postgres-data:/var/lib/postgresql
+    networks:
+      - elastic
   mysql:
     container_name: mysql_container
     image: mysql
@@ -43,6 +49,8 @@ services:
       - '3306:3306'
     volumes:
       - ./docker-volumes/mysql-data:/var/lib/mysql
+    networks:
+      - elastic
   rabbitmq:
     container_name: rabbitmq_container
     image: rabbitmq:3.13-rc-management-alpine
@@ -55,6 +63,8 @@ services:
       - '5672:5672'
       # Management UI
       - '15672:15672'
+    networks:
+      - elastic
   elasticsearch:
     container_name: elasticsearch_container
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
