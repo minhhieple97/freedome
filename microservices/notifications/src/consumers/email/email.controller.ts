@@ -1,5 +1,13 @@
+import { EmailService } from './email.service';
+import { EVENTS_RMQ, EmailAuthDataEventDto } from '@app/common';
 import { Controller } from '@nestjs/common';
-import {} from '@nestjs/microservices';
+import { EventPattern, Payload } from '@nestjs/microservices';
 
 @Controller()
-export class EmailController {}
+export class EmailController {
+  constructor(private readonly emailService: EmailService) {}
+  @EventPattern(EVENTS_RMQ.AUTH_EMAIL)
+  handleAuthEmail(@Payload() emailAuth: EmailAuthDataEventDto) {
+    return this.emailService.handleAuthEmail(emailAuth);
+  }
+}
