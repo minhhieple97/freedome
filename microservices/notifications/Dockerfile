@@ -36,4 +36,4 @@ RUN pnpm install --prod
 COPY --from=development /usr/src/app/dist ./dist
 
 
-CMD ["node","dist/apps/notifications/main"]
+CMD ["node","dist/microservices/notifications/main"]
