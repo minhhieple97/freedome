@@ -1,6 +1,6 @@
 import { IsEmail, IsString } from 'class-validator';
 
-export class EmailAuthDataEventDto {
+export class EmailAuthEventDto {
   @IsEmail()
   receiverEmail: string;
 

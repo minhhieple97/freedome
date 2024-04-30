@@ -1,4 +1,4 @@
-import { IEmailLocals, EmailAuthDataEventDto } from '@app/common';
+import { IEmailLocals, EmailAuthEventDto } from '@app/common';
 import { Inject, Injectable } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import * as nodemailer from 'nodemailer';
@@ -70,7 +70,8 @@ export class EmailService {
     }
   }
 
-  async handleAuthEmail(emailAuthDataEvent: EmailAuthDataEventDto) {
+  async handleAuthEmail(emailAuthDataEvent: EmailAuthEventDto) {
     console.log({ emailAuthDataEvent });
   }
+  async handleOrderEmail() {}
 }
