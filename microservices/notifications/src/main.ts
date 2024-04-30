@@ -2,13 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app/config.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { winstonLogger } from '@app/common';
-import { WinstonModule } from 'nest-winston';
-import { Transport } from '@nestjs/microservices';
 import {
   AUTH_EMAIL_QUEUE_NAME,
   ORDER_EMAIL_QUEUE_NAME,
-} from './common/constants/constants';
+  winstonLogger,
+} from '@app/common';
+import { WinstonModule } from 'nest-winston';
+import { Transport } from '@nestjs/microservices';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: WinstonModule.createLogger({
