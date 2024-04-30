@@ -28,6 +28,18 @@ export class AppConfigService {
     return this.configService.get<string>('SENDER_EMAIL');
   }
 
+  get senderEmailHost(): string {
+    return this.configService.get<string>('SENDER_EMAIL_HOST');
+  }
+
+  get senderEmailUsername(): string {
+    return this.configService.get<string>('SENDER_EMAIL_USERNAME');
+  }
+
+  get senderEmailPort(): number {
+    return this.configService.get<number>('SENDER_EMAIL_PORT');
+  }
+
   get senderEmailPassword(): string {
     return this.configService.get<string>('SENDER_EMAIL_PASSWORD');
   }
