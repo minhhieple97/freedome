@@ -6,9 +6,12 @@ export default registerAs('app', () => ({
   nodeEnv: process.env.NODE_ENV,
   clientUrl: process.env.CLIENT_URL,
   rabbitmqEndpoint: process.env.RABBITMQ_ENDPOINT,
+  senderEmailHost: process.env.SENDER_EMAIL_HOST,
   senderEmail: process.env.SENDER_EMAIL,
   senderEmailPassword: process.env.SENDER_EMAIL_PASSWORD,
   elasticSearchUrl: process.env.ELASTIC_SEARCH_URL,
   elasticApmServerUrl: process.env.ELASTIC_APM_SERVER_URL,
   elasticApmSecretToken: process.env.ELASTIC_APM_SECRET_TOKEN,
+  senderEmailUsername: process.env.SENDER_EMAIL_USERNAME,
+  senderEmailPort: process.env.SENDER_EMAIL_PORT,
 }));
