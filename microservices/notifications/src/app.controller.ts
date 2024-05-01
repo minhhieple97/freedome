@@ -7,7 +7,6 @@ export class AppController {
   constructor(private readonly emailService: EmailService) {}
   @Post()
   async sendEmail(@Body() emailRequest: EmailAuthEventDto) {
-    console.log({ emailRequest });
     return this.emailService.handleAuthEmail(emailRequest);
   }
 }
