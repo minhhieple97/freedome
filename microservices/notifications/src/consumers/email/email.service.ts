@@ -1,9 +1,7 @@
-import { APP_ICON, EmailOrderEventDto } from '@app/common';
+import { APP_ICON, EmailOrderEventDto, LoggerService } from '@app/common';
 import { IEmailLocals, EmailAuthEventDto } from '@app/common';
-import { Inject, Injectable } from '@nestjs/common';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { Logger } from 'winston';
 import * as Email from 'email-templates';
 import { AppConfigService } from '../../config/app/config.service';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
@@ -13,7 +11,7 @@ import { EMAIL_TEMPLATES_NAME } from '../../common/constants/constants';
 export class EmailService {
   private transporter: nodemailer.Transporter;
   constructor(
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    private readonly logger: LoggerService,
     private readonly appConfig: AppConfigService,
   ) {
     this.transporter = nodemailer.createTransport({
@@ -72,7 +70,7 @@ export class EmailService {
   }
 
   async handleAuthEmail(emailAuthDataEvent: EmailAuthEventDto) {
-    console.log({ emailAuthDataEvent });
+    this.logger.log(EmailService.name, emailAuthDataEvent);
   }
   async handleOrderEmail(emailOrderEventDto: EmailOrderEventDto) {
     const {

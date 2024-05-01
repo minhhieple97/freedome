@@ -2,18 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app/config.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import {
-  AUTH_EMAIL_QUEUE_NAME,
-  ORDER_EMAIL_QUEUE_NAME,
-  winstonLogger,
-} from '@app/common';
-import { WinstonModule } from 'nest-winston';
+import { AUTH_EMAIL_QUEUE_NAME, ORDER_EMAIL_QUEUE_NAME } from '@app/common';
 import { Transport } from '@nestjs/microservices';
+import { LoggerService } from '@app/common/logger/logger.service';
+const logger = new LoggerService('Notifications Service');
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: WinstonModule.createLogger({
-      instance: winstonLogger('Notifications Service', 'debug'),
-    }),
+    logger,
   });
   const appConfig: AppConfigService = app.get(AppConfigService);
   for (const queueName of [AUTH_EMAIL_QUEUE_NAME, ORDER_EMAIL_QUEUE_NAME]) {
@@ -29,9 +24,12 @@ async function bootstrap(): Promise<void> {
     });
   }
   await app.startAllMicroservices();
+  await app.listen(3001);
 }
 bootstrap()
   .then(() => {
-    console.log('Done');
+    logger.log('Notifications Service is up');
   })
-  .catch(() => new Error('Something fail loading the app'));
+  .catch(() =>
+    logger.error('Something fail loading the notifications service'),
+  );

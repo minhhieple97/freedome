@@ -1,7 +1,13 @@
-import { Controller } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Body, Controller, Post } from '@nestjs/common';
+import { EmailService } from './consumers/email/email.service';
+import { EmailAuthEventDto } from '@app/common';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly emailService: EmailService) {}
+  @Post()
+  async sendEmail(@Body() emailRequest: EmailAuthEventDto) {
+    console.log({ emailRequest });
+    return this.emailService.handleAuthEmail(emailRequest);
+  }
 }
