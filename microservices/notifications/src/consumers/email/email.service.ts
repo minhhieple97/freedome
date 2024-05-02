@@ -70,7 +70,7 @@ export class EmailService {
         locals,
       });
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error('Error sending email', error);
     }
   }
 
