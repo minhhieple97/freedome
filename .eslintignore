@@ -1,0 +1,5 @@
+.eslintrc.js
+ios/
+android/
+*.config.js
+*.json
