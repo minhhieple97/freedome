@@ -1,5 +1,5 @@
 import { EmailService } from './email.service';
-import { EVENTS_RMQ, EmailAuthEventDto } from '@app/common';
+import { EVENTS_RMQ, EmailAuthEventDto } from '@freedome/common';
 import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 

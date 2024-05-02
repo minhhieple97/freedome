@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { EmailService } from './consumers/email/email.service';
-import { EmailAuthEventDto } from '@app/common';
+import { EmailAuthEventDto } from '@freedome/common';
 
 @Controller()
 export class AppController {

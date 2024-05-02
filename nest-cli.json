@@ -10,11 +10,11 @@
   "projects": {
     "common": {
       "type": "library",
-      "root": "libs/common",
+      "root": "common",
       "entryFile": "index",
-      "sourceRoot": "libs/common/src",
+      "sourceRoot": "common/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/common/tsconfig.lib.json"
+        "tsConfigPath": "common/tsconfig.lib.json"
       }
     },
     "notifications": {

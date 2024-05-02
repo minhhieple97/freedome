@@ -1,5 +1,10 @@
-import { APP_ICON, EmailOrderEventDto, LoggerService } from '@app/common';
-import { IEmailLocals, EmailAuthEventDto } from '@app/common';
+import {
+  IEmailLocals,
+  EmailAuthEventDto,
+  APP_ICON,
+  EmailOrderEventDto,
+  LoggerService,
+} from '@freedome/common';
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import * as Email from 'email-templates';

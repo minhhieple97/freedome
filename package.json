@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "author": "",
-  "private": true,
+  "private": false,
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
@@ -13,7 +13,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/microservices/freedome/main",
-    "lint": "eslint \"{src,microservices,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{src,microservices,common,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -89,11 +89,11 @@
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "roots": [
-      "<rootDir>/libs/",
+      "<rootDir>/common/",
       "<rootDir>/microservices/"
     ],
     "moduleNameMapper": {
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
+      "^@freedome/common(|/.*)$": "<rootDir>/common/src/$1"
     }
   }
 }

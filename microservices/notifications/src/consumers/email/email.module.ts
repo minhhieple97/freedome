@@ -3,7 +3,7 @@ import { EmailController } from './email.controller';
 import { EmailService } from './email.service';
 import { AppConfigModule } from '../../config/app/config.module';
 import { INQUIRER } from '@nestjs/core';
-import { LoggerModule, LoggerService } from '@app/common';
+import { LoggerModule, LoggerService } from '@freedome/common';
 
 @Module({
   imports: [AppConfigModule, LoggerModule],
