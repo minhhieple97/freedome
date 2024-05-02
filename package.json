@@ -37,6 +37,8 @@
     "email-templates": "^11.1.1",
     "helmet": "^7.1.0",
     "joi": "^17.13.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.3",
     "nest-winston": "^1.9.4",
     "nodemailer": "^6.9.13",
     "reflect-metadata": "^0.1.13",
@@ -51,6 +53,7 @@
     "@types/email-templates": "^10.0.4",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.3.1",
     "@types/nodemailer": "^6.4.14",
     "@types/supertest": "^2.0.12",
@@ -75,7 +78,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -83,7 +86,14 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/libs/",
+      "<rootDir>/microservices/"
+    ],
+    "moduleNameMapper": {
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
+    }
   }
 }
