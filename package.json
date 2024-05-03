@@ -7,12 +7,10 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "postbuild": "cp -r microservices/notifications/src/config/email-templates dist/microservices/notifications",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/microservices/freedome/main",
     "lint": "eslint \"{src,microservices,common,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -43,6 +41,7 @@
     "nodemailer": "^6.9.13",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "shelljs": "^0.8.5",
     "winston": "^3.13.0",
     "winston-elasticsearch": "^0.18.0"
   },
@@ -56,6 +55,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.3.1",
     "@types/nodemailer": "^6.4.14",
+    "@types/shelljs": "^0.8.15",
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^5.59.11",
     "@typescript-eslint/parser": "^5.59.11",
