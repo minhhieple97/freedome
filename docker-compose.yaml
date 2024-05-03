@@ -110,7 +110,6 @@ services:
       context: .
       dockerfile: ./microservices/notifications/Dockerfile
       target: development
-    command: pnpm run start:dev notifications
     ports:
       - '3001:3001'
     volumes:
@@ -119,7 +118,9 @@ services:
       - ./microservices/notifications/.env
     networks:
       - elastic
-
+    depends_on:
+      - elasticsearch
+      - rabbitmq
 networks:
   elastic:
     name: elastic
