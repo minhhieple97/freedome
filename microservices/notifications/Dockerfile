@@ -12,12 +12,10 @@ RUN pnpm install
 
 COPY . .
 
-RUN pnpm run build 
+CMD [ "pnpm", "run", "start:dev", "notifications" ]
 
 
-
-
-FROM node:alpine as production
+FROM node:20-alpine as production
 
 ARG NODE_ENV=production
 
