@@ -3,7 +3,7 @@ import { EmailService } from './consumers/email/email.service';
 import { EmailAuthEventDto } from '@freedome/common';
 
 @Controller()
-export class AppController {
+export class NotificationController {
   constructor(private readonly emailService: EmailService) {}
   @Post()
   async sendEmail(@Body() emailRequest: EmailAuthEventDto) {

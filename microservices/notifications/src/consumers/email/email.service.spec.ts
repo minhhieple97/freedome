@@ -8,7 +8,7 @@ import {
 } from '@freedome/common';
 import { Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
-import { EMAIL_TEMPLATES_NAME } from '../../common/constants/constants';
+import { EMAIL_TEMPLATES_NAME } from '../../common/constants';
 describe('EmailService', () => {
   let service: EmailService;
   beforeEach(async () => {

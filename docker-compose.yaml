@@ -110,8 +110,6 @@ services:
       context: .
       dockerfile: ./microservices/notifications/Dockerfile
       target: development
-    ports:
-      - '3001:3001'
     volumes:
       - .:/usr/src/app
     env_file:
@@ -121,6 +119,21 @@ services:
     depends_on:
       - elasticsearch
       - rabbitmq
+  gateway:
+    build:
+      context: .
+      dockerfile: ./microservices/gateway/Dockerfile
+      target: development
+    ports:
+      - '3001:3001'
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - ./microservices/gateway/.env
+    networks:
+      - elastic
+    depends_on:
+      - elasticsearch
 networks:
   elastic:
     name: elastic

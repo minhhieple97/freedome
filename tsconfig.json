@@ -21,8 +21,12 @@
     "noUnusedLocals": true,
     "noUncheckedIndexedAccess": true,
     "paths": {
-      "@freedome/common": ["common/src"],
-      "@freedome/common/*": ["common/src/*"]
+      "@freedome/common": [
+        "common/src"
+      ],
+      "@freedome/common/*": [
+        "common/src/*"
+      ]
     }
   }
 }

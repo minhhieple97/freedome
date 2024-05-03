@@ -1,11 +1,10 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": ".",
+  "sourceRoot": "microservices/notifications/src",
   "compilerOptions": {
-    "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "./tsconfig.build.json"
+    "tsConfigPath": "microservices/notifications/tsconfig.app.json"
   },
   "projects": {
     "common": {
@@ -31,8 +30,17 @@
           }
         ]
       }
+    },
+    "gateway": {
+      "type": "application",
+      "root": "microservices/gateway",
+      "entryFile": "main",
+      "sourceRoot": "microservices/gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "microservices/gateway/tsconfig.app.json"
+      }
     }
   },
   "monorepo": true,
-  "root": "."
+  "root": "microservices/notifications"
 }

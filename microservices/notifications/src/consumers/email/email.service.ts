@@ -11,7 +11,7 @@ import * as Email from 'email-templates';
 import { AppConfigService } from '../../config/app/config.service';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import * as path from 'path';
-import { EMAIL_TEMPLATES_NAME } from '../../common/constants/constants';
+import { EMAIL_TEMPLATES_NAME } from '../../common/constants';
 @Injectable()
 export class EmailService {
   private transporter: nodemailer.Transporter;
