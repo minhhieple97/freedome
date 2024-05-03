@@ -6,7 +6,7 @@ export class GatewayController {
   constructor(private readonly gatewayService: GatewayService) {}
 
   @Get()
-  getHello(): string {
-    return this.gatewayService.getHello();
+  getHello() {
+    return this.gatewayService.justHello('Loc', '0889644797', 50000);
   }
 }

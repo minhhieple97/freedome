@@ -5,9 +5,9 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import {
   AUTH_EMAIL_QUEUE_NAME,
   ORDER_EMAIL_QUEUE_NAME,
+  LoggerService,
 } from '@freedome/common';
 import { Transport } from '@nestjs/microservices';
-import { LoggerService } from '@freedome/common';
 const logger = new LoggerService('Notifications Service');
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(
@@ -30,6 +30,12 @@ async function bootstrap(): Promise<void> {
     });
   }
   await app.startAllMicroservices();
+  app
+    .connectMicroservice({
+      transport: Transport.TCP,
+      options: { host: '0.0.0.0', port: appConfig.tcpPort },
+    })
+    .listen();
 }
 bootstrap()
   .then(() => {

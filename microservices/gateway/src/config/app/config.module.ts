@@ -14,6 +14,8 @@ import { DEFAULT_PORT } from '../../common/constants';
         NODE_ENV: Joi.string()
           .valid('development', 'production', 'testing', 'staging')
           .required(),
+        NOTIFICATIONS_PORT: Joi.number().required(),
+        NOTIFICATIONS_HOST: Joi.string().required(),
       }),
     }),
   ],

@@ -5,8 +5,8 @@ import { ConfigService } from '@nestjs/config';
 export class AppConfigService {
   constructor(private configService: ConfigService) {}
 
-  get appPort(): number {
-    return Number(this.configService.get<number>('APP_PORT'));
+  get tcpPort(): number {
+    return Number(this.configService.get<number>('TCP_PORT'));
   }
   get enableApm(): number {
     return Number(this.configService.get<number>('ENABLE_APM'));

@@ -3,14 +3,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './configuration';
 import { AppConfigService } from './config.service';
-import { DEFAULT_PORT } from '../../common/constants';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [configuration],
       validationSchema: Joi.object({
-        APP_PORT: Joi.number().default(DEFAULT_PORT),
+        TCP_PORT: Joi.number().required(),
         ENABLE_APM: Joi.number().valid(0).required(),
         NODE_ENV: Joi.string()
           .valid('development', 'production', 'testing', 'staging')

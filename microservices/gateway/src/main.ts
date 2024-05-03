@@ -15,6 +15,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
+  app.setGlobalPrefix('api/gateway/v1');
   const appConfig: AppConfigService = app.get(AppConfigService);
   await app.listen(appConfig.appPort);
 }

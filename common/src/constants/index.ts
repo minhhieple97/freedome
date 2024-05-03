@@ -4,3 +4,7 @@ export const APP_ICON =
 export const SERVICE_NAME = {
   NOTIFICATIONS: 'notifications',
 };
+
+export const AUTH_SERVICE = 'auth';
+export const PAYMENTS_SERVICE = 'payments';
+export const NOTIFICATIONS_SERVICE = 'notifications';
