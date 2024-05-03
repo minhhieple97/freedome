@@ -1,11 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "microservices/notifications/src",
+  "sourceRoot": ".",
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "microservices/notifications/tsconfig.app.json"
+    "tsConfigPath": "./tsconfig.build.json"
   },
   "projects": {
     "common": {
@@ -23,10 +23,16 @@
       "entryFile": "main",
       "sourceRoot": "microservices/notifications/src",
       "compilerOptions": {
-        "tsConfigPath": "microservices/notifications/tsconfig.app.json"
+        "tsConfigPath": "microservices/notifications/tsconfig.app.json",
+        "assets": [
+          {
+            "include": "microservices/notifications/src/config/email-templates/",
+            "watchAssets": true
+          }
+        ]
       }
     }
   },
   "monorepo": true,
-  "root": "microservices/notifications"
+  "root": "."
 }
