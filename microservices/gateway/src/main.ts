@@ -7,6 +7,7 @@ import { AppConfigService } from './config/app/config.service';
 const logger = new LoggerService('APIGW Service');
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(GatewayModule, {
+    cors: true,
     logger,
   });
   const options = new DocumentBuilder()
