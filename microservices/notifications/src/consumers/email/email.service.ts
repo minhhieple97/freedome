@@ -8,10 +8,10 @@ import {
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import * as Email from 'email-templates';
-import { AppConfigService } from '../../config/app/config.service';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import * as path from 'path';
-import { EMAIL_TEMPLATES_NAME } from '../../common/constants';
+import { AppConfigService } from '@notifications/config/app/config.service';
+import { EMAIL_TEMPLATES_NAME } from '@notifications/common/constants';
 @Injectable()
 export class EmailService {
   private transporter: nodemailer.Transporter;

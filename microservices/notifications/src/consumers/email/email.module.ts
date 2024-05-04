@@ -1,9 +1,9 @@
 import { Module, Scope } from '@nestjs/common';
 import { EmailController } from './email.controller';
 import { EmailService } from './email.service';
-import { AppConfigModule } from '../../config/app/config.module';
 import { INQUIRER } from '@nestjs/core';
 import { LoggerModule, LoggerService } from '@freedome/common';
+import { AppConfigModule } from '@notifications/config/app/config.module';
 
 @Module({
   imports: [AppConfigModule, LoggerModule],
