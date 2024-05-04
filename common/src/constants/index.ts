@@ -3,8 +3,11 @@ export const APP_ICON =
 
 export const SERVICE_NAME = {
   NOTIFICATIONS: 'notifications',
+  AUTH: 'auth',
+  GIG: 'gig',
+  MESSAGE: 'message',
+  REVIEW: 'review',
+  ORDER: 'order',
+  SELLER: 'seller',
+  SEARCH: 'search',
 };
-
-export const AUTH_SERVICE = 'auth';
-export const PAYMENTS_SERVICE = 'payments';
-export const NOTIFICATIONS_SERVICE = 'notifications';
