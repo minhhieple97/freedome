@@ -4,7 +4,14 @@
   "sourceRoot": "microservices/notifications/src",
   "compilerOptions": {
     "webpack": true,
-    "tsConfigPath": "microservices/notifications/tsconfig.app.json"
+    "tsConfigPath": "microservices/notifications/tsconfig.app.json",
+    "assets": [
+      {
+        "include": "**/email-templates/**/*",
+        "outDir": "dist/microservices/notifications",
+        "watchAssets": true
+      }
+    ]
   },
   "projects": {
     "common": {
@@ -22,13 +29,7 @@
       "entryFile": "main",
       "sourceRoot": "microservices/notifications/src",
       "compilerOptions": {
-        "tsConfigPath": "microservices/notifications/tsconfig.app.json",
-        "assets": [
-          {
-            "include": "microservices/notifications/src/config/email-templates/",
-            "watchAssets": true
-          }
-        ]
+        "tsConfigPath": "microservices/notifications/tsconfig.app.json"
       }
     },
     "gateway": {

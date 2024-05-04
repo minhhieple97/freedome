@@ -53,7 +53,7 @@ export class EmailService {
           webResources: {
             relativeTo: path.join(
               __dirname,
-              '../../dist/microservices/notifications',
+              '../../dist/microservices/notifications/config',
             ),
           },
         },
@@ -63,7 +63,7 @@ export class EmailService {
         template: path.join(
           __dirname,
           '..',
-          'notifications/email-templates',
+          'notifications/config/email-templates',
           template,
         ),
         message: { to: receiver },
