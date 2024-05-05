@@ -7,6 +7,9 @@ import { AppConfigService } from './config/app/config.service';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import * as compression from 'compression';
+import * as cookieParser from 'cookie-parser';
+import * as hpp from 'hpp';
+import { GlobalExcetionFilter } from './common/filters/global-exception.filter';
 const logger = new LoggerService('APIGW Service');
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(GatewayModule, {
@@ -23,6 +26,11 @@ async function bootstrap() {
   );
   app.use(compression());
   app.use(helmet());
+  app.set('trust proxy', 1);
+  app.use(cookieParser());
+  app.useBodyParser('json', { limit: '10mb' });
+  app.useGlobalFilters(new GlobalExcetionFilter());
+  app.use(hpp());
   if (appConfig.nodeEnv == 'development') {
     const options = new DocumentBuilder()
       .setTitle('API docs')
