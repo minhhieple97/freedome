@@ -14,9 +14,9 @@ import { DEFAULT_PORT } from '../../common/constants';
         NODE_ENV: Joi.string()
           .valid('development', 'production', 'testing', 'staging')
           .required(),
+        CLIENT_URL: Joi.string().uri().required(),
         NOTIFICATIONS_PORT: Joi.number().required(),
         NOTIFICATIONS_HOST: Joi.string().required(),
-        JWT_SECRET: Joi.string().required(),
         MESSAGE_HOST: Joi.string().required(),
         MESSAGE_PORT: Joi.number().required(),
         REVIEW_HOST: Joi.string().required(),
@@ -31,6 +31,10 @@ import { DEFAULT_PORT } from '../../common/constants';
         AUTH_PORT: Joi.number().required(),
         GIG_HOST: Joi.string().required(),
         GIG_PORT: Joi.number().required(),
+        JWT_TOKEN: Joi.string().required(),
+        GATEWAY_JWT_TOKEN: Joi.string().required(),
+        SECRET_KEY_ONE: Joi.string().required(),
+        SECRET_KEY_TWO: Joi.string().required(),
       }),
     }),
   ],

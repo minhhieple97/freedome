@@ -8,6 +8,9 @@ export class AppConfigService {
   get appPort(): number {
     return Number(this.configService.get<number>('APP_PORT'));
   }
+  get clientUrl(): string {
+    return this.configService.get<string>('CLIENT_URL');
+  }
   get notificationsPort(): number {
     return Number(this.configService.get<number>('NOTIFICATIONS_PORT'));
   }
@@ -16,9 +19,6 @@ export class AppConfigService {
   }
   get nodeEnv(): string {
     return this.configService.get<string>('NODE_ENV');
-  }
-  get jwtSecret(): string {
-    return this.configService.get<string>('JWT_SECRET');
   }
   get authHost(): string {
     return this.configService.get<string>('AUTH_HOST');
@@ -70,5 +70,20 @@ export class AppConfigService {
 
   get searchPort(): number {
     return this.configService.get<number>('SEARCH_PORT');
+  }
+  get jwtToken(): string {
+    return this.configService.get<string>('JWT_TOKEN');
+  }
+
+  get gatewayJwtToken(): string {
+    return this.configService.get<string>('GATEWAY_JWT_TOKEN');
+  }
+
+  get secretKeyOne(): string {
+    return this.configService.get<string>('SECRET_KEY_ONE');
+  }
+
+  get secretKeyTwo(): string {
+    return this.configService.get<string>('SECRET_KEY_TWO');
   }
 }

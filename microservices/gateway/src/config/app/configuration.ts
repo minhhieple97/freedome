@@ -5,7 +5,6 @@ export default registerAs('app', () => ({
   nodeEnv: process.env.NODE_ENV,
   notificationsPort: process.env.NOTIFICATIONS_PORT,
   notificationsHost: process.env.NOTIFICATIONS_HOST,
-  jwtSecret: process.env.JWT_SECRET,
   messageHost: process.env.MESSAGE_HOST,
   messagePort: process.env.MESSAGE_PORT,
   reviewHost: process.env.REVIEW_HOST,
@@ -20,4 +19,8 @@ export default registerAs('app', () => ({
   authPort: process.env.AUTH_PORT,
   gigHost: process.env.GIG_HOST,
   gigPort: process.env.GIG_PORT,
+  jwtToken: process.env.JWT_TOKEN,
+  gatewayJwtToken: process.env.GATEWAY_JWT_TOKEN,
+  secretKeyOne: process.env.SECRET_KEY_ONE,
+  secretKeyTwo: process.env.SECRET_KEY_TWO,
 }));
