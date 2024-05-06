@@ -33,7 +33,7 @@ async function bootstrap() {
   app.set('trust proxy', 1);
   app.use(cookieParser());
   app.useBodyParser('json', { limit: '10mb' });
-  app.useGlobalFilters(new GlobalExcetionFilter());
+  app.useGlobalFilters(new GlobalExcetionFilter(appConfig));
   app.use(hpp());
   if (appConfig.nodeEnv == 'development') {
     const options = new DocumentBuilder()
