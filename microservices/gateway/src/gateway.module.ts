@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { GatewayController } from './gateway.controller';
 import { AppConfigModule } from './config/app/config.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppConfigService } from './config/app/config.service';
@@ -124,7 +123,6 @@ import { AuthGuard } from './common/guards/jwt-auth.guard';
     ]),
   ],
   controllers: [
-    GatewayController,
     AuthController,
     MessageController,
     ReviewController,
