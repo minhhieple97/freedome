@@ -13,6 +13,23 @@ export interface IAuth {
   profilePicture?: string;
 }
 
+export interface IAuthGetByIdResponse {
+  status: number;
+  message: string;
+  user: IAuthDocument | null;
+}
+
+export interface IServiceUserCreateResponse {
+  status: number;
+  message: string;
+  user: IAuthDocument | null;
+  errors: { [key: string]: any };
+}
+
+export interface IAuthorizedRequest extends Request {
+  user?: IAuthDocument;
+}
+
 export interface IAuthDocument {
   id?: number;
   profilePublicId?: string;
@@ -104,4 +121,17 @@ export interface IAuthUser {
   profilePicture: string | null;
   updatedAt: Date | null;
   username: string | null;
+}
+
+export interface IServiceUserSearchResponse {
+  status: number;
+  message: string;
+  user: IAuthDocument | null;
+}
+
+export interface IServiveTokenCreateResponse {
+  status: number;
+  token: string | null;
+  message: string;
+  errors: { [key: string]: any };
 }

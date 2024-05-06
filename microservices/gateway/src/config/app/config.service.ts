@@ -11,6 +11,9 @@ export class AppConfigService {
   get clientUrl(): string {
     return this.configService.get<string>('CLIENT_URL');
   }
+  get isProduction(): boolean {
+    return this.nodeEnv === 'production';
+  }
   get notificationsPort(): number {
     return Number(this.configService.get<number>('NOTIFICATIONS_PORT'));
   }

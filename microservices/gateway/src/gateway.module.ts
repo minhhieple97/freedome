@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { GatewayController } from './gateway.controller';
-import { GatewayService } from './gateway.service';
 import { AppConfigModule } from './config/app/config.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppConfigService } from './config/app/config.service';
@@ -16,6 +15,8 @@ import { OrderController } from './order.controller';
 import { ElasticsearchModule } from '@freedome/common/elasticsearch';
 import { TerminusModule } from '@nestjs/terminus';
 import HealthModule from './api/health/health.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './common/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -133,6 +134,11 @@ import HealthModule from './api/health/health.module';
     GigController,
     OrderController,
   ],
-  providers: [GatewayService],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class GatewayModule {}
