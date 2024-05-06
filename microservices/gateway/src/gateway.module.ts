@@ -13,10 +13,16 @@ import { SellerController } from './seller.controller';
 import { CurrentUserController } from './current-user.controller';
 import { GigController } from './gig.controller';
 import { OrderController } from './order.controller';
+import { ElasticsearchModule } from '@freedome/common/elasticsearch';
+import { TerminusModule } from '@nestjs/terminus';
+import HealthModule from './api/health/health.module';
 
 @Module({
   imports: [
     AppConfigModule,
+    TerminusModule,
+    ElasticsearchModule,
+    HealthModule,
     ClientsModule.registerAsync([
       {
         imports: [AppConfigModule],
