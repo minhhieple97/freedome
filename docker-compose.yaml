@@ -136,6 +136,21 @@ services:
       - elastic
     depends_on:
       - elasticsearch
+  auth:
+    build:
+      context: .
+      dockerfile: ./microservices/auth/Dockerfile
+      target: development
+    expose:
+      - '3002'
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - ./microservices/auth/.env
+    networks:
+      - elastic
+    depends_on:
+      - elasticsearch
 networks:
   elastic:
     name: elastic

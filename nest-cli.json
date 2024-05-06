@@ -40,6 +40,15 @@
       "compilerOptions": {
         "tsConfigPath": "microservices/gateway/tsconfig.app.json"
       }
+    },
+    "auth": {
+      "type": "application",
+      "root": "microservices/auth",
+      "entryFile": "main",
+      "sourceRoot": "microservices/auth/src",
+      "compilerOptions": {
+        "tsConfigPath": "microservices/auth/tsconfig.app.json"
+      }
     }
   },
   "monorepo": true,
