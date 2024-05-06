@@ -1,4 +1,5 @@
 import { LoggerService } from '@freedome/common';
+import { AppConfigService } from '@gateway/config/app/config.service';
 import {
   ArgumentsHost,
   ExceptionFilter,
@@ -11,6 +12,7 @@ import { Response } from 'express';
 @Catch()
 export class GlobalExcetionFilter implements ExceptionFilter {
   private readonly logger = new LoggerService('GlobalExceptionFilter');
+  constructor(private readonly appConfigService: AppConfigService) {}
   catch(exception: Error, host: ArgumentsHost): any {
     const ctx = host.switchToHttp();
     const response: Response = ctx.getResponse();
@@ -22,16 +24,28 @@ export class GlobalExcetionFilter implements ExceptionFilter {
       exception instanceof HttpException
         ? exception.message
         : 'Internal server error';
+    const isProduction = this.appConfigService.isProduction;
+    if (isProduction) {
+      this.logger.error(
+        `error message => ${message}, trace => ${exception.stack}`,
+      );
 
-    this.logger.error(
-      `error message => ${message}, trace => ${exception.stack}`,
-    );
+      response.status(statusCode).json({
+        code: false,
+        message,
+        error: 'Internal server error',
+      });
+    } else {
+      this.logger.error(
+        `error message => ${message}, trace => ${exception.stack}`,
+      );
 
-    response.status(statusCode).json({
-      code: false,
-      message: 'Oops! Something went wrong. Please try again',
-      error: message,
-      error_trace: exception.stack,
-    });
+      response.status(statusCode).json({
+        code: false,
+        message,
+        error: message,
+        error_trace: exception.stack,
+      });
+    }
   }
 }
