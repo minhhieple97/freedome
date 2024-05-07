@@ -23,57 +23,6 @@ export class AppConfigService {
   get nodeEnv(): string {
     return this.configService.get<string>('NODE_ENV');
   }
-  get authHost(): string {
-    return this.configService.get<string>('AUTH_HOST');
-  }
-  get authPort(): number {
-    return this.configService.get<number>('AUTH_PORT');
-  }
-  get gigHost(): string {
-    return this.configService.get<string>('GIG_HOST');
-  }
-  get gigPort(): number {
-    return this.configService.get<number>('GIG_PORT');
-  }
-  get messageHost(): string {
-    return this.configService.get<string>('MESSAGE_HOST');
-  }
-
-  get messagePort(): number {
-    return this.configService.get<number>('MESSAGE_PORT');
-  }
-
-  get reviewHost(): string {
-    return this.configService.get<string>('REVIEW_HOST');
-  }
-
-  get reviewPort(): number {
-    return this.configService.get<number>('REVIEW_PORT');
-  }
-
-  get orderHost(): string {
-    return this.configService.get<string>('ORDER_HOST');
-  }
-
-  get orderPort(): number {
-    return this.configService.get<number>('ORDER_PORT');
-  }
-
-  get sellerHost(): string {
-    return this.configService.get<string>('SELLER_HOST');
-  }
-
-  get sellerPort(): number {
-    return this.configService.get<number>('SELLER_PORT');
-  }
-
-  get searchHost(): string {
-    return this.configService.get<string>('SEARCH_HOST');
-  }
-
-  get searchPort(): number {
-    return this.configService.get<number>('SEARCH_PORT');
-  }
   get jwtToken(): string {
     return this.configService.get<string>('JWT_TOKEN');
   }
@@ -88,5 +37,8 @@ export class AppConfigService {
 
   get secretKeyTwo(): string {
     return this.configService.get<string>('SECRET_KEY_TWO');
+  }
+  get databaseUrl(): string {
+    return this.configService.get<string>('DATABASE_URL');
   }
 }
