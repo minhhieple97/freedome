@@ -30,7 +30,11 @@
       "@notifications/config": ["microservices/notifications/src/config"],
       "@notifications/config/*": ["microservices/notifications/src/config/*"],
       "@notifications/common": ["microservices/notifications/src/common"],
-      "@notifications/common/*": ["microservices/notifications/src/common/*"]
+      "@notifications/common/*": ["microservices/notifications/src/common/*"],
+      "@auth/config": ["microservices/auth/src/config"],
+      "@auth/config/*": ["microservices/auth/src/config/*"],
+      "@auth/common": ["microservices/auth/src/common"],
+      "@auth/common/*": ["microservices/auth/src/common/*"]
     }
   }
 }

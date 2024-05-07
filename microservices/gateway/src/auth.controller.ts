@@ -31,7 +31,7 @@ import {
   IServiceUserCreateResponse,
   IServiceUserSearchResponse,
   IServiveTokenCreateResponse,
-} from '@freedome/common/interfaces/auth.interface';
+} from '@freedome/common/interfaces';
 
 @ApiBearerAuth('authorization')
 @Controller('auth')
