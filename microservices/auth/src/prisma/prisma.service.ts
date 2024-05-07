@@ -1,7 +1,7 @@
 import { LoggerService } from '@freedome/common';
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient, Prisma } from '@prisma/client';
-
+import { hash } from 'bcryptjs';
 @Injectable()
 export class PrismaService
   extends PrismaClient<Prisma.PrismaClientOptions, Prisma.LogLevel>
@@ -29,6 +29,29 @@ export class PrismaService
           level: 'warn',
         },
       ],
+    });
+    this.$extends({
+      query: {
+        auth: {
+          $allOperations({
+            operation,
+            args,
+            query,
+          }: {
+            operation: string;
+            args: any;
+            query: any;
+          }) {
+            if (
+              ['create', 'update'].includes(operation) &&
+              args.data['password']
+            ) {
+              args.data['password'] = hash(args.data['password'], 10);
+            }
+            return query(args);
+          },
+        },
+      },
     });
   }
 

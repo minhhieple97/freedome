@@ -36,5 +36,6 @@
       "@auth/common": ["microservices/auth/src/common"],
       "@auth/common/*": ["microservices/auth/src/common/*"]
     }
-  }
+  },
+  "types": ["node", "Multer"]
 }

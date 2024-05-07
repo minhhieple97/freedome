@@ -5,6 +5,8 @@ import {
   IsEmail,
   IsNotEmpty,
   IsOptional,
+  MinLength,
+  MaxLength,
 } from 'class-validator';
 import { IAuthDocument } from '../interfaces';
 
@@ -96,8 +98,83 @@ export class LoginUserResponseDto {
 }
 
 export class LoginUserDto {
-  @ApiProperty({ example: 'test1@denrox.com' })
-  email: string;
-  @ApiProperty({ example: 'test11' })
+  @ApiProperty({
+    example: 'example@example.com',
+  })
+  @IsString()
+  @IsEmail()
+  @IsNotEmpty()
+  username: string;
+
+  @ApiProperty({
+    example: 'password123',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(4)
+  @MaxLength(12)
   password: string;
+
+  @ApiProperty({
+    example: 'Chrome',
+  })
+  @IsString()
+  @IsOptional()
+  browserName: string;
+
+  @ApiProperty({
+    example: 'Mobile',
+  })
+  @IsString()
+  @IsOptional()
+  deviceType: string;
+}
+
+export class EmailDto {
+  @ApiProperty({
+    example: 'example@example.com',
+  })
+  @IsString()
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+}
+
+export class PasswordDto {
+  @ApiProperty({
+    example: 'password123',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(4)
+  @MaxLength(12)
+  password: string;
+
+  @ApiProperty({
+    example: 'password123',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @Matches('password')
+  confirmPassword: string;
+}
+
+export class ChangePasswordDto {
+  @ApiProperty({
+    example: 'password123',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(4)
+  @MaxLength(8)
+  currentPassword: string;
+
+  @ApiProperty({
+    example: 'password123',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(4)
+  @MaxLength(12)
+  newPassword: string;
 }

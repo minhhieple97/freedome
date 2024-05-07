@@ -41,4 +41,7 @@ export class AppConfigService {
   get databaseUrl(): string {
     return this.configService.get<string>('DATABASE_URL');
   }
+  get rabbitmqEndpoint(): string {
+    return this.configService.get<string>('RABBITMQ_ENDPOINT');
+  }
 }

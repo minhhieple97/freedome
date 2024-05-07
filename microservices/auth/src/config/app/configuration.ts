@@ -8,4 +8,5 @@ export default registerAs('app', () => ({
   secretKeyOne: process.env.SECRET_KEY_ONE,
   secretKeyTwo: process.env.SECRET_KEY_TWO,
   databaseUrl: process.env.DATABASE_URL,
+  rabbitmqEndpoint: process.env.RABBITMQ_ENDPOINT,
 }));

@@ -19,6 +19,7 @@ import { AppConfigService } from './config.service';
         SECRET_KEY_ONE: Joi.string().required(),
         SECRET_KEY_TWO: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
+        RABBITMQ_ENDPOINT: Joi.string().required(),
       }),
     }),
   ],
