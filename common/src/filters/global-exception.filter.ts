@@ -1,5 +1,4 @@
 import { LoggerService } from '@freedome/common';
-import { AppConfigService } from '@gateway/config/app/config.service';
 import {
   ArgumentsHost,
   ExceptionFilter,
@@ -8,11 +7,12 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { IAppConfig } from '../interfaces/app-config.interface';
 
 @Catch()
 export class GlobalExcetionFilter implements ExceptionFilter {
   private readonly logger = new LoggerService('GlobalExceptionFilter');
-  constructor(private readonly appConfigService: AppConfigService) {}
+  constructor(private readonly appConfigService: IAppConfig) {}
   catch(exception: Error, host: ArgumentsHost): any {
     const ctx = host.switchToHttp();
     const response: Response = ctx.getResponse();
