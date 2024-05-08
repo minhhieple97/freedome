@@ -1,8 +1,9 @@
+import { IAppConfig } from '@freedome/common/interfaces/app-config.interface';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class AppConfigService {
+export class AppConfigService implements IAppConfig {
   constructor(private configService: ConfigService) {}
 
   get tcpPort(): number {
@@ -10,6 +11,10 @@ export class AppConfigService {
   }
   get enableApm(): number {
     return Number(this.configService.get<number>('ENABLE_APM'));
+  }
+
+  get isProduction(): boolean {
+    return this.nodeEnv === 'production';
   }
 
   get nodeEnv(): string {

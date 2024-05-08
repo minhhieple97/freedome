@@ -4,12 +4,11 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { GatewayModule } from './gateway.module';
 import { LoggerService } from '@freedome/common';
 import { AppConfigService } from './config/app/config.service';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
 import * as hpp from 'hpp';
-import { GlobalExcetionFilter } from './common/filters/global-exception.filter';
 const logger = new LoggerService('APIGW Service');
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(GatewayModule, {
@@ -26,6 +25,13 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      exceptionFactory: (errors) => {
+        const result = errors.map((error) => ({
+          property: error.property,
+          message: error.constraints[Object.keys(error.constraints)[0]],
+        }));
+        return new BadRequestException(result);
+      },
     }),
   );
   app.use(compression());
@@ -33,7 +39,6 @@ async function bootstrap() {
   app.set('trust proxy', 1);
   app.use(cookieParser());
   app.useBodyParser('json', { limit: '10mb' });
-  app.useGlobalFilters(new GlobalExcetionFilter(appConfig));
   app.use(hpp());
   if (appConfig.nodeEnv == 'development') {
     const options = new DocumentBuilder()

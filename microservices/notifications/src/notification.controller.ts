@@ -1,16 +1,16 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller } from '@nestjs/common';
 import { EmailService } from './consumers/email/email.service';
-import { EmailAuthEventDto } from '@freedome/common';
+import { EVENTS_RMQ, EmailAuthEventDto } from '@freedome/common';
 import { MessagePattern } from '@nestjs/microservices';
 
 @Controller()
 export class NotificationController {
   constructor(private readonly emailService: EmailService) {}
-  @Post()
-  async sendEmail(@Body() emailRequest: EmailAuthEventDto) {
+  @MessagePattern({ cmd: 'email_verification' })
+  async sendEmailVerification(@Body() emailRequest: EmailAuthEventDto) {
     return this.emailService.handleAuthEmail(emailRequest);
   }
-  @MessagePattern({ cmd: 'just_hello' })
+  @MessagePattern(EVENTS_RMQ.AUTH_EMAIL)
   create(data: any) {
     console.log({ data });
     return data;
