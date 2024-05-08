@@ -23,6 +23,7 @@ export interface IServiceUserCreateResponse {
   status: number;
   message: string;
   user: IAuthDocument | null;
+  token: string | null;
   errors: { [key: string]: any };
 }
 
@@ -44,8 +45,6 @@ export interface IAuthDocument {
   updatedAt?: Date;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
-  comparePassword(password: string): Promise<boolean>;
-  hashPassword(password: string): Promise<string>;
 }
 
 export interface IAuthBuyerMessageDetails {

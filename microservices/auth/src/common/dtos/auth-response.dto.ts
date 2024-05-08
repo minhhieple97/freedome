@@ -13,6 +13,7 @@ export class AuthResponseDto {
 
   profilePicture: string;
 
+  @Exclude()
   emailVerified: boolean;
 
   browserName: string;
@@ -32,4 +33,10 @@ export class AuthResponseDto {
 
   @Exclude()
   passwordResetExpires: Date;
+
+  @Exclude()
+  password: string;
+
+  @Exclude()
+  emailVerificationToken: string;
 }

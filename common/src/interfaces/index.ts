@@ -1,43 +1,9 @@
 export * from './auth.interface';
-export { IBuyerDocument, IReduxBuyer } from './buyer.interface';
-export {
-  IConversationDocument,
-  IMessageDocument,
-  IMessageDetails,
-  IChatBoxProps,
-  IChatSellerProps,
-  IChatBuyerProps,
-  IChatMessageProps,
-} from './chat.interface';
-export {
-  GigType,
-  ICreateGig,
-  ISellerGig,
-  IGigContext,
-  IGigsProps,
-  IGigCardItems,
-  ISelectedBudget,
-  IGigViewReviewsProps,
-  IGigInfo,
-  IGigTopProps,
-} from './gig.interface';
-export {
-  IOrderNotifcation,
-  IOffer,
-  IExtendedDelivery,
-  IDeliveredWork,
-  IOrderEvents,
-  IOrderReview,
-  IOrderMessage,
-  IOrderDocument,
-} from './order.interface';
-export {
-  IReviewMessageDetails,
-  IRatingTypes,
-  IRatingCategories,
-  IRatingCategoryItem,
-  IReviewDocument,
-} from './review.interface';
+export * from './buyer.interface';
+export * from './chat.interface';
+export * from './gig.interface';
+export * from './order.interface';
+export * from './review.interface';
 export {
   ISearchResult,
   IHitsTotal,
