@@ -7,37 +7,48 @@ import {
   IsOptional,
   MinLength,
   MaxLength,
+  IsAlphanumeric,
+  Length,
 } from 'class-validator';
 import { IAuthDocument } from '../interfaces';
+import { Transform } from 'class-transformer';
 
 export class CreateUserDto {
   @IsString()
-  @Matches(/^.{4,12}$/, { message: 'Invalid username' })
+  @IsAlphanumeric()
+  @Length(4, 16)
+  @Transform(({ value }) => value.toLowerCase())
   @IsNotEmpty({ message: 'Username is a required field' })
   username: string;
 
   @IsString()
-  @Matches(/^.{4,12}$/, { message: 'Invalid password' })
+  @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  @MaxLength(32, { message: 'Maximum password length is 32 characters' })
   @IsNotEmpty({ message: 'Password is a required field' })
   password: string;
 
   @IsString()
+  @Length(4, 32)
   @IsNotEmpty({ message: 'Country is a required field' })
   country: string;
 
   @IsEmail(undefined, { message: 'Invalid email' })
+  @Length(4, 32)
   @IsNotEmpty({ message: 'Email is a required field' })
   email: string;
 
   @IsString()
+  @Length(4, 32)
   @IsNotEmpty({ message: 'Please add a profile picture' })
   profilePicture: string;
 
   @IsString()
+  @Length(4, 32)
   @IsOptional()
   browserName: string;
 
   @IsString()
+  @Length(4, 32)
   @IsOptional()
   deviceType: string;
 }
@@ -75,12 +86,8 @@ export class CreateUserResponseDto {
     },
     nullable: true,
   })
-  data: {
-    user: IAuthDocument;
-    token: string;
-  };
-  @ApiProperty({ example: null, nullable: true })
-  errors: { [key: string]: any };
+  user: IAuthDocument;
+  token: string;
 }
 
 export class LoginUserResponseDto {
