@@ -7,6 +7,7 @@ import {
   Inject,
   HttpStatus,
   HttpException,
+  UseInterceptors,
 } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
@@ -19,6 +20,7 @@ import {
 import {
   CreateUserDto,
   CreateUserResponseDto,
+  EVENTS_HTTP,
   GetUserByTokenResponseDto,
   LoginUserDto,
   LoginUserResponseDto,
@@ -32,10 +34,13 @@ import {
   IServiceUserSearchResponse,
   IServiveTokenCreateResponse,
 } from '@freedome/common/interfaces';
+import { TransformResponseInterceptor } from './common/interceptors/transform-response.interceptor';
 
 @ApiBearerAuth('authorization')
 @Controller('auth')
 @ApiTags('auth')
+@Controller()
+@UseInterceptors(new TransformResponseInterceptor())
 export class AuthController {
   constructor(
     @Inject(SERVICE_NAME.AUTH) private readonly authServiceClient: ClientProxy,
@@ -48,20 +53,13 @@ export class AuthController {
   })
   public async getUserByToken(
     @Req() request: IAuthorizedRequest,
-  ): Promise<GetUserByTokenResponseDto> {
+  ): Promise<IAuthGetByIdResponse> {
     const userInfo = request.user;
 
     const userResponse: IAuthGetByIdResponse = await firstValueFrom(
       this.authServiceClient.send('user_get_by_id', userInfo.id),
     );
-
-    return {
-      message: userResponse.message,
-      data: {
-        user: userResponse.user,
-      },
-      errors: null,
-    };
+    return userResponse;
   }
 
   @Post('/signup')
@@ -72,7 +70,7 @@ export class AuthController {
     @Body() userRequest: CreateUserDto,
   ): Promise<CreateUserResponseDto> {
     const createUserResponse: IServiceUserCreateResponse = await firstValueFrom(
-      this.authServiceClient.send('user_create', userRequest),
+      this.authServiceClient.send(EVENTS_HTTP.USER_CREATE, userRequest),
     );
     if (createUserResponse.status !== HttpStatus.CREATED) {
       throw new HttpException(
@@ -86,12 +84,9 @@ export class AuthController {
     }
 
     return {
+      token: createUserResponse.token,
+      user: createUserResponse.user,
       message: createUserResponse.message,
-      data: {
-        user: createUserResponse.user,
-        token: '',
-      },
-      errors: null,
     };
   }
 
