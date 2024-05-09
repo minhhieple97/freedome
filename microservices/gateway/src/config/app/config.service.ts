@@ -1,9 +1,8 @@
-import { IAppConfig } from '@freedome/common/interfaces/app-config.interface';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class AppConfigService implements IAppConfig {
+export class AppConfigService {
   constructor(private configService: ConfigService) {}
 
   get appPort(): number {
