@@ -15,7 +15,7 @@ datasource db {
 
 model Auth {
   id                  Int                  @id @default(autoincrement())
-  username            String               @unique
+  username            String               
   password            String
   profilePublicId     String               @unique
   email               String               @unique

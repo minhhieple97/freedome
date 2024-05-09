@@ -1,1 +1,1 @@
-export * from './prisma-error.enum';
+export * from './prisma.enum';
