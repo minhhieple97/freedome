@@ -49,10 +49,33 @@ export class AuthService {
         createdUser.email,
         createdUser.username,
       );
+      const {
+        id,
+        email,
+        username,
+        country,
+        profilePicture,
+        emailVerified,
+        browserName,
+        deviceType,
+        createdAt,
+      } = createdUser;
+
       return {
         status: HttpStatus.CREATED,
         message: 'user_create_success',
-        user: createdUser,
+        user: {
+          id,
+          email,
+          username,
+          profilePublicId,
+          country,
+          profilePicture,
+          emailVerified,
+          browserName,
+          deviceType,
+          createdAt,
+        },
         token,
         errors: null,
       };
@@ -64,7 +87,7 @@ export class AuthService {
         return {
           status: HttpStatus.CONFLICT,
           message: 'user_create_conflict',
-          user: null,
+          data: null,
           token: null,
           errors: {
             email: {
@@ -77,7 +100,7 @@ export class AuthService {
       return {
         status: HttpStatus.BAD_REQUEST,
         message: 'user_create_bad_request',
-        user: null,
+        data: null,
         token: null,
         errors: null,
       };

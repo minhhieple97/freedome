@@ -1,6 +1,5 @@
 import {
   IEmailLocals,
-  EmailAuthEventDto,
   APP_ICON,
   EmailOrderEventDto,
   LoggerService,
@@ -74,9 +73,6 @@ export class EmailService {
     }
   }
 
-  async handleAuthEmail(emailAuthDataEvent: EmailAuthEventDto) {
-    this.logger.log(EmailService.name, emailAuthDataEvent);
-  }
   async handleOrderEmail(emailOrderEventDto: EmailOrderEventDto) {
     const {
       receiverEmail,
