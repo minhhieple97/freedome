@@ -7,13 +7,15 @@ import {
   SERVICE_NAME,
 } from '@freedome/common';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import _ from 'lodash';
 import { v4 as uuidV4 } from 'uuid';
 import { EMAIL_TEMPLATES_NAME } from './common/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { hash } from 'bcryptjs';
-import { Prisma } from '@prisma/client';
+import { Auth, Prisma } from '@prisma/client';
 import { TokenService } from './services/token.service';
 import { PrismaError } from '@freedome/common/enums';
+import { sensitiveFields } from './prisma/sensitive-fields.prisma';
 @Injectable()
 export class AuthService {
   constructor(
@@ -88,7 +90,7 @@ export class AuthService {
         return {
           status: HttpStatus.CONFLICT,
           message: 'user_create_conflict',
-          data: null,
+          user: null,
           token: null,
           errors: {
             email: {
@@ -101,10 +103,98 @@ export class AuthService {
       return {
         status: HttpStatus.BAD_REQUEST,
         message: 'user_create_bad_request',
-        data: null,
+        user: null,
         token: null,
         errors: null,
       };
+    }
+  }
+  async getAuthUserById(authId: number) {
+    const user = await this.prismaService.auth.findUnique({
+      where: {
+        id: authId,
+      },
+    });
+    if (!user) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        message: 'user_not_found',
+      };
+    }
+    return _.omit(user, sensitiveFields);
+  }
+  async updateAuthRecord(id: number, data: Partial<Auth>) {
+    try {
+      const updatedAuth = await this.prismaService.auth.update({
+        where: { id },
+        data,
+      });
+      return _.omit(updatedAuth, sensitiveFields);
+    } catch (error) {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'user_not_updated',
+      };
+    }
+  }
+  async updateVerifyEmailField(
+    authId: number,
+    emailVerified: boolean,
+    emailVerificationToken?: string,
+  ) {
+    try {
+      const updatedAuth = await this.prismaService.auth.update({
+        where: { id: authId },
+        data: {
+          emailVerified,
+          emailVerificationToken,
+        },
+      });
+      console.log('Email verification field updated:', updatedAuth);
+    } catch (error) {
+      console.error('Error updating email verification field:', error);
+    }
+  }
+  async getUserByUsernameOrEmail(
+    username: string,
+    email: string,
+  ): Promise<Auth | null> {
+    try {
+      const user = await this.prismaService.auth.findFirst({
+        where: {
+          OR: [{ username }, { email }],
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error('Error retrieving user:', error);
+      return null;
+    }
+  }
+  async getUserByUsername(username: string): Promise<Auth | null> {
+    try {
+      const user = await this.prismaService.auth.findFirst({
+        where: {
+          username,
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error('Error retrieving user by username:', error);
+      return null;
+    }
+  }
+  async getUserByEmail(email: string): Promise<Auth | null> {
+    try {
+      const user = await this.prismaService.auth.findFirst({
+        where: {
+          email,
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error('Error retrieving user by email:', error);
+      return null;
     }
   }
 }
