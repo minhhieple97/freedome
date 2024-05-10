@@ -80,6 +80,7 @@ export class AuthService {
         errors: null,
       };
     } catch (error) {
+      console.error(error);
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error?.code === PrismaError.UniqueConstraintFailed
