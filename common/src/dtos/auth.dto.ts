@@ -37,9 +37,7 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Email is a required field' })
   email: string;
 
-  @IsString()
-  @Length(4, 32)
-  @IsNotEmpty({ message: 'Please add a profile picture' })
+  @IsOptional()
   profilePicture: string;
 
   @IsString()
