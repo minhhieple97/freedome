@@ -8,11 +8,13 @@ import { AUTH_EMAIL_QUEUE_NAME, SERVICE_NAME } from '@freedome/common';
 import { AppConfigService } from '@auth/config/app/config.service';
 import { TokenService } from './services/token.service';
 import { JwtModule } from '@nestjs/jwt';
+import { UploadModule } from '@freedome/common/upload';
 
 @Module({
   imports: [
     AppConfigModule,
     PrismaModule,
+    UploadModule,
     JwtModule.registerAsync({
       imports: [AppConfigModule],
       useFactory: (appConfigService: AppConfigService) => {
@@ -41,6 +43,6 @@ import { JwtModule } from '@nestjs/jwt';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService],
+  providers: [AuthService, TokenService, AppConfigService],
 })
 export class AuthModule {}

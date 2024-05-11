@@ -11,3 +11,6 @@ export const EMAIL_TEMPLATES_NAME = {
   RESET_PASSWORD_SUCCESS: 'reset-password-success',
   VERIFY_EMAIL: 'verify-email',
 };
+export const BUCKET_S3_FOLDER_NAME = {
+  AVATARS: 'avatars',
+};
