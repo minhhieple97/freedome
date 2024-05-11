@@ -1,16 +1,10 @@
 import { Module } from '@nestjs/common';
 import { UploadService } from './upload.service';
-import { ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [],
-  providers: [
-    UploadService,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
+  imports: [ConfigModule],
+  providers: [UploadService],
+  exports: [UploadService],
 })
 export class UploadModule {}
