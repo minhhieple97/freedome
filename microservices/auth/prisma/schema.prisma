@@ -17,10 +17,9 @@ model Auth {
   id                  Int                  @id @default(autoincrement())
   username            String               
   password            String
-  profilePublicId     String               @unique
+  profilePublicId     String?               @unique
   email               String               @unique
   country             String
-  profilePicture      String
   emailVerificationToken String?           @unique
   emailVerified       Boolean              @default(false)
   browserName         String
