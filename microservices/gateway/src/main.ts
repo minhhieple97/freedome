@@ -38,7 +38,7 @@ async function bootstrap() {
   app.use(helmet());
   app.set('trust proxy', 1);
   app.use(cookieParser());
-  app.useBodyParser('json', { limit: '10mb' });
+  app.useBodyParser('json', { limit: '5mb' });
   app.use(hpp());
   if (appConfig.nodeEnv == 'development') {
     const options = new DocumentBuilder()
