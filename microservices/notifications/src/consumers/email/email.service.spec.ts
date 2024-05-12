@@ -2,13 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EmailService } from './email.service';
 import { AppConfigModule } from '../../config/app/config.module';
 import {
+  EMAIL_TEMPLATES_NAME,
   EmailOrderEventDto,
   LoggerModule,
   LoggerService,
 } from '@freedome/common';
 import { Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
-import { EMAIL_TEMPLATES_NAME } from '../../common/constants';
 describe('EmailService', () => {
   let service: EmailService;
   beforeEach(async () => {
