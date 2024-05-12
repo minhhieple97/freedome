@@ -8,6 +8,7 @@ import {
   HttpStatus,
   HttpException,
   UseInterceptors,
+  Res,
 } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
@@ -35,6 +36,11 @@ import {
   IServiveTokenCreateResponse,
 } from '@freedome/common/interfaces';
 import { TransformResponseInterceptor } from './common/interceptors/transform-response.interceptor';
+import { Response } from 'express';
+import {
+  ACCESS_TOKEN_EXPIRES_IN,
+  ACCESS_TOKEN_KEY,
+} from '@gateway/common/constants';
 
 @ApiBearerAuth('authorization')
 @Controller('auth')
@@ -68,6 +74,7 @@ export class AuthController {
   })
   public async createUser(
     @Body() userRequest: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<CreateUserResponseDto> {
     const createUserResponse: IServiceUserCreateResponse = await firstValueFrom(
       this.authServiceClient.send(EVENTS_HTTP.USER_CREATE, userRequest),
@@ -82,6 +89,12 @@ export class AuthController {
         createUserResponse.status,
       );
     }
+    res.cookie(ACCESS_TOKEN_KEY, createUserResponse.token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      expires: new Date(Date.now() + ACCESS_TOKEN_EXPIRES_IN),
+    });
 
     return {
       token: createUserResponse.token,

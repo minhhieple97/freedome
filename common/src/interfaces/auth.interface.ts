@@ -49,7 +49,7 @@ export interface IAuthDocument {
 
 export interface IAuthBuyerMessageDetails {
   username?: string;
-  profilePicture?: string;
+  profilePublicId?: string;
   email?: string;
   country?: string;
   createdAt?: Date;

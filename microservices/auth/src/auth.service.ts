@@ -3,17 +3,16 @@ import { AppConfigService } from '@auth/config/app/config.service';
 import { PrismaService } from './prisma/prisma.service';
 import {
   CreateUserDto,
+  EMAIL_TEMPLATES_NAME,
   EVENTS_RMQ,
+  IAuthBuyerMessageDetails,
   IEmailMessageDetails,
   SERVICE_NAME,
 } from '@freedome/common';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import * as _ from 'lodash';
 import { v4 as uuidV4 } from 'uuid';
-import {
-  BUCKET_S3_FOLDER_NAME,
-  EMAIL_TEMPLATES_NAME,
-} from './common/constants';
+import { BUCKET_S3_FOLDER_NAME } from './common/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { hash } from 'bcryptjs';
 import { Auth, Prisma } from '@prisma/client';
@@ -35,20 +34,9 @@ export class AuthService {
     try {
       const hasPassword = await hash(userInfo.password, 10);
       const emailVerificationToken = await getRandomCharacters();
-      const profilePublicId = userInfo.profilePicture ? uuidV4() : null;
-      if (profilePublicId) {
-        const buf = Buffer.from(
-          userInfo.profilePicture.replace(/^data:image\/\w+;base64,/, ''),
-          'base64',
-        );
-        await this.uploadService.upload({
-          Bucket: this.appConfigService.awsBucketS3Name,
-          Key: `${BUCKET_S3_FOLDER_NAME.AVATARS}/${profilePublicId}.jpg`,
-          Body: buf,
-          ContentEncoding: 'base64',
-          ContentType: 'image/jpeg',
-        });
-      }
+      const profilePublicId = await this.uploadAuthAvatar(
+        userInfo.profilePicture,
+      );
       const authRecord = {
         username: userInfo.username,
         email: userInfo.email,
@@ -62,16 +50,8 @@ export class AuthService {
       const createdUser = await this.prismaService.auth.create({
         data: authRecord,
       });
-      const verificationLink = `${this.appConfigService.clientUrl}/confirm_email?v_token=${emailVerificationToken}`;
-      const messageDetails: IEmailMessageDetails = {
-        receiverEmail: createdUser.email,
-        verifyLink: verificationLink,
-        template: EMAIL_TEMPLATES_NAME.VERIFY_EMAIL,
-      };
-      this.notificationsServiceClient.emit(
-        EVENTS_RMQ.AUTH_EMAIL,
-        messageDetails,
-      );
+      this.sendVerifyEmail(createdUser.email, emailVerificationToken);
+      // this.sendAuthInfoToBuyerService(createdUser);
       const token = this.tokenService.createToken(
         createdUser.id,
         createdUser.email,
@@ -187,5 +167,43 @@ export class AuthService {
       },
     });
     console.log('Password token updated:', updatedAuth);
+  }
+  async uploadAuthAvatar(
+    profilePicture: string | null,
+  ): Promise<string | null> {
+    if (!profilePicture) return null;
+    const profilePublicId = uuidV4();
+    const buf = Buffer.from(
+      profilePicture.replace(/^data:image\/\w+;base64,/, ''),
+      'base64',
+    );
+    await this.uploadService.upload({
+      Bucket: this.appConfigService.awsBucketS3Name,
+      Key: `${BUCKET_S3_FOLDER_NAME.AVATARS}/${profilePublicId}.jpg`,
+      Body: buf,
+      ContentEncoding: 'base64',
+      ContentType: 'image/jpeg',
+    });
+    return profilePublicId;
+  }
+  sendVerifyEmail(receiverEmail: string, emailVerificationToken: string) {
+    const verificationLink = `${this.appConfigService.clientUrl}/confirm_email?v_token=${emailVerificationToken}`;
+    const messageDetails: IEmailMessageDetails = {
+      receiverEmail,
+      verifyLink: verificationLink,
+      template: EMAIL_TEMPLATES_NAME.VERIFY_EMAIL,
+    };
+    this.notificationsServiceClient.emit(EVENTS_RMQ.AUTH_EMAIL, messageDetails);
+  }
+  sendAuthInfoToBuyerService(auth: Auth) {
+    const messageDetails: IAuthBuyerMessageDetails = {
+      username: auth.username,
+      email: auth.email,
+      profilePublicId: auth.profilePublicId,
+      country: auth.country,
+      createdAt: auth.createdAt,
+      type: 'auth',
+    };
+    this.notificationsServiceClient.emit(EVENTS_RMQ.USER_BUYER, messageDetails);
   }
 }
