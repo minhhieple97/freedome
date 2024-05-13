@@ -1,3 +1,4 @@
+import { IAccessTokenPayload } from '@freedome/common';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
@@ -5,7 +6,20 @@ import { JwtService } from '@nestjs/jwt';
 export class TokenService {
   constructor(private readonly jwtService: JwtService) {}
 
-  createToken(id: number, email: string, username: string): string {
+  createAccessToken({ id, email, username }: IAccessTokenPayload): string {
+    const token = this.jwtService.sign(
+      {
+        id,
+        email,
+        username,
+      },
+      {
+        expiresIn: 1 * 24 * 60 * 60,
+      },
+    );
+    return token;
+  }
+  createRefreshToken({ id, email, username }: IAccessTokenPayload): string {
     const token = this.jwtService.sign(
       {
         id,

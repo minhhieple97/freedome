@@ -35,7 +35,6 @@ import {
   IServiceUserSearchResponse,
   IServiveTokenCreateResponse,
 } from '@freedome/common/interfaces';
-import { TransformResponseInterceptor } from './common/interceptors/transform-response.interceptor';
 import { Response } from 'express';
 import {
   ACCESS_TOKEN_EXPIRES_IN,
@@ -46,7 +45,6 @@ import {
 @Controller('auth')
 @ApiTags('auth')
 @Controller()
-@UseInterceptors(new TransformResponseInterceptor())
 export class AuthController {
   constructor(
     @Inject(SERVICE_NAME.AUTH) private readonly authServiceClient: ClientProxy,
@@ -110,8 +108,12 @@ export class AuthController {
   public async loginUser(
     @Body() loginRequest: LoginUserDto,
   ): Promise<LoginUserResponseDto> {
+    console.log({ loginRequest });
     const getUserResponse: IServiceUserSearchResponse = await firstValueFrom(
-      this.authServiceClient.send('user_search_by_credentials', loginRequest),
+      this.authServiceClient.send(
+        EVENTS_HTTP.USER_SEARCH_BY_CREDENTIALS,
+        loginRequest,
+      ),
     );
     if (getUserResponse.status !== HttpStatus.OK) {
       throw new HttpException(
@@ -126,15 +128,28 @@ export class AuthController {
 
     const createTokenResponse: IServiveTokenCreateResponse =
       await firstValueFrom(
-        this.authServiceClient.send('token_create', {
-          userId: getUserResponse.user.id,
+        this.authServiceClient.send(EVENTS_HTTP.AT_RF_CREATE, {
+          id: getUserResponse.user.id,
+          email: getUserResponse.user.email,
+          username: getUserResponse.user.username,
         }),
       );
-
+    if (createTokenResponse.status !== HttpStatus.CREATED) {
+      throw new HttpException(
+        {
+          message: createTokenResponse.message,
+          data: null,
+          errors: null,
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    console.log({ createTokenResponse });
     return {
       message: createTokenResponse.message,
       data: {
-        token: createTokenResponse.token,
+        accessToken: createTokenResponse.accessToken,
+        refreshToken: createTokenResponse.refreshToken,
       },
       errors: null,
     };
