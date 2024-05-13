@@ -92,11 +92,15 @@ export class LoginUserResponseDto {
   @ApiProperty({ example: 'token_create_success' })
   message: string;
   @ApiProperty({
-    example: { token: 'someEncodedToken' },
+    example: {
+      accessToken: 'someEncodedToken',
+      refreshToken: 'someEncodedToken',
+    },
     nullable: true,
   })
   data: {
-    token: string;
+    accessToken: string;
+    refreshToken: string;
   };
   @ApiProperty({ example: null, nullable: true })
   errors: { [key: string]: any };
@@ -109,15 +113,13 @@ export class LoginUserDto {
   @IsString()
   @IsEmail()
   @IsNotEmpty()
-  username: string;
+  email: string;
 
   @ApiProperty({
     example: 'password123',
   })
   @IsString()
   @IsNotEmpty()
-  @MinLength(4)
-  @MaxLength(12)
   password: string;
 
   @ApiProperty({

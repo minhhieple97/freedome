@@ -39,7 +39,7 @@ export interface IAuthDocument {
   password?: string;
   country?: string;
   profilePicture?: string;
-  emailVerified?: number;
+  emailVerified?: boolean;
   emailVerificationToken?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -130,7 +130,21 @@ export interface IServiceUserSearchResponse {
 
 export interface IServiveTokenCreateResponse {
   status: number;
-  token: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   message: string;
   errors: { [key: string]: any };
+}
+
+export interface ITokenResponse {
+  status: number;
+  accessToken: string | null;
+  refreshToken: string | null;
+  message: string;
+}
+
+export interface IAccessTokenPayload {
+  id: number;
+  email: string;
+  username: string;
 }
