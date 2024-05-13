@@ -7,14 +7,21 @@ import {
   EVENTS_RMQ,
   IAuthBuyerMessageDetails,
   IEmailMessageDetails,
+  IServiceUserSearchResponse,
+  LoginUserDto,
   SERVICE_NAME,
 } from '@freedome/common';
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import * as _ from 'lodash';
 import { v4 as uuidV4 } from 'uuid';
 import { BUCKET_S3_FOLDER_NAME } from './common/constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { hash } from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
 import { Auth, Prisma } from '@prisma/client';
 import { TokenService } from './services/token.service';
 import { PrismaError } from '@freedome/common/enums';
@@ -52,11 +59,11 @@ export class AuthService {
       });
       this.sendVerifyEmail(createdUser.email, emailVerificationToken);
       // this.sendAuthInfoToBuyerService(createdUser);
-      const token = this.tokenService.createToken(
-        createdUser.id,
-        createdUser.email,
-        createdUser.username,
-      );
+      const token = this.tokenService.createAccessToken({
+        id: createdUser.id,
+        email: createdUser.email,
+        username: createdUser.username,
+      });
       return {
         status: HttpStatus.CREATED,
         message: 'user_create_success',
@@ -205,5 +212,39 @@ export class AuthService {
       type: 'auth',
     };
     this.notificationsServiceClient.emit(EVENTS_RMQ.USER_BUYER, messageDetails);
+  }
+  async getUserByCredential(
+    loginUserDto: LoginUserDto,
+  ): Promise<IServiceUserSearchResponse> {
+    try {
+      const user = await this.prismaService.auth.findUnique({
+        where: { email: loginUserDto.email },
+      });
+      if (!user) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          message: 'user_search_by_credentials_not_found',
+          user: null,
+        };
+      }
+      await this.verifyPassword(loginUserDto.password, user.password);
+      return {
+        status: HttpStatus.OK,
+        message: 'user_search_by_credentials_success',
+        user: _.omit(user, sensitiveFields),
+      };
+    } catch (error) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        message: 'user_search_by_credentials_not_match',
+        user: null,
+      };
+    }
+  }
+  async verifyPassword(plainTextPassword: string, hashedPassword: string) {
+    const isPasswordMatching = await compare(plainTextPassword, hashedPassword);
+    if (!isPasswordMatching) {
+      throw new BadRequestException('Wrong credentials provided');
+    }
   }
 }
