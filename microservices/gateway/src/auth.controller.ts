@@ -58,11 +58,18 @@ export class AuthController {
     @Req() request: IAuthorizedRequest,
   ): Promise<IAuthGetByIdResponse> {
     const userInfo = request.user;
-
-    const userResponse: IAuthGetByIdResponse = await firstValueFrom(
-      this.authServiceClient.send('user_get_by_id', userInfo.id),
-    );
-    return userResponse;
+    console.log({ userInfo });
+    // const userResponse: IAuthGetByIdResponse = await firstValueFrom(
+    //   this.authServiceClient.send(EVENTS_HTTP.USER_GET_BY_ID, userInfo.id),
+    // );
+    return {
+      status: HttpStatus.OK,
+      // message: userResponse.message,
+      // data: {
+      //   user: userResponse.data.user,
+      // },
+      errors: null,
+    };
   }
 
   @Post('/signup')
@@ -107,7 +114,6 @@ export class AuthController {
   public async loginUser(
     @Body() loginRequest: LoginUserDto,
   ): Promise<LoginUserResponseDto> {
-    console.log({ loginRequest });
     const getUserResponse: IServiceUserSearchResponse = await firstValueFrom(
       this.authServiceClient.send(
         EVENTS_HTTP.USER_SEARCH_BY_CREDENTIALS,

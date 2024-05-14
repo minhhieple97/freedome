@@ -15,7 +15,7 @@ async function bootstrap() {
     logger,
   });
   const appConfig: AppConfigService = app.get(AppConfigService);
-  app.setGlobalPrefix('api/gateway/v1');
+  app.setGlobalPrefix('api/v1');
   app.enableCors({
     origin: appConfig.clientUrl,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

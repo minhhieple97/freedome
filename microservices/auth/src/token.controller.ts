@@ -4,6 +4,7 @@ import { TokenService } from './services/token.service';
 import {
   EVENTS_HTTP,
   IAccessTokenPayload,
+  ITokenDataResponse,
   ITokenResponse,
 } from '@freedome/common';
 @Controller()
@@ -50,5 +51,17 @@ export class TokenController {
     }
     console.log({ result });
     return result;
+  }
+
+  @MessagePattern(EVENTS_HTTP.TOKEN_DECODE)
+  public async decodeToken(data: {
+    token: string;
+  }): Promise<ITokenDataResponse> {
+    const tokenData = await this.tokenService.decodeToken(data.token);
+    return {
+      status: tokenData ? HttpStatus.OK : HttpStatus.UNAUTHORIZED,
+      message: tokenData ? 'token_decode_success' : 'token_decode_unauthorized',
+      data: tokenData,
+    };
   }
 }

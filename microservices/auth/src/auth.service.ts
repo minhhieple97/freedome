@@ -105,6 +105,7 @@ export class AuthService {
         id: authId,
       },
     });
+    console.log({ user });
     if (!user) {
       return {
         status: HttpStatus.NOT_FOUND,

@@ -15,7 +15,7 @@ import { ElasticsearchModule } from '@freedome/common/elasticsearch';
 import { TerminusModule } from '@nestjs/terminus';
 import HealthModule from './api/health/health.module';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './common/guards/jwt-auth.guard';
+import { AuthGuard } from './common/guards/authorization.guard';
 
 @Module({
   imports: [

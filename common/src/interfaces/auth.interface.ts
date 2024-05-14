@@ -16,7 +16,10 @@ export interface IAuth {
 export interface IAuthGetByIdResponse {
   status: number;
   message: string;
-  user: IAuthDocument | null;
+  data: {
+    user: IAuthDocument | null;
+  };
+  errors: string | null;
 }
 
 export interface IServiceUserCreateResponse {
@@ -147,4 +150,10 @@ export interface IAccessTokenPayload {
   id: number;
   email: string;
   username: string;
+}
+
+export interface ITokenDataResponse {
+  status: number;
+  message: string;
+  data: IAccessTokenPayload | null;
 }

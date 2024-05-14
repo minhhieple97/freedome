@@ -3,12 +3,12 @@ import {
   Inject,
   CanActivate,
   ExecutionContext,
-  UnauthorizedException,
+  HttpException,
 } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { Reflector } from '@nestjs/core';
 import { ClientProxy } from '@nestjs/microservices';
-import { SERVICE_NAME } from '@freedome/common';
+import { EVENTS_HTTP, SERVICE_NAME } from '@freedome/common';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -22,21 +22,20 @@ export class AuthGuard implements CanActivate {
       'secured',
       context.getHandler(),
     );
+
     if (!secured) {
       return true;
     }
+
     const request = context.switchToHttp().getRequest();
-    if (!request.headers.authorization) {
-      throw new UnauthorizedException();
-    }
     const userTokenInfo = await firstValueFrom(
-      this.authServiceClient.send('token_decode', {
-        token: request.headers.authorization.split(' ')[1],
+      this.authServiceClient.send(EVENTS_HTTP.TOKEN_DECODE, {
+        token: request.headers.authorization,
       }),
     );
 
     if (!userTokenInfo || !userTokenInfo.data) {
-      throw new UnauthorizedException(
+      throw new HttpException(
         {
           message: userTokenInfo.message,
           data: null,
@@ -45,11 +44,14 @@ export class AuthGuard implements CanActivate {
         userTokenInfo.status,
       );
     }
-
+    console.log({ userTokenInfo });
     const userInfo = await firstValueFrom(
-      this.authServiceClient.send('user_get_by_id', userTokenInfo.data.userId),
+      this.authServiceClient.send(
+        EVENTS_HTTP.USER_GET_BY_ID,
+        userTokenInfo.data.id,
+      ),
     );
-
+    console.log({ userInfo });
     request.user = userInfo.user;
     return true;
   }

@@ -8,4 +8,6 @@ export const EVENTS_HTTP = {
   USER_CREATE: 'user_create',
   USER_SEARCH_BY_CREDENTIALS: 'user_search_by_credentials',
   AT_RF_CREATE: 'at_rf_create',
+  TOKEN_DECODE: 'token_decode',
+  USER_GET_BY_ID: 'user_get_by_id',
 };

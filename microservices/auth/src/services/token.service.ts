@@ -32,4 +32,13 @@ export class TokenService {
     );
     return token;
   }
+  async decodeToken(token: string) {
+    try {
+      const tokenData = this.jwtService.decode(token);
+      console.log({ tokenData });
+      return tokenData;
+    } catch (e) {
+      return null;
+    }
+  }
 }

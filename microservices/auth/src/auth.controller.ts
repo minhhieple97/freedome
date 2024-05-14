@@ -13,7 +13,12 @@ export class AuthController {
   }
 
   @MessagePattern(EVENTS_HTTP.USER_SEARCH_BY_CREDENTIALS)
-  public async getUserByConditional(loginUserDto: LoginUserDto) {
+  async getUserByConditional(loginUserDto: LoginUserDto) {
     return this.authService.getUserByCredential(loginUserDto);
+  }
+
+  @MessagePattern(EVENTS_HTTP.USER_GET_BY_ID)
+  async getUserById(id: number) {
+    return this.authService.getAuthUserById(id);
   }
 }
