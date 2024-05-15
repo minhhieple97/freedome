@@ -14,8 +14,6 @@ import { OrderController } from './order.controller';
 import { ElasticsearchModule } from '@freedome/common/elasticsearch';
 import { TerminusModule } from '@nestjs/terminus';
 import HealthModule from './api/health/health.module';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './common/guards/authorization.guard';
 
 @Module({
   imports: [
@@ -131,12 +129,6 @@ import { AuthGuard } from './common/guards/authorization.guard';
     CurrentUserController,
     GigController,
     OrderController,
-  ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
   ],
 })
 export class GatewayModule {}

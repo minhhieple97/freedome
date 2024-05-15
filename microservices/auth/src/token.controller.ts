@@ -49,19 +49,12 @@ export class TokenController {
         refreshToken: null,
       };
     }
-    console.log({ result });
     return result;
   }
 
   @MessagePattern(EVENTS_HTTP.TOKEN_DECODE)
-  public async decodeToken(data: {
-    token: string;
-  }): Promise<ITokenDataResponse> {
-    const tokenData = await this.tokenService.decodeToken(data.token);
-    return {
-      status: tokenData ? HttpStatus.OK : HttpStatus.UNAUTHORIZED,
-      message: tokenData ? 'token_decode_success' : 'token_decode_unauthorized',
-      data: tokenData,
-    };
+  public async decodeToken(token: string): Promise<ITokenDataResponse> {
+    const tokenData = await this.tokenService.decodeToken(token);
+    return tokenData;
   }
 }

@@ -13,15 +13,6 @@ export interface IAuth {
   profilePicture?: string;
 }
 
-export interface IAuthGetByIdResponse {
-  status: number;
-  message: string;
-  data: {
-    user: IAuthDocument | null;
-  };
-  errors: string | null;
-}
-
 export interface IServiceUserCreateResponse {
   status: number;
   message: string;

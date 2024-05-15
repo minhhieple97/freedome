@@ -89,8 +89,6 @@ export class CreateUserResponseDto {
 }
 
 export class LoginUserResponseDto {
-  @ApiProperty({ example: 'token_create_success' })
-  message: string;
   @ApiProperty({
     example: {
       accessToken: 'someEncodedToken',
@@ -98,12 +96,8 @@ export class LoginUserResponseDto {
     },
     nullable: true,
   })
-  data: {
-    accessToken: string;
-    refreshToken: string;
-  };
-  @ApiProperty({ example: null, nullable: true })
-  errors: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
 }
 
 export class LoginUserDto {

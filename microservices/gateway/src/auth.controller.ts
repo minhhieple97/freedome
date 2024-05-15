@@ -8,6 +8,7 @@ import {
   HttpStatus,
   HttpException,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
@@ -26,9 +27,8 @@ import {
   LoginUserResponseDto,
   SERVICE_NAME,
 } from '@freedome/common';
-import { Authorization } from './common/decorators/authorization.decorator';
 import {
-  IAuthGetByIdResponse,
+  IAuthDocument,
   IAuthorizedRequest,
   IServiceUserCreateResponse,
   IServiceUserSearchResponse,
@@ -38,7 +38,10 @@ import { Response } from 'express';
 import {
   ACCESS_TOKEN_EXPIRES_IN,
   ACCESS_TOKEN_KEY,
+  REFRESH_TOKEN_EXPIRES_IN,
+  REFRESH_TOKEN_KEY,
 } from '@gateway/common/constants';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
 @ApiBearerAuth('authorization')
 @Controller('auth')
@@ -50,26 +53,21 @@ export class AuthController {
   ) {}
 
   @Get('/current-user')
-  @Authorization(true)
+  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({
     type: GetUserByTokenResponseDto,
   })
   public async getUserByToken(
     @Req() request: IAuthorizedRequest,
-  ): Promise<IAuthGetByIdResponse> {
-    const userInfo = request.user;
-    console.log({ userInfo });
-    // const userResponse: IAuthGetByIdResponse = await firstValueFrom(
-    //   this.authServiceClient.send(EVENTS_HTTP.USER_GET_BY_ID, userInfo.id),
-    // );
-    return {
-      status: HttpStatus.OK,
-      // message: userResponse.message,
-      // data: {
-      //   user: userResponse.data.user,
-      // },
-      errors: null,
-    };
+  ): Promise<IAuthDocument | null> {
+    const userTokenPayload = request.user;
+    const userInfo = await firstValueFrom(
+      this.authServiceClient.send(
+        EVENTS_HTTP.USER_GET_BY_ID,
+        userTokenPayload.id,
+      ),
+    );
+    return userInfo;
   }
 
   @Post('/signup')
@@ -113,6 +111,7 @@ export class AuthController {
   })
   public async loginUser(
     @Body() loginRequest: LoginUserDto,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<LoginUserResponseDto> {
     const getUserResponse: IServiceUserSearchResponse = await firstValueFrom(
       this.authServiceClient.send(
@@ -149,14 +148,22 @@ export class AuthController {
         HttpStatus.UNAUTHORIZED,
       );
     }
-    console.log({ createTokenResponse });
+    const { accessToken, refreshToken } = createTokenResponse;
+    res.cookie(ACCESS_TOKEN_KEY, accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      expires: new Date(Date.now() + ACCESS_TOKEN_EXPIRES_IN),
+    });
+    res.cookie(REFRESH_TOKEN_KEY, refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN),
+    });
     return {
-      message: createTokenResponse.message,
-      data: {
-        accessToken: createTokenResponse.accessToken,
-        refreshToken: createTokenResponse.refreshToken,
-      },
-      errors: null,
+      accessToken,
+      refreshToken,
     };
   }
 }

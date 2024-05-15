@@ -1,5 +1,5 @@
 import { IAccessTokenPayload } from '@freedome/common';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -33,12 +33,8 @@ export class TokenService {
     return token;
   }
   async decodeToken(token: string) {
-    try {
-      const tokenData = this.jwtService.decode(token);
-      console.log({ tokenData });
-      return tokenData;
-    } catch (e) {
-      return null;
-    }
+    const tokenData = this.jwtService.decode(token);
+    if (!tokenData) throw new UnauthorizedException();
+    return tokenData;
   }
 }

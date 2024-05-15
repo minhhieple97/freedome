@@ -2,7 +2,8 @@ export const sensitiveFields = [
   'password',
   'passwordResetExpires',
   'otpExpiration',
-  'opt',
+  'otp',
   'emailVerified',
   'emailVerificationToken',
+  'passwordResetToken',
 ];

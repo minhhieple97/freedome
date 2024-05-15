@@ -72,7 +72,6 @@ export class AuthService {
         errors: null,
       };
     } catch (error) {
-      console.error(error);
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error?.code === PrismaError.UniqueConstraintFailed
@@ -105,7 +104,6 @@ export class AuthService {
         id: authId,
       },
     });
-    console.log({ user });
     if (!user) {
       return {
         status: HttpStatus.NOT_FOUND,
