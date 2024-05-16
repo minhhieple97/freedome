@@ -10,4 +10,5 @@ export const EVENTS_HTTP = {
   AT_RF_CREATE: 'at_rf_create',
   TOKEN_DECODE: 'token_decode',
   USER_GET_BY_ID: 'user_get_by_id',
+  VERYFY_EMAIL: 'verify_email',
 };

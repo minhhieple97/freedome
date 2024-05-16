@@ -100,6 +100,21 @@ export class LoginUserResponseDto {
   refreshToken: string;
 }
 
+export class VerifyAuthEmailResponseDto {
+  @ApiProperty({
+    example: {
+      message: 'veryfied_email_success',
+    },
+    nullable: true,
+  })
+  message: string;
+}
+
+export class VerifyRequestDto {
+  @IsString()
+  token: string;
+}
+
 export class LoginUserDto {
   @ApiProperty({
     example: 'example@example.com',

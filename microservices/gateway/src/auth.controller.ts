@@ -9,8 +9,11 @@ import {
   HttpException,
   Res,
   UseGuards,
+  Param,
+  BadRequestException,
+  Put,
 } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
+import { Observable, catchError, firstValueFrom, of, switchMap } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 import {
   ApiTags,
@@ -26,6 +29,8 @@ import {
   LoginUserDto,
   LoginUserResponseDto,
   SERVICE_NAME,
+  VerifyAuthEmailResponseDto,
+  VerifyRequestDto,
 } from '@freedome/common';
 import {
   IAuthDocument,
@@ -165,5 +170,26 @@ export class AuthController {
       accessToken,
       refreshToken,
     };
+  }
+
+  @Put('/verify-email/:token')
+  @ApiCreatedResponse({
+    type: VerifyAuthEmailResponseDto,
+  })
+  verifyEmail(
+    @Param() verifyRequest: VerifyRequestDto,
+  ): Observable<IAuthDocument> {
+    const { token } = verifyRequest;
+    return this.authServiceClient.send(EVENTS_HTTP.VERYFY_EMAIL, token).pipe(
+      switchMap((response) => {
+        return of(response);
+      }),
+      catchError((err) => {
+        if (err instanceof BadRequestException) {
+          throw err;
+        }
+        throw new BadRequestException();
+      }),
+    );
   }
 }

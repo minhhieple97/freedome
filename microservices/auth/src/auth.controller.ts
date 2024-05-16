@@ -21,4 +21,10 @@ export class AuthController {
   async getUserById(id: number) {
     return this.authService.getAuthUserById(id);
   }
+
+  @MessagePattern(EVENTS_HTTP.VERYFY_EMAIL)
+  async verifyEmail(token: string) {
+    const user = await this.authService.getUserByEmailToken(token);
+    return this.authService.verifyEmail(user.id, true);
+  }
 }

@@ -6,6 +6,7 @@ import {
   EMAIL_TEMPLATES_NAME,
   EVENTS_RMQ,
   IAuthBuyerMessageDetails,
+  IAuthDocument,
   IEmailMessageDetails,
   IServiceUserSearchResponse,
   LoginUserDto,
@@ -245,5 +246,23 @@ export class AuthService {
     if (!isPasswordMatching) {
       throw new BadRequestException('Wrong credentials provided');
     }
+  }
+  async getUserByEmailToken(token: string): Promise<Partial<IAuthDocument>> {
+    const user = await this.prismaService.auth.findUnique({
+      where: {
+        emailVerificationToken: token,
+      },
+    });
+    if (!user) throw new BadRequestException('Wrong credentials provided');
+    return _.omit(user, sensitiveFields);
+  }
+  async verifyEmail(authId: number, emailVerified: boolean) {
+    const updatedAuth = await this.prismaService.auth.update({
+      where: { id: authId },
+      data: {
+        emailVerified,
+      },
+    });
+    return _.omit(updatedAuth, sensitiveFields);
   }
 }
