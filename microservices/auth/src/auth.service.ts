@@ -166,14 +166,13 @@ export class AuthService {
     token: string,
     tokenExpiration: Date,
   ) {
-    const updatedAuth = await this.prismaService.auth.update({
+    await this.prismaService.auth.update({
       where: { id: authId },
       data: {
         passwordResetToken: token,
         passwordResetExpires: tokenExpiration,
       },
     });
-    console.log('Password token updated:', updatedAuth);
   }
   async uploadAuthAvatar(
     profilePicture: string | null,
@@ -264,5 +263,26 @@ export class AuthService {
       },
     });
     return _.omit(updatedAuth, sensitiveFields);
+  }
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.prismaService.auth.findUnique({
+      where: {
+        email,
+      },
+    });
+    if (!user) throw new BadRequestException('Wrong credentials provided');
+    const token = uuidV4();
+    const tokenExpiration = new Date();
+    tokenExpiration.setHours(tokenExpiration.getHours() + 1);
+    await this.updatePasswordToken(user.id, token, tokenExpiration);
+    const resetLink = `${this.appConfigService.clientUrl}/reset_password?token=${token}`;
+    const messageDetails: IEmailMessageDetails = {
+      receiverEmail: email,
+      resetLink,
+      template: EMAIL_TEMPLATES_NAME.FORGOT_PASSWORD,
+      username: user.username,
+    };
+    console.log({ messageDetails });
+    this.notificationsServiceClient.emit(EVENTS_RMQ.AUTH_EMAIL, messageDetails);
   }
 }

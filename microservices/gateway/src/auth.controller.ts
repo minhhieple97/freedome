@@ -25,6 +25,8 @@ import {
   CreateUserDto,
   CreateUserResponseDto,
   EVENTS_HTTP,
+  ForgotPasswordDto,
+  ForgotPasswordResponseDto,
   GetUserByTokenResponseDto,
   LoginUserDto,
   LoginUserResponseDto,
@@ -183,6 +185,27 @@ export class AuthController {
     return this.authServiceClient.send(EVENTS_HTTP.VERYFY_EMAIL, token).pipe(
       switchMap((response) => {
         return of(response);
+      }),
+      catchError((err) => {
+        if (err instanceof BadRequestException) {
+          throw err;
+        }
+        throw new BadRequestException();
+      }),
+    );
+  }
+
+  @Put('/forgot-password')
+  @ApiCreatedResponse({
+    type: ForgotPasswordResponseDto,
+  })
+  forgotPassword(
+    @Body() forgotPassword: ForgotPasswordDto,
+  ): Observable<{ message: string }> {
+    const { email } = forgotPassword;
+    return this.authServiceClient.send(EVENTS_HTTP.FORGOT_PASSWORD, email).pipe(
+      switchMap((res) => {
+        return of(res);
       }),
       catchError((err) => {
         if (err instanceof BadRequestException) {

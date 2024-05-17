@@ -27,4 +27,10 @@ export class AuthController {
     const user = await this.authService.getUserByEmailToken(token);
     return this.authService.verifyEmail(user.id, true);
   }
+
+  @MessagePattern(EVENTS_HTTP.FORGOT_PASSWORD)
+  async forgotPasswod(email: string) {
+    await this.authService.forgotPassword(email);
+    return { message: 'success' };
+  }
 }

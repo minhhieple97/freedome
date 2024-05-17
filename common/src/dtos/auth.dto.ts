@@ -110,9 +110,25 @@ export class VerifyAuthEmailResponseDto {
   message: string;
 }
 
+export class ForgotPasswordResponseDto {
+  @ApiProperty({
+    example: {
+      message: 'success',
+    },
+    nullable: true,
+  })
+  message: string;
+}
+
 export class VerifyRequestDto {
   @IsString()
   token: string;
+}
+
+export class ForgotPasswordDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 }
 
 export class LoginUserDto {
