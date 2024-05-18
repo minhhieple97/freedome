@@ -55,4 +55,10 @@ export class AuthController {
     await this.authService.resetPasswordWithToken(resetPasswordDtoWithUserId);
     return { message: 'success' };
   }
+
+  @MessagePattern(EVENTS_HTTP.RESEND_EMAIL)
+  async resendEmail(email: string) {
+    await this.authService.resendEmail(email);
+    return { message: 'success' };
+  }
 }

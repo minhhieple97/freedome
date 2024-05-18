@@ -14,4 +14,5 @@ export const EVENTS_HTTP = {
   FORGOT_PASSWORD: 'forgot_password',
   RESET_PASSWORD: 'reset_password',
   RESET_PASSWORD_TOKEN: 'reset_password_token',
+  RESEND_EMAIL: 'resend_email',
 };

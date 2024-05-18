@@ -240,3 +240,9 @@ export class TokenParamDto {
   @IsNotEmpty()
   token: string;
 }
+
+export class ResendEmailDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+}

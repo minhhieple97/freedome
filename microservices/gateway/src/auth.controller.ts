@@ -30,6 +30,7 @@ import {
   GetUserByTokenResponseDto,
   LoginUserDto,
   LoginUserResponseDto,
+  ResendEmailDto,
   ResetPasswordDto,
   ResetPasswrdResponseDto,
   SERVICE_NAME,
@@ -259,6 +260,28 @@ export class AuthController {
         ...resetPasswordDto,
         token,
       })
+      .pipe(
+        switchMap((res) => {
+          return of(res);
+        }),
+        catchError((err) => {
+          if (err instanceof HttpException) {
+            throw err;
+          }
+          throw new BadRequestException();
+        }),
+      );
+  }
+
+  @Post('/resend-email')
+  @ApiOkResponse({
+    type: ResetPasswrdResponseDto,
+  })
+  resendEmail(
+    @Body() resendEmail: ResendEmailDto,
+  ): Observable<{ message: string }> {
+    return this.authServiceClient
+      .send(EVENTS_HTTP.RESEND_EMAIL, resendEmail.email)
       .pipe(
         switchMap((res) => {
           return of(res);

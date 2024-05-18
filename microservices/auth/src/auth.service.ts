@@ -263,6 +263,7 @@ export class AuthService {
       where: { id: authId },
       data: {
         emailVerified,
+        emailVerificationToken: null,
       },
     });
     return _.omit(updatedAuth, sensitiveFields);
@@ -337,5 +338,24 @@ export class AuthService {
   }
   private hashPassword(password: string) {
     return hash(password, 10);
+  }
+  async resendEmail(email: string) {
+    const user = await this.prismaService.auth.findUnique({
+      where: {
+        email,
+        emailVerified: false,
+      },
+    });
+    if (!user) throw new NotFoundException('user_not_found');
+    const emailVerificationToken = await getRandomCharacters();
+    await this.prismaService.auth.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        emailVerificationToken,
+      },
+    });
+    this.sendVerifyEmail(user.email, emailVerificationToken);
   }
 }
