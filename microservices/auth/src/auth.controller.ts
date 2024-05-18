@@ -5,6 +5,7 @@ import {
   CreateUserDto,
   EVENTS_HTTP,
   LoginUserDto,
+  ResetPasswordDtoWithTokenDto,
   ResetPasswordDtoWithUserIdDto,
 } from '@freedome/common';
 
@@ -44,6 +45,14 @@ export class AuthController {
     resetPasswordDtoWithUserId: ResetPasswordDtoWithUserIdDto,
   ) {
     await this.authService.resetPassword(resetPasswordDtoWithUserId);
+    return { message: 'success' };
+  }
+
+  @MessagePattern(EVENTS_HTTP.RESET_PASSWORD_TOKEN)
+  async resetPasswordWithToken(
+    resetPasswordDtoWithUserId: ResetPasswordDtoWithTokenDto,
+  ) {
+    await this.authService.resetPasswordWithToken(resetPasswordDtoWithUserId);
     return { message: 'success' };
   }
 }

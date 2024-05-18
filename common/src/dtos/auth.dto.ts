@@ -79,19 +79,20 @@ export class ResetPasswrdResponseDto {
 
 export class ResetPasswordDto {
   @IsString({ message: 'Password should be of type string' })
-  @Length(4, 20, { message: 'Invalid password' })
-  password: string;
-
-  @IsString({ message: 'Confirm password should be of type string' })
   @MinLength(4)
   @MaxLength(20)
-  @Matches('password')
-  confirmPassword: string;
+  password: string;
 }
 export class ResetPasswordDtoWithUserIdDto extends ResetPasswordDto {
   @IsNumber()
   @IsNotEmpty()
   userId: number;
+}
+
+export class ResetPasswordDtoWithTokenDto extends ResetPasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  token: string;
 }
 
 export class CreateUserResponseDto {
@@ -232,4 +233,10 @@ export class ChangePasswordDto {
   @MinLength(4)
   @MaxLength(12)
   newPassword: string;
+}
+
+export class TokenParamDto {
+  @IsString()
+  @IsNotEmpty()
+  token: string;
 }

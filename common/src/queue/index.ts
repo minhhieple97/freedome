@@ -13,4 +13,5 @@ export const EVENTS_HTTP = {
   VERYFY_EMAIL: 'verify_email',
   FORGOT_PASSWORD: 'forgot_password',
   RESET_PASSWORD: 'reset_password',
+  RESET_PASSWORD_TOKEN: 'reset_password_token',
 };

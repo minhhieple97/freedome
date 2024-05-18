@@ -10,6 +10,7 @@ import {
   IEmailMessageDetails,
   IServiceUserSearchResponse,
   LoginUserDto,
+  ResetPasswordDtoWithTokenDto,
   ResetPasswordDtoWithUserIdDto,
   SERVICE_NAME,
 } from '@freedome/common';
@@ -300,6 +301,32 @@ export class AuthService {
     await this.prismaService.auth.update({
       where: {
         id: userId,
+      },
+      data: {
+        password: hashedPassword,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+      },
+    });
+  }
+
+  async resetPasswordWithToken(
+    resetPasswordDtoWithUserId: ResetPasswordDtoWithTokenDto,
+  ) {
+    const { password, token } = resetPasswordDtoWithUserId;
+    const user = await this.prismaService.auth.findFirst({
+      where: {
+        passwordResetExpires: {
+          gte: new Date(),
+        },
+        passwordResetToken: token,
+      },
+    });
+    if (!user) throw new NotFoundException('user_not_found');
+    const hashedPassword = await this.hashPassword(password);
+    await this.prismaService.auth.update({
+      where: {
+        id: user.id,
       },
       data: {
         password: hashedPassword,

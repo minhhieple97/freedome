@@ -245,4 +245,30 @@ export class AuthController {
         }),
       );
   }
+
+  @Post('/reset-password-token/:token')
+  @ApiOkResponse({
+    type: ResetPasswrdResponseDto,
+  })
+  resetPasswordWithToken(
+    @Body() resetPasswordDto: ResetPasswordDto,
+    @Param('token') token: string,
+  ): Observable<{ message: string }> {
+    return this.authServiceClient
+      .send(EVENTS_HTTP.RESET_PASSWORD_TOKEN, {
+        ...resetPasswordDto,
+        token,
+      })
+      .pipe(
+        switchMap((res) => {
+          return of(res);
+        }),
+        catchError((err) => {
+          if (err instanceof HttpException) {
+            throw err;
+          }
+          throw new BadRequestException();
+        }),
+      );
+  }
 }
