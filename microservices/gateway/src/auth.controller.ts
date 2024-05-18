@@ -30,6 +30,8 @@ import {
   GetUserByTokenResponseDto,
   LoginUserDto,
   LoginUserResponseDto,
+  ResetPasswordDto,
+  ResetPasswrdResponseDto,
   SERVICE_NAME,
   VerifyAuthEmailResponseDto,
   VerifyRequestDto,
@@ -214,5 +216,33 @@ export class AuthController {
         throw new BadRequestException();
       }),
     );
+  }
+
+  @Post('/reset-password')
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    type: ResetPasswrdResponseDto,
+  })
+  resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+    @Req() req: IAuthorizedRequest,
+  ): Observable<{ message: string }> {
+    const user = req.user;
+    return this.authServiceClient
+      .send(EVENTS_HTTP.RESET_PASSWORD, {
+        ...resetPasswordDto,
+        userId: user.id,
+      })
+      .pipe(
+        switchMap((res) => {
+          return of(res);
+        }),
+        catchError((err) => {
+          if (err instanceof BadRequestException) {
+            throw err;
+          }
+          throw new BadRequestException();
+        }),
+      );
   }
 }

@@ -9,6 +9,7 @@ import {
   MaxLength,
   IsAlphanumeric,
   Length,
+  IsNumber,
 } from 'class-validator';
 import { IAuthDocument } from '../interfaces';
 import { Transform } from 'class-transformer';
@@ -69,6 +70,28 @@ export class GetUserByTokenResponseDto {
   };
   @ApiProperty({ example: null, nullable: true })
   errors: { [key: string]: any };
+}
+
+export class ResetPasswrdResponseDto {
+  @ApiProperty({ example: 'success' })
+  message: string;
+}
+
+export class ResetPasswordDto {
+  @IsString({ message: 'Password should be of type string' })
+  @Length(4, 20, { message: 'Invalid password' })
+  password: string;
+
+  @IsString({ message: 'Confirm password should be of type string' })
+  @MinLength(4)
+  @MaxLength(20)
+  @Matches('password')
+  confirmPassword: string;
+}
+export class ResetPasswordDtoWithUserIdDto extends ResetPasswordDto {
+  @IsNumber()
+  @IsNotEmpty()
+  userId: number;
 }
 
 export class CreateUserResponseDto {

@@ -12,4 +12,5 @@ export const EVENTS_HTTP = {
   USER_GET_BY_ID: 'user_get_by_id',
   VERYFY_EMAIL: 'verify_email',
   FORGOT_PASSWORD: 'forgot_password',
+  RESET_PASSWORD: 'reset_password',
 };

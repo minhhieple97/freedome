@@ -10,6 +10,7 @@ import {
   IEmailMessageDetails,
   IServiceUserSearchResponse,
   LoginUserDto,
+  ResetPasswordDtoWithUserIdDto,
   SERVICE_NAME,
 } from '@freedome/common';
 import {
@@ -17,6 +18,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import * as _ from 'lodash';
 import { v4 as uuidV4 } from 'uuid';
@@ -282,7 +284,31 @@ export class AuthService {
       template: EMAIL_TEMPLATES_NAME.FORGOT_PASSWORD,
       username: user.username,
     };
-    console.log({ messageDetails });
     this.notificationsServiceClient.emit(EVENTS_RMQ.AUTH_EMAIL, messageDetails);
+  }
+  async resetPassword(
+    resetPasswordDtoWithUserId: ResetPasswordDtoWithUserIdDto,
+  ) {
+    const { password, userId } = resetPasswordDtoWithUserId;
+    const user = await this.prismaService.auth.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) throw new NotFoundException('user_not_found');
+    const hashedPassword = await this.hashPassword(password);
+    await this.prismaService.auth.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        password: hashedPassword,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+      },
+    });
+  }
+  private hashPassword(password: string) {
+    return hash(password, 10);
   }
 }
