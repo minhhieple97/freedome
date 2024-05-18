@@ -30,6 +30,9 @@ import {
   GetUserByTokenResponseDto,
   LoginUserDto,
   LoginUserResponseDto,
+  ResendEmailDto,
+  ResetPasswordDto,
+  ResetPasswrdResponseDto,
   SERVICE_NAME,
   VerifyAuthEmailResponseDto,
   VerifyRequestDto,
@@ -214,5 +217,81 @@ export class AuthController {
         throw new BadRequestException();
       }),
     );
+  }
+
+  @Post('/reset-password')
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    type: ResetPasswrdResponseDto,
+  })
+  resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+    @Req() req: IAuthorizedRequest,
+  ): Observable<{ message: string }> {
+    const user = req.user;
+    return this.authServiceClient
+      .send(EVENTS_HTTP.RESET_PASSWORD, {
+        ...resetPasswordDto,
+        userId: user.id,
+      })
+      .pipe(
+        switchMap((res) => {
+          return of(res);
+        }),
+        catchError((err) => {
+          if (err instanceof BadRequestException) {
+            throw err;
+          }
+          throw new BadRequestException();
+        }),
+      );
+  }
+
+  @Post('/reset-password-token/:token')
+  @ApiOkResponse({
+    type: ResetPasswrdResponseDto,
+  })
+  resetPasswordWithToken(
+    @Body() resetPasswordDto: ResetPasswordDto,
+    @Param('token') token: string,
+  ): Observable<{ message: string }> {
+    return this.authServiceClient
+      .send(EVENTS_HTTP.RESET_PASSWORD_TOKEN, {
+        ...resetPasswordDto,
+        token,
+      })
+      .pipe(
+        switchMap((res) => {
+          return of(res);
+        }),
+        catchError((err) => {
+          if (err instanceof HttpException) {
+            throw err;
+          }
+          throw new BadRequestException();
+        }),
+      );
+  }
+
+  @Post('/resend-email')
+  @ApiOkResponse({
+    type: ResetPasswrdResponseDto,
+  })
+  resendEmail(
+    @Body() resendEmail: ResendEmailDto,
+  ): Observable<{ message: string }> {
+    return this.authServiceClient
+      .send(EVENTS_HTTP.RESEND_EMAIL, resendEmail.email)
+      .pipe(
+        switchMap((res) => {
+          return of(res);
+        }),
+        catchError((err) => {
+          if (err instanceof HttpException) {
+            throw err;
+          }
+          throw new BadRequestException();
+        }),
+      );
   }
 }
