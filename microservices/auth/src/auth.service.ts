@@ -19,6 +19,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import * as _ from 'lodash';
@@ -63,43 +64,29 @@ export class AuthService {
       });
       this.sendVerifyEmail(createdUser.email, emailVerificationToken);
       // this.sendAuthInfoToBuyerService(createdUser);
-      const token = this.tokenService.createAccessToken({
+      const accessToken = this.tokenService.createAccessToken({
+        id: createdUser.id,
+        email: createdUser.email,
+        username: createdUser.username,
+      });
+      const refreshToken = this.tokenService.createRefreshToken({
         id: createdUser.id,
         email: createdUser.email,
         username: createdUser.username,
       });
       return {
-        status: HttpStatus.CREATED,
-        message: 'user_create_success',
         user: _.omit(createdUser, sensitiveFields),
-        token,
-        errors: null,
+        accessToken,
+        refreshToken,
       };
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error?.code === PrismaError.UniqueConstraintFailed
       ) {
-        return {
-          status: HttpStatus.CONFLICT,
-          message: 'user_create_conflict',
-          user: null,
-          token: null,
-          errors: {
-            email: {
-              message: 'Email already exists',
-              path: 'email',
-            },
-          },
-        };
+        throw new BadRequestException('Email already exists');
       }
-      return {
-        status: HttpStatus.BAD_REQUEST,
-        message: 'user_create_bad_request',
-        user: null,
-        token: null,
-        errors: null,
-      };
+      throw new InternalServerErrorException('Sorry something went wrong');
     }
   }
   async getAuthUserById(authId: number) {

@@ -14,11 +14,9 @@ export interface IAuth {
 }
 
 export interface IServiceUserCreateResponse {
-  status: number;
-  message: string;
   user: IAuthDocument | null;
-  token: string | null;
-  errors: { [key: string]: any };
+  accessToken: string | null;
+  refreshToken: string | null;
 }
 
 export interface IAuthorizedRequest extends Request {

@@ -87,32 +87,29 @@ export class AuthController {
   public async createUser(
     @Body() userRequest: CreateUserDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<CreateUserResponseDto> {
-    const createUserResponse: IServiceUserCreateResponse = await firstValueFrom(
-      this.authServiceClient.send(EVENTS_HTTP.USER_CREATE, userRequest),
-    );
-    if (createUserResponse.status !== HttpStatus.CREATED) {
-      throw new HttpException(
-        {
-          message: createUserResponse.message,
-          data: null,
-          errors: createUserResponse.errors,
-        },
-        createUserResponse.status,
-      );
+  ): Promise<IServiceUserCreateResponse> {
+    try {
+      const createUserResponse: IServiceUserCreateResponse =
+        await firstValueFrom(
+          this.authServiceClient.send(EVENTS_HTTP.USER_CREATE, userRequest),
+        );
+      res.cookie(ACCESS_TOKEN_KEY, createUserResponse.accessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        expires: new Date(Date.now() + ACCESS_TOKEN_EXPIRES_IN),
+      });
+      res.cookie(ACCESS_TOKEN_KEY, createUserResponse.refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN),
+      });
+      return createUserResponse;
+    } catch (error) {
+      console.error(error);
+      // throw new BadRequestException(error.message);
     }
-    res.cookie(ACCESS_TOKEN_KEY, createUserResponse.token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      expires: new Date(Date.now() + ACCESS_TOKEN_EXPIRES_IN),
-    });
-
-    return {
-      token: createUserResponse.token,
-      user: createUserResponse.user,
-      message: createUserResponse.message,
-    };
   }
 
   @Post('/login')
