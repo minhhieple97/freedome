@@ -14,7 +14,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @MessagePattern(EVENTS_HTTP.USER_CREATE)
-  public async createUser(userInfo: CreateUserDto) {
+  public createUser(userInfo: CreateUserDto) {
     return this.authService.createUser(userInfo);
   }
 

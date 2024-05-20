@@ -12,6 +12,7 @@ import {
   Param,
   BadRequestException,
   Put,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { Observable, catchError, firstValueFrom, of, switchMap } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
@@ -84,32 +85,36 @@ export class AuthController {
   @ApiCreatedResponse({
     type: CreateUserResponseDto,
   })
-  public async createUser(
+  public createUser(
     @Body() userRequest: CreateUserDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<IServiceUserCreateResponse> {
-    try {
-      const createUserResponse: IServiceUserCreateResponse =
-        await firstValueFrom(
-          this.authServiceClient.send(EVENTS_HTTP.USER_CREATE, userRequest),
-        );
-      res.cookie(ACCESS_TOKEN_KEY, createUserResponse.accessToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
-        expires: new Date(Date.now() + ACCESS_TOKEN_EXPIRES_IN),
-      });
-      res.cookie(ACCESS_TOKEN_KEY, createUserResponse.refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
-        expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN),
-      });
-      return createUserResponse;
-    } catch (error) {
-      console.error(error);
-      // throw new BadRequestException(error.message);
-    }
+  ): Observable<IServiceUserCreateResponse> {
+    return this.authServiceClient
+      .send(EVENTS_HTTP.USER_CREATE, userRequest)
+      .pipe(
+        switchMap((result: IServiceUserCreateResponse) => {
+          const { accessToken, refreshToken } = result;
+          res.cookie(ACCESS_TOKEN_KEY, accessToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            expires: new Date(Date.now() + ACCESS_TOKEN_EXPIRES_IN),
+          });
+          res.cookie(ACCESS_TOKEN_KEY, refreshToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN),
+          });
+          return of(result);
+        }),
+        catchError((err) => {
+          if (err instanceof InternalServerErrorException) {
+            throw err;
+          }
+          throw new BadRequestException('Email already in use');
+        }),
+      );
   }
 
   @Post('/login')
