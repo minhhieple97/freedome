@@ -10,9 +10,11 @@ import { TokenService } from './services/token.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from '@freedome/common/upload';
 import { TokenController } from './token.controller';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
+    SearchModule,
     AppConfigModule,
     PrismaModule,
     UploadModule,

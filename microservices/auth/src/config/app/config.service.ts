@@ -56,4 +56,10 @@ export class AppConfigService {
   get awsBucketS3Name(): string {
     return this.configService.get<string>('AWS_BUCKET_S3_NAME');
   }
+  get gigElasticSearchIndex(): string {
+    return this.configService.get<string>('GIG_ELASTIC_SEARCH_INDEX');
+  }
+  get elasticSearchUrl(): string {
+    return this.configService.get<string>('ELASTIC_SEARCH_URL');
+  }
 }

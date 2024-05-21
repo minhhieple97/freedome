@@ -109,6 +109,7 @@ export class AuthController {
           return of(result);
         }),
         catchError((err) => {
+          console.log({ err });
           if (err instanceof InternalServerErrorException) {
             throw err;
           }
