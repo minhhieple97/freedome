@@ -6,6 +6,8 @@ COPY package.json ./
 
 COPY pnpm-lock.yaml ./
 
+RUN npm install -g npm@10.8.0
+
 RUN npm install -g pnpm
 
 RUN pnpm install
