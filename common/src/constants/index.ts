@@ -23,3 +23,13 @@ export const EMAIL_TEMPLATES_NAME = {
   RESET_PASSWORD_SUCCESS: 'reset-password-success',
   VERIFY_EMAIL: 'verify-email',
 };
+
+export const PROTOBUF_PACKAGE = {
+  AUTH: 'auth',
+  GIG: 'gig',
+  MESSAGE: 'message',
+  REVIEW: 'review',
+  ORDER: 'order',
+  SELLER: 'seller',
+  SEARCH: 'search',
+};

@@ -1,5 +1,6 @@
 import { UploadService } from '@freedome/common/upload';
 import { AppConfigService } from '@auth/config/app/config.service';
+import * as grpc from '@grpc/grpc-js';
 import { PrismaService } from './prisma/prisma.service';
 import {
   CreateUserDto,
@@ -8,7 +9,6 @@ import {
   IAuthBuyerMessageDetails,
   IAuthDocument,
   IEmailMessageDetails,
-  IServiceUserSearchResponse,
   LoginUserDto,
   ResetPasswordDtoWithTokenDto,
   ResetPasswordDtoWithUserIdDto,
@@ -25,7 +25,7 @@ import {
 import * as _ from 'lodash';
 import { v4 as uuidV4 } from 'uuid';
 import { BUCKET_S3_FOLDER_NAME } from './common/constants';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { hash, compare } from 'bcryptjs';
 import { Auth, Prisma } from '@prisma/client';
 import { TokenService } from './services/token.service';
@@ -202,33 +202,52 @@ export class AuthService {
     };
     this.notificationsServiceClient.emit(EVENTS_RMQ.USER_BUYER, messageDetails);
   }
+  // async getUserByCredential(
+  //   loginUserDto: LoginUserDto,
+  // ): Promise<IAuthDocument | null> {
+  //   try {
+  //     const user = await this.prismaService.auth.findUnique({
+  //       where: { email: loginUserDto.email },
+  //     });
+  //     if (!user) {
+  //       return {
+  //         status: HttpStatus.NOT_FOUND,
+  //         message: 'user_search_by_credentials_not_found',
+  //         user: null,
+  //       };
+  //     }
+  //     await this.verifyPassword(loginUserDto.password, user.password);
+  //     return {
+  //       status: HttpStatus.OK,
+  //       message: 'user_search_by_credentials_success',
+  //       user: _.omit(user, sensitiveFields),
+  //     };
+  //   } catch (error) {
+  //     return {
+  //       status: HttpStatus.NOT_FOUND,
+  //       message: 'user_search_by_credentials_not_match',
+  //       user: null,
+  //     };
+  //   }
+  // }
   async getUserByCredential(
     loginUserDto: LoginUserDto,
-  ): Promise<IServiceUserSearchResponse> {
-    try {
-      const user = await this.prismaService.auth.findUnique({
-        where: { email: loginUserDto.email },
+  ): Promise<IAuthDocument | null> {
+    const user = await this.prismaService.auth.findUnique({
+      where: { email: loginUserDto.email },
+    });
+    if (!user) {
+      // throw new RpcException(
+      //   new BadRequestException('Wrong credentials provided'),
+      // );
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'Wrong credentials provided',
       });
-      if (!user) {
-        return {
-          status: HttpStatus.NOT_FOUND,
-          message: 'user_search_by_credentials_not_found',
-          user: null,
-        };
-      }
-      await this.verifyPassword(loginUserDto.password, user.password);
-      return {
-        status: HttpStatus.OK,
-        message: 'user_search_by_credentials_success',
-        user: _.omit(user, sensitiveFields),
-      };
-    } catch (error) {
-      return {
-        status: HttpStatus.NOT_FOUND,
-        message: 'user_search_by_credentials_not_match',
-        user: null,
-      };
     }
+
+    await this.verifyPassword(loginUserDto.password, user.password);
+    return _.omit(user, sensitiveFields);
   }
   async verifyPassword(plainTextPassword: string, hashedPassword: string) {
     const isPasswordMatching = await compare(plainTextPassword, hashedPassword);

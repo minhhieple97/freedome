@@ -92,4 +92,7 @@ export class AppConfigService {
   get rabbitmqEndpoint(): string {
     return this.configService.get<string>('RABBITMQ_ENDPOINT');
   }
+  get authGrpcUrl(): string {
+    return this.configService.get<string>('AUTH_GRPC_URL');
+  }
 }

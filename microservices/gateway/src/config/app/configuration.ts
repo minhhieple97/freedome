@@ -23,4 +23,5 @@ export default registerAs('app', () => ({
   gatewayJwtToken: process.env.GATEWAY_JWT_TOKEN,
   secretKeyOne: process.env.SECRET_KEY_ONE,
   secretKeyTwo: process.env.SECRET_KEY_TWO,
+  authGrpcUrl: process.env.AUTH_GRPC_URL,
 }));

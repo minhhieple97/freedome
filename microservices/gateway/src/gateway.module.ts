@@ -3,7 +3,6 @@ import { AppConfigModule } from './config/app/config.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppConfigService } from './config/app/config.service';
 import { SERVICE_NAME } from '@freedome/common';
-import { AuthController } from './auth.controller';
 import { MessageController } from './message.controller';
 import { ReviewController } from './review.controller';
 import { SearchController } from './search.controller';
@@ -14,9 +13,11 @@ import { OrderController } from './order.controller';
 import { ElasticsearchModule } from '@freedome/common/elasticsearch';
 import { TerminusModule } from '@nestjs/terminus';
 import HealthModule from './api/health/health.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     AppConfigModule,
     TerminusModule,
     ElasticsearchModule,
@@ -30,18 +31,6 @@ import HealthModule from './api/health/health.module';
           options: {
             host: appConfig.notificationsHost,
             port: appConfig.notificationsPort,
-          },
-        }),
-        inject: [AppConfigService],
-      },
-      {
-        imports: [AppConfigModule],
-        name: SERVICE_NAME.AUTH,
-        useFactory: (appConfig: AppConfigService) => ({
-          transport: Transport.TCP,
-          options: {
-            host: appConfig.authHost,
-            port: appConfig.authPort,
           },
         }),
         inject: [AppConfigService],
@@ -121,7 +110,6 @@ import HealthModule from './api/health/health.module';
     ]),
   ],
   controllers: [
-    AuthController,
     MessageController,
     ReviewController,
     SearchController,

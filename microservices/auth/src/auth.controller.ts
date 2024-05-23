@@ -8,8 +8,10 @@ import {
   ResetPasswordDtoWithTokenDto,
   ResetPasswordDtoWithUserIdDto,
 } from '@freedome/common';
+import { AuthServiceControllerMethods, LoginAuthRequest } from 'proto';
 
 @Controller()
+@AuthServiceControllerMethods()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -60,5 +62,8 @@ export class AuthController {
   async resendEmail(email: string) {
     await this.authService.resendEmail(email);
     return { message: 'success' };
+  }
+  getUserByCredential(loginUserRequest: LoginAuthRequest) {
+    return this.authService.getUserByCredential(loginUserRequest);
   }
 }

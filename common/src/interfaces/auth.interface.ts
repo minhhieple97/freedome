@@ -114,12 +114,6 @@ export interface IAuthUser {
   username: string | null;
 }
 
-export interface IServiceUserSearchResponse {
-  status: number;
-  message: string;
-  user: IAuthDocument | null;
-}
-
 export interface IServiveTokenCreateResponse {
   status: number;
   accessToken: string | null;

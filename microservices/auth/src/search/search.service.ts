@@ -14,12 +14,10 @@ export class SearchService {
     const checkIndex = await this.esService.indices.exists({
       index: gigIndex,
     });
-    console.log('Index exists', checkIndex);
     if (!checkIndex) {
-      const result = await this.esService.indices.create({
+      await this.esService.indices.create({
         index: gigIndex,
       });
-      console.log('Index created', result);
     }
   }
   public async indexData(payload: any) {

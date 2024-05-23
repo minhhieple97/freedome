@@ -1,33 +1,39 @@
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
-  HttpException,
+  Catch,
+  ExceptionFilter,
+  HttpStatus,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { RpcException } from '@nestjs/microservices';
+import { Response } from 'express';
+import { Metadata, status } from '@grpc/grpc-js';
+import { ErrorStatusMapper } from '../helpers/error-status-mapper.helper';
 
-@Catch()
+interface CustomException<T> {
+  code: status;
+  details: T;
+  metadata: Metadata;
+}
+
+@Catch(RpcException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
-    // Get the response object from the arguments host
+  catch(exception: RpcException, host: ArgumentsHost) {
+    const err = exception.getError();
+    let _exception: CustomException<string>;
+
+    if (typeof err === 'object') {
+      _exception = err as CustomException<string>;
+    }
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-
-    // Get the request object from the arguments host
-    const request = ctx.getRequest<Request>();
-
-    // Get the status code from the exception
-    const status = exception.getStatus();
-
-    // Send a JSON response using the response object
+    const mapper = new ErrorStatusMapper();
+    const status = mapper.grpcToHttpMapper(_exception.code);
+    const type = HttpStatus[status];
+    const message = exception.message;
     response.status(status).json({
       statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      message:
-        exception.message ||
-        exception.getResponse()['message'] ||
-        'Internal Server Error',
+      message,
+      error: type,
     });
   }
 }
