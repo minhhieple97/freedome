@@ -110,6 +110,7 @@ services:
       target: development
     volumes:
       - .:/usr/src/app
+      - ./proto:/proto
     env_file:
       - ./microservices/notifications/.env
     expose:
@@ -128,6 +129,7 @@ services:
       - '3000:3000'
     volumes:
       - .:/usr/src/app
+      - ./proto:/proto
     env_file:
       - ./microservices/gateway/.env
     networks:
@@ -143,6 +145,7 @@ services:
       - '3002'
     volumes:
       - .:/usr/src/app
+      - ./proto:/proto
     env_file:
       - ./microservices/auth/.env
     networks:

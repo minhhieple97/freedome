@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package auth;
+
+// Importing Timestamp from the Google Protobuf library for date-time fields.
+import "google/protobuf/timestamp.proto";
+
+service AuthService {
+  rpc CreateUser (CreateAuthDto) returns (Auth) {}
+  rpc GetUserByCredential(LoginAuthRequest) returns (Auth) {}
+
+}
+
+message CreateAuthDto  {
+  // The username of the user.
+  string username = 1;
+
+  // The password of the user.
+  string password = 2;
+
+  // The country of the user.
+  string country = 3;
+
+  // The email of the user.
+  string email = 4;
+
+  // The optional profile picture of the user.
+  string profilePicture = 5;
+
+  // The optional name of the browser used by the user.
+  string browserName = 6;
+
+  // The optional type of device used by the user.
+  string deviceType = 7;
+}
+
+
+message Auth {
+  // The unique identifier for the user.
+  int32 id = 1;
+
+  // The username of the user.
+  string username = 2;
+
+  // The password of the user.
+  string password = 3;
+
+  // The public profile ID of the user, which is optional.
+  string profilePublicId = 4;
+
+  // The email of the user.
+  string email = 5;
+
+  // The country of the user.
+  string country = 6;
+
+  // The email verification token for the user, which is optional.
+  string emailVerificationToken = 7;
+
+  // Indicates whether the user's email is verified.
+  bool emailVerified = 8;
+
+  // The name of the browser used by the user.
+  string browserName = 9;
+
+  // The type of device used by the user.
+  string deviceType = 10;
+
+  // The one-time password (OTP) for the user, which is optional.
+  string otp = 11;
+
+  // The expiration date and time for the OTP, which is optional.
+  google.protobuf.Timestamp otpExpiration = 12;
+
+  // The date and time when the user was created.
+  google.protobuf.Timestamp createdAt = 13;
+
+  // The token for resetting the user's password, which is optional.
+  string passwordResetToken = 14;
+
+  // The expiration date and time for the password reset token, which is optional.
+  google.protobuf.Timestamp passwordResetExpires = 15;
+}
+
+
+message LoginAuthRequest {
+  // The email of the user.
+  string email = 1;
+
+  // The password of the user.
+  string password = 2;
+
+  // The optional name of the browser used by the user.
+  string browserName = 3;
+
+  // The optional type of device used by the user.
+  string deviceType = 4;
+}
+
+
+message LoginAuthResponse {
+  string accessToken = 1;
+  string refreshToken = 2;
+}
