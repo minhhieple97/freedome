@@ -15,7 +15,6 @@ import { AuthServiceControllerMethods, LoginAuthRequest } from 'proto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @MessagePattern(EVENTS_HTTP.USER_CREATE)
   public createUser(userInfo: CreateUserDto) {
     return this.authService.createUser(userInfo);
   }

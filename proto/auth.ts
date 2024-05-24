@@ -11,6 +11,12 @@ import { Timestamp } from "../google/protobuf/timestamp";
 
 export const protobufPackage = "auth";
 
+export interface CreateUserResponse {
+  user: Auth | undefined;
+  accessToken: string;
+  refreshToken: string;
+}
+
 export interface CreateAuthDto {
   /** The username of the user. */
   username: string;
@@ -84,13 +90,13 @@ export interface LoginAuthResponse {
 export const AUTH_PACKAGE_NAME = "auth";
 
 export interface AuthServiceClient {
-  createUser(request: CreateAuthDto): Observable<Auth>;
+  createUser(request: CreateAuthDto): Observable<CreateUserResponse>;
 
   getUserByCredential(request: LoginAuthRequest): Observable<Auth>;
 }
 
 export interface AuthServiceController {
-  createUser(request: CreateAuthDto): Promise<Auth> | Observable<Auth> | Auth;
+  createUser(request: CreateAuthDto): Promise<CreateUserResponse> | Observable<CreateUserResponse> | CreateUserResponse;
 
   getUserByCredential(request: LoginAuthRequest): Promise<Auth> | Observable<Auth> | Auth;
 }

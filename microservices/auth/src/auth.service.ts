@@ -19,7 +19,6 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import * as _ from 'lodash';
@@ -84,9 +83,15 @@ export class AuthService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error?.code === PrismaError.UniqueConstraintFailed
       ) {
-        throw new BadRequestException('Email already exists');
+        throw new RpcException({
+          code: grpc.status.ALREADY_EXISTS,
+          message: 'Email already exists',
+        });
       }
-      throw new InternalServerErrorException('Sorry something went wrong');
+      throw new RpcException({
+        code: grpc.status.INTERNAL,
+        message: 'Sorry something went wrong',
+      });
     }
   }
   async getAuthUserById(authId: number) {
@@ -202,34 +207,6 @@ export class AuthService {
     };
     this.notificationsServiceClient.emit(EVENTS_RMQ.USER_BUYER, messageDetails);
   }
-  // async getUserByCredential(
-  //   loginUserDto: LoginUserDto,
-  // ): Promise<IAuthDocument | null> {
-  //   try {
-  //     const user = await this.prismaService.auth.findUnique({
-  //       where: { email: loginUserDto.email },
-  //     });
-  //     if (!user) {
-  //       return {
-  //         status: HttpStatus.NOT_FOUND,
-  //         message: 'user_search_by_credentials_not_found',
-  //         user: null,
-  //       };
-  //     }
-  //     await this.verifyPassword(loginUserDto.password, user.password);
-  //     return {
-  //       status: HttpStatus.OK,
-  //       message: 'user_search_by_credentials_success',
-  //       user: _.omit(user, sensitiveFields),
-  //     };
-  //   } catch (error) {
-  //     return {
-  //       status: HttpStatus.NOT_FOUND,
-  //       message: 'user_search_by_credentials_not_match',
-  //       user: null,
-  //     };
-  //   }
-  // }
   async getUserByCredential(
     loginUserDto: LoginUserDto,
   ): Promise<IAuthDocument | null> {
@@ -237,23 +214,29 @@ export class AuthService {
       where: { email: loginUserDto.email },
     });
     if (!user) {
-      // throw new RpcException(
-      //   new BadRequestException('Wrong credentials provided'),
-      // );
       throw new RpcException({
         code: grpc.status.NOT_FOUND,
         message: 'Wrong credentials provided',
       });
     }
 
-    await this.verifyPassword(loginUserDto.password, user.password);
+    const isValidPassword = await this.verifyPassword(
+      loginUserDto.password,
+      user.password,
+    );
+    if (!isValidPassword) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'Wrong credentials provided',
+      });
+    }
     return _.omit(user, sensitiveFields);
   }
-  async verifyPassword(plainTextPassword: string, hashedPassword: string) {
-    const isPasswordMatching = await compare(plainTextPassword, hashedPassword);
-    if (!isPasswordMatching) {
-      throw new BadRequestException('Wrong credentials provided');
-    }
+  verifyPassword(
+    plainTextPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return compare(plainTextPassword, hashedPassword);
   }
   async getUserByEmailToken(token: string): Promise<Partial<IAuthDocument>> {
     const user = await this.prismaService.auth.findUnique({

@@ -6,11 +6,15 @@ package auth;
 import "google/protobuf/timestamp.proto";
 
 service AuthService {
-  rpc CreateUser (CreateAuthDto) returns (Auth) {}
+  rpc CreateUser (CreateAuthDto) returns (CreateUserResponse) {}
   rpc GetUserByCredential(LoginAuthRequest) returns (Auth) {}
 
 }
-
+message CreateUserResponse {
+    Auth user = 1;
+    string accessToken = 2;
+    string refreshToken = 3;
+}
 message CreateAuthDto  {
   // The username of the user.
   string username = 1;

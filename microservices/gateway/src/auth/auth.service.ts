@@ -4,7 +4,6 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { ClientGrpc, ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom, Observable, of, throwError } from 'rxjs';
@@ -18,7 +17,6 @@ import {
 } from '@freedome/common';
 import {
   IAuthDocument,
-  IServiceUserCreateResponse,
   IServiveTokenCreateResponse,
 } from '@freedome/common/interfaces';
 import { Response } from 'express';
@@ -49,36 +47,34 @@ export class AuthService {
     return userInfo;
   }
 
-  createUser(
-    userRequest: CreateUserDto,
-    res: Response,
-  ): Observable<IServiceUserCreateResponse> {
-    return this.authServiceClient
-      .send(EVENTS_HTTP.USER_CREATE, userRequest)
-      .pipe(
-        switchMap((result: IServiceUserCreateResponse) => {
-          const { accessToken, refreshToken } = result;
-          res.cookie(ACCESS_TOKEN_KEY, accessToken, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
-            expires: new Date(Date.now() + ACCESS_TOKEN_EXPIRES_IN),
-          });
-          res.cookie(REFRESH_TOKEN_KEY, refreshToken, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
-            expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN),
-          });
-          return of(result);
-        }),
-        catchError((err) => {
-          if (err instanceof InternalServerErrorException) {
-            throw err;
-          }
-          throw new BadRequestException('Email already in use');
-        }),
-      );
+  createUser(userRequest: CreateUserDto, res: Response): Observable<any> {
+    return this.authService.createUser(userRequest).pipe(
+      switchMap((result) => {
+        const { accessToken, refreshToken } = result;
+        res.cookie(ACCESS_TOKEN_KEY, accessToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+          expires: new Date(Date.now() + ACCESS_TOKEN_EXPIRES_IN),
+        });
+        res.cookie(REFRESH_TOKEN_KEY, refreshToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+          expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN),
+        });
+        return of(result);
+      }),
+      catchError((error) =>
+        throwError(
+          () =>
+            new RpcException({
+              code: error.code,
+              message: error.details,
+            }),
+        ),
+      ),
+    );
   }
 
   async loginUser(
@@ -99,7 +95,6 @@ export class AuthService {
         ),
       ),
     );
-    console.log({ getUserResponse });
     const createTokenResponse: IServiveTokenCreateResponse =
       await firstValueFrom(
         this.authServiceClient.send(EVENTS_HTTP.AT_RF_CREATE, {
