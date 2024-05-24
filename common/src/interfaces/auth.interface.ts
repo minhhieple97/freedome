@@ -123,20 +123,12 @@ export interface IServiveTokenCreateResponse {
 }
 
 export interface ITokenResponse {
-  status: number;
   accessToken: string | null;
   refreshToken: string | null;
-  message: string;
 }
 
 export interface IAccessTokenPayload {
   id: number;
   email: string;
   username: string;
-}
-
-export interface ITokenDataResponse {
-  status: number;
-  message: string;
-  data: IAccessTokenPayload | null;
 }

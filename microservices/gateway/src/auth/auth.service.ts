@@ -3,7 +3,6 @@ import {
   Inject,
   BadRequestException,
   HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { ClientGrpc, ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom, Observable, of, throwError } from 'rxjs';
@@ -15,10 +14,7 @@ import {
   EVENTS_HTTP,
   SERVICE_NAME,
 } from '@freedome/common';
-import {
-  IAuthDocument,
-  IServiveTokenCreateResponse,
-} from '@freedome/common/interfaces';
+import { IAuthDocument, ITokenResponse } from '@freedome/common/interfaces';
 import { Response } from 'express';
 import {
   ACCESS_TOKEN_EXPIRES_IN,
@@ -26,7 +22,7 @@ import {
   REFRESH_TOKEN_EXPIRES_IN,
   REFRESH_TOKEN_KEY,
 } from '@gateway/common/constants';
-import { AUTH_SERVICE_NAME, Auth, AuthServiceClient } from 'proto';
+import { AUTH_SERVICE_NAME, Auth, AuthServiceClient } from 'proto/types';
 
 @Injectable()
 export class AuthService {
@@ -81,7 +77,6 @@ export class AuthService {
     loginRequest: LoginUserDto,
     res: Response,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    console.log({ loginRequest });
     const getUserResponse: Auth = await firstValueFrom(
       this.authService.getUserByCredential(loginRequest).pipe(
         catchError((error) =>
@@ -95,25 +90,25 @@ export class AuthService {
         ),
       ),
     );
-    const createTokenResponse: IServiveTokenCreateResponse =
-      await firstValueFrom(
-        this.authServiceClient.send(EVENTS_HTTP.AT_RF_CREATE, {
+    const createTokenResponse: ITokenResponse = await firstValueFrom(
+      this.authService
+        .createToken({
           id: getUserResponse.id,
           email: getUserResponse.email,
           username: getUserResponse.username,
-        }),
-      );
-    if (createTokenResponse.status !== HttpStatus.CREATED) {
-      throw new HttpException(
-        {
-          message: createTokenResponse.message,
-          data: null,
-          errors: null,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
+        })
+        .pipe(
+          catchError((error) =>
+            throwError(
+              () =>
+                new RpcException({
+                  code: error.code,
+                  message: error.details,
+                }),
+            ),
+          ),
+        ),
+    );
     const { accessToken, refreshToken } = createTokenResponse;
     res.cookie(ACCESS_TOKEN_KEY, accessToken, {
       httpOnly: true,

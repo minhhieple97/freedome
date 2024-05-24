@@ -1,3 +1,7 @@
+import {
+  IAccessTokenPayload,
+  ITokenResponse,
+} from '@freedome/common/interfaces';
 import { UploadService } from '@freedome/common/upload';
 import { AppConfigService } from '@auth/config/app/config.service';
 import * as grpc from '@grpc/grpc-js';
@@ -346,5 +350,25 @@ export class AuthService {
       },
     });
     this.sendVerifyEmail(user.email, emailVerificationToken);
+  }
+  createToken(data: IAccessTokenPayload): ITokenResponse {
+    const { id, email, username } = data;
+    const accessToken = this.tokenService.createAccessToken({
+      id,
+      email,
+      username,
+    });
+    const refreshToken = this.tokenService.createRefreshToken({
+      id,
+      email,
+      username,
+    });
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+  decodeToken(token: string): Promise<IAccessTokenPayload> {
+    return this.tokenService.decodeToken(token);
   }
 }

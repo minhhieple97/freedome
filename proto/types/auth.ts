@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
+import { Timestamp } from "google/protobuf/timestamp";
 import { Observable } from "rxjs";
-import { Timestamp } from "../google/protobuf/timestamp";
 
 export const protobufPackage = "auth";
 
@@ -87,23 +87,62 @@ export interface LoginAuthResponse {
   refreshToken: string;
 }
 
+/** The request message containing the access token payload. */
+export interface AccessTokenPayload {
+  id: number;
+  email: string;
+  username: string;
+}
+
+/** The response message containing the token details. */
+export interface TokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+/** The request message containing the token string to decode. */
+export interface DecodeTokenRequest {
+  token: string;
+}
+
+/** The response message containing the decoded token data. */
+export interface TokenDataResponse {
+  id: number;
+  email: string;
+  username: string;
+}
+
+export interface CreateTokenRequest {
+  id: number;
+  email: string;
+  username: string;
+}
+
 export const AUTH_PACKAGE_NAME = "auth";
 
 export interface AuthServiceClient {
   createUser(request: CreateAuthDto): Observable<CreateUserResponse>;
 
   getUserByCredential(request: LoginAuthRequest): Observable<Auth>;
+
+  createToken(request: CreateTokenRequest): Observable<TokenResponse>;
+
+  decodeToken(request: DecodeTokenRequest): Observable<TokenResponse>;
 }
 
 export interface AuthServiceController {
   createUser(request: CreateAuthDto): Promise<CreateUserResponse> | Observable<CreateUserResponse> | CreateUserResponse;
 
   getUserByCredential(request: LoginAuthRequest): Promise<Auth> | Observable<Auth> | Auth;
+
+  createToken(request: CreateTokenRequest): Promise<TokenResponse> | Observable<TokenResponse> | TokenResponse;
+
+  decodeToken(request: DecodeTokenRequest): Promise<TokenResponse> | Observable<TokenResponse> | TokenResponse;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createUser", "getUserByCredential"];
+    const grpcMethods: string[] = ["createUser", "getUserByCredential", "createToken", "decodeToken"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);

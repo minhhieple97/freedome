@@ -9,7 +9,6 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { Transport } from '@nestjs/microservices';
 import { AppConfigService } from '@auth/config/app/config.service';
 import { LoggerInterceptor } from '@freedome/common/interceptors';
-import { GlobalExcetionFilter } from './common/filters/global-exception.filter';
 import { join } from 'path';
 const logger = new LoggerService('Auth Service');
 async function bootstrap() {
@@ -17,7 +16,6 @@ async function bootstrap() {
     logger,
   });
   const appConfig: AppConfigService = app.get(AppConfigService);
-  app.useGlobalFilters(new GlobalExcetionFilter(appConfig));
   app.useGlobalInterceptors(new LoggerInterceptor());
   for (const queueName of [AUTH_EMAIL_QUEUE_NAME]) {
     app.connectMicroservice({

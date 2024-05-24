@@ -4,11 +4,13 @@ import { MessagePattern } from '@nestjs/microservices';
 import {
   CreateUserDto,
   EVENTS_HTTP,
+  IAccessTokenPayload,
+  ITokenResponse,
   LoginUserDto,
   ResetPasswordDtoWithTokenDto,
   ResetPasswordDtoWithUserIdDto,
 } from '@freedome/common';
-import { AuthServiceControllerMethods, LoginAuthRequest } from 'proto';
+import { AuthServiceControllerMethods, LoginAuthRequest } from 'proto/types';
 
 @Controller()
 @AuthServiceControllerMethods()
@@ -64,5 +66,13 @@ export class AuthController {
   }
   getUserByCredential(loginUserRequest: LoginAuthRequest) {
     return this.authService.getUserByCredential(loginUserRequest);
+  }
+
+  async createToken(data: IAccessTokenPayload): Promise<ITokenResponse> {
+    return this.authService.createToken(data);
+  }
+  public async decodeToken(token: string): Promise<IAccessTokenPayload> {
+    const tokenData = await this.authService.decodeToken(token);
+    return tokenData;
   }
 }

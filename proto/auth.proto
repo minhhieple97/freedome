@@ -8,6 +8,8 @@ import "google/protobuf/timestamp.proto";
 service AuthService {
   rpc CreateUser (CreateAuthDto) returns (CreateUserResponse) {}
   rpc GetUserByCredential(LoginAuthRequest) returns (Auth) {}
+  rpc CreateToken(CreateTokenRequest) returns (TokenResponse) {}
+  rpc DecodeToken(DecodeTokenRequest) returns (TokenResponse) {}
 
 }
 message CreateUserResponse {
@@ -105,4 +107,35 @@ message LoginAuthRequest {
 message LoginAuthResponse {
   string accessToken = 1;
   string refreshToken = 2;
+}
+
+// The request message containing the access token payload.
+message AccessTokenPayload {
+    int32 id = 1;
+    string email = 2;
+    string username = 3;
+}
+
+// The response message containing the token details.
+message TokenResponse {
+    string accessToken = 1;
+    string refreshToken = 2;
+}
+
+// The request message containing the token string to decode.
+message DecodeTokenRequest {
+    string token = 1;
+}
+
+// The response message containing the decoded token data.
+message TokenDataResponse {
+    int32 id = 1;
+    string email = 2;
+    string username = 3;
+}
+
+message CreateTokenRequest {
+  int32 id = 1;
+  string email = 2;
+  string username = 3;
 }
