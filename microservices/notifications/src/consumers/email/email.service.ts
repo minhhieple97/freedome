@@ -59,12 +59,7 @@ export class EmailService {
       });
 
       await email.send({
-        template: path.join(
-          __dirname,
-          '..',
-          'notifications/src/email-templates',
-          template,
-        ),
+        template: path.join(__dirname, '..', 'src/email-templates', template),
         message: { to: receiver },
         locals,
       });
