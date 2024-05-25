@@ -7,10 +7,10 @@ import "google/protobuf/timestamp.proto";
 
 service AuthService {
   rpc CreateUser (CreateAuthDto) returns (CreateUserResponse) {}
-  rpc GetUserByCredential(LoginAuthRequest) returns (Auth) {}
+  rpc GetUserByCredential(LoginAuthRequest) returns (AuthPublic) {}
   rpc CreateToken(CreateTokenRequest) returns (TokenResponse) {}
   rpc DecodeToken(DecodeTokenRequest) returns (TokenDataResponse) {}
-  rpc GetUserById(GetUserByIdRequest) returns (Auth) {}
+  rpc GetUserById(GetUserByIdRequest) returns (AuthPublic) {}
 }
 
 message GetUserByIdRequest {
@@ -18,7 +18,7 @@ message GetUserByIdRequest {
 }
 
 message CreateUserResponse {
-    Auth user = 1;
+    AuthPublic user = 1;
     string accessToken = 2;
     string refreshToken = 3;
 }
@@ -46,54 +46,33 @@ message CreateAuthDto  {
 }
 
 
-message Auth {
+message AuthPublic {
   // The unique identifier for the user.
   int32 id = 1;
 
   // The username of the user.
   string username = 2;
 
-  // The password of the user.
-  string password = 3;
-
   // The public profile ID of the user, which is optional.
-  string profilePublicId = 4;
+  string profilePublicId = 3;
 
   // The email of the user.
-  string email = 5;
+  string email = 4;
 
   // The country of the user.
-  string country = 6;
-
-  // The email verification token for the user, which is optional.
-  string emailVerificationToken = 7;
-
-  // Indicates whether the user's email is verified.
-  bool emailVerified = 8;
+  string country = 5;
 
   // The name of the browser used by the user.
-  string browserName = 9;
+  string browserName = 6;
 
   // The type of device used by the user.
-  string deviceType = 10;
-
-  // The one-time password (OTP) for the user, which is optional.
-  string otp = 11;
-
-  // The expiration date and time for the OTP, which is optional.
-  google.protobuf.Timestamp otpExpiration = 12;
+  string deviceType = 7;
 
   // The date and time when the user was created.
-  google.protobuf.Timestamp createdAt = 13;
-
-  // The token for resetting the user's password, which is optional.
-  string passwordResetToken = 14;
-
-  // The expiration date and time for the password reset token, which is optional.
-  google.protobuf.Timestamp passwordResetExpires = 15;
+  google.protobuf.Timestamp createdAt = 8;
 
   // The date and time when the user was updated.
-  google.protobuf.Timestamp updatedAt = 16;
+  google.protobuf.Timestamp updatedAt = 9;
 }
 
 

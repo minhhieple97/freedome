@@ -38,7 +38,6 @@ import {
 import { Response } from 'express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
-import { Auth } from 'proto/types';
 
 @ApiBearerAuth('authorization')
 @Controller('auth')
@@ -53,7 +52,7 @@ export class AuthController {
   })
   public async getUserByToken(
     @Req() request: IAuthorizedRequest,
-  ): Promise<Auth> {
+  ): Promise<IAuthDocument> {
     const userTokenPayload = request.user;
     const user = await this.authService.getUserByToken(userTokenPayload.id);
     return user;

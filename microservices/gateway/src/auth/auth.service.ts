@@ -24,7 +24,7 @@ import {
   REFRESH_TOKEN_EXPIRES_IN,
   REFRESH_TOKEN_KEY,
 } from '@gateway/common/constants';
-import { AUTH_SERVICE_NAME, Auth, AuthServiceClient } from 'proto/types';
+import { AUTH_SERVICE_NAME, AuthPublic, AuthServiceClient } from 'proto/types';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +38,7 @@ export class AuthService {
       this.clientGrpc.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
   }
 
-  async getUserByToken(userId: number) {
+  async getUserByToken(userId: number): Promise<IAuthDocument> {
     const userInfo = await firstValueFrom(
       this.authService.getUserById({ id: userId }).pipe(
         catchError((error) =>
@@ -96,7 +96,7 @@ export class AuthService {
     loginRequest: LoginUserDto,
     res: Response,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const getUserResponse: Auth = await firstValueFrom(
+    const getUserResponse: AuthPublic = await firstValueFrom(
       this.authService.getUserByCredential(loginRequest).pipe(
         catchError((error) =>
           throwError(

@@ -13,19 +13,9 @@ export const dateToTimestamp = (
 };
 export const convertGrpcTimestampToPrisma = (
   grpcTimestamp: Timestamp,
-): string => {
-  // Extract the seconds and nanos
-  const seconds = grpcTimestamp.seconds; // Assuming high is 0 and unsigned is false
+): Date => {
+  const seconds = grpcTimestamp.seconds;
   const nanos = grpcTimestamp.nanos;
-
-  // Convert to milliseconds
   const milliseconds = seconds * 1000 + Math.floor(nanos / 1000000);
-
-  // Create a JavaScript Date object
-  const date = new Date(milliseconds);
-
-  // Convert to ISO 8601 format for Prisma
-  const prismaTimestamp = date.toISOString();
-
-  return prismaTimestamp;
+  return new Date(milliseconds);
 };

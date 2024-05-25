@@ -16,7 +16,7 @@ export interface GetUserByIdRequest {
 }
 
 export interface CreateUserResponse {
-  user: Auth | undefined;
+  user: AuthPublic | undefined;
   accessToken: string;
   refreshToken: string;
 }
@@ -38,41 +38,23 @@ export interface CreateAuthDto {
   deviceType: string;
 }
 
-export interface Auth {
+export interface AuthPublic {
   /** The unique identifier for the user. */
   id: number;
   /** The username of the user. */
   username: string;
-  /** The password of the user. */
-  password: string;
   /** The public profile ID of the user, which is optional. */
   profilePublicId: string;
   /** The email of the user. */
   email: string;
   /** The country of the user. */
   country: string;
-  /** The email verification token for the user, which is optional. */
-  emailVerificationToken: string;
-  /** Indicates whether the user's email is verified. */
-  emailVerified: boolean;
   /** The name of the browser used by the user. */
   browserName: string;
   /** The type of device used by the user. */
   deviceType: string;
-  /** The one-time password (OTP) for the user, which is optional. */
-  otp: string;
-  /** The expiration date and time for the OTP, which is optional. */
-  otpExpiration:
-    | Timestamp
-    | undefined;
   /** The date and time when the user was created. */
   createdAt:
-    | Timestamp
-    | undefined;
-  /** The token for resetting the user's password, which is optional. */
-  passwordResetToken: string;
-  /** The expiration date and time for the password reset token, which is optional. */
-  passwordResetExpires:
     | Timestamp
     | undefined;
   /** The date and time when the user was updated. */
@@ -133,19 +115,19 @@ export const AUTH_PACKAGE_NAME = "auth";
 export interface AuthServiceClient {
   createUser(request: CreateAuthDto): Observable<CreateUserResponse>;
 
-  getUserByCredential(request: LoginAuthRequest): Observable<Auth>;
+  getUserByCredential(request: LoginAuthRequest): Observable<AuthPublic>;
 
   createToken(request: CreateTokenRequest): Observable<TokenResponse>;
 
   decodeToken(request: DecodeTokenRequest): Observable<TokenDataResponse>;
 
-  getUserById(request: GetUserByIdRequest): Observable<Auth>;
+  getUserById(request: GetUserByIdRequest): Observable<AuthPublic>;
 }
 
 export interface AuthServiceController {
   createUser(request: CreateAuthDto): Promise<CreateUserResponse> | Observable<CreateUserResponse> | CreateUserResponse;
 
-  getUserByCredential(request: LoginAuthRequest): Promise<Auth> | Observable<Auth> | Auth;
+  getUserByCredential(request: LoginAuthRequest): Promise<AuthPublic> | Observable<AuthPublic> | AuthPublic;
 
   createToken(request: CreateTokenRequest): Promise<TokenResponse> | Observable<TokenResponse> | TokenResponse;
 
@@ -153,7 +135,7 @@ export interface AuthServiceController {
     request: DecodeTokenRequest,
   ): Promise<TokenDataResponse> | Observable<TokenDataResponse> | TokenDataResponse;
 
-  getUserById(request: GetUserByIdRequest): Promise<Auth> | Observable<Auth> | Auth;
+  getUserById(request: GetUserByIdRequest): Promise<AuthPublic> | Observable<AuthPublic> | AuthPublic;
 }
 
 export function AuthServiceControllerMethods() {
