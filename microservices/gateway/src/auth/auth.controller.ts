@@ -95,9 +95,7 @@ export class AuthController {
   @ApiCreatedResponse({
     type: ForgotPasswordResponseDto,
   })
-  public forgotPassword(
-    @Body() forgotPassword: ForgotPasswordDto,
-  ): Observable<{ message: string }> {
+  public forgotPassword(@Body() forgotPassword: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPassword.email);
   }
 
@@ -109,7 +107,7 @@ export class AuthController {
   public resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto,
     @Req() req: IAuthorizedRequest,
-  ): Observable<{ message: string }> {
+  ) {
     const user = req.user;
     return this.authService.resetPassword(resetPasswordDto, user.id);
   }
@@ -121,7 +119,7 @@ export class AuthController {
   public resetPasswordWithToken(
     @Body() resetPasswordDto: ResetPasswordDto,
     @Param('token') token: string,
-  ): Observable<{ message: string }> {
+  ) {
     return this.authService.resetPasswordWithToken(resetPasswordDto, token);
   }
 
@@ -129,9 +127,7 @@ export class AuthController {
   @ApiOkResponse({
     type: ResetPasswrdResponseDto,
   })
-  public resendEmail(
-    @Body() resendEmail: ResendEmailDto,
-  ): Observable<{ message: string }> {
+  public resendEmail(@Body() resendEmail: ResendEmailDto) {
     return this.authService.resendEmail(resendEmail.email);
   }
 }

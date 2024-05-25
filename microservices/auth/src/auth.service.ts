@@ -19,12 +19,7 @@ import {
   SERVICE_NAME,
   dateToTimestamp,
 } from '@freedome/common';
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import * as _ from 'lodash';
 import { v4 as uuidV4 } from 'uuid';
 import { BUCKET_S3_FOLDER_NAME } from './common/constants';
@@ -127,19 +122,18 @@ export class AuthService {
     });
     return _.omit(updatedAuth, sensitiveFields);
   }
-  async updateVerifyEmailField(
+  updateVerifyEmailField(
     authId: number,
     emailVerified: boolean,
     emailVerificationToken?: string,
   ) {
-    const updatedAuth = await this.prismaService.auth.update({
+    return this.prismaService.auth.update({
       where: { id: authId },
       data: {
         emailVerified,
         emailVerificationToken,
       },
     });
-    console.log('Email verification field updated:', updatedAuth);
   }
   async getUserByUsernameOrEmail(
     username: string,
@@ -256,7 +250,11 @@ export class AuthService {
         emailVerificationToken: token,
       },
     });
-    if (!user) throw new BadRequestException('Wrong credentials provided');
+    if (!user)
+      throw new RpcException({
+        code: grpc.status.UNAUTHENTICATED,
+        message: 'Wrong credentials provided',
+      });
     return _.omit(user, sensitiveFields);
   }
   async verifyEmail(authId: number, emailVerified: boolean) {
@@ -275,7 +273,11 @@ export class AuthService {
         email,
       },
     });
-    if (!user) throw new BadRequestException('Wrong credentials provided');
+    if (!user)
+      throw new RpcException({
+        code: grpc.status.UNAUTHENTICATED,
+        message: 'Wrong credentials provided',
+      });
     const token = uuidV4();
     const tokenExpiration = new Date();
     tokenExpiration.setHours(tokenExpiration.getHours() + 1);
@@ -298,7 +300,11 @@ export class AuthService {
         id: userId,
       },
     });
-    if (!user) throw new NotFoundException('user_not_found');
+    if (!user)
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'User does not exist',
+      });
     const hashedPassword = await this.hashPassword(password);
     await this.prismaService.auth.update({
       where: {
@@ -324,7 +330,11 @@ export class AuthService {
         passwordResetToken: token,
       },
     });
-    if (!user) throw new NotFoundException('user_not_found');
+    if (!user)
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'User does not exist',
+      });
     const hashedPassword = await this.hashPassword(password);
     await this.prismaService.auth.update({
       where: {
@@ -347,7 +357,11 @@ export class AuthService {
         emailVerified: false,
       },
     });
-    if (!user) throw new NotFoundException('user_not_found');
+    if (!user)
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'User does not exist',
+      });
     const emailVerificationToken = await getRandomCharacters();
     await this.prismaService.auth.update({
       where: {

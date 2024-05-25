@@ -15,18 +15,6 @@ import { AuthService } from './auth.service';
         imports: [AppConfigModule],
         name: SERVICE_NAME.AUTH,
         useFactory: (appConfig: AppConfigService) => ({
-          transport: Transport.TCP,
-          options: {
-            host: appConfig.authHost,
-            port: appConfig.authPort,
-          },
-        }),
-        inject: [AppConfigService],
-      },
-      {
-        imports: [AppConfigModule],
-        name: SERVICE_NAME.AUTH,
-        useFactory: (appConfig: AppConfigService) => ({
           transport: Transport.GRPC,
           options: {
             package: PROTOBUF_PACKAGE.AUTH,

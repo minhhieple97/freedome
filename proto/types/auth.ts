@@ -6,10 +6,36 @@
 
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
+import { Empty } from "google/protobuf/empty";
 import { Timestamp } from "google/protobuf/timestamp";
 import { Observable } from "rxjs";
 
 export const protobufPackage = "auth";
+
+export interface ResetPasswordRequest {
+  userId: number;
+  password: string;
+}
+
+export interface ResendEmailRequest {
+  email: string;
+}
+
+export interface ResetPasswordWithTokenRequest {
+  token: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+}
+
+export interface VerifyEmailRequest {
+  token: string;
+}
 
 export interface GetUserByIdRequest {
   id: number;
@@ -122,6 +148,16 @@ export interface AuthServiceClient {
   decodeToken(request: DecodeTokenRequest): Observable<TokenDataResponse>;
 
   getUserById(request: GetUserByIdRequest): Observable<AuthPublic>;
+
+  verifyEmail(request: VerifyEmailRequest): Observable<AuthPublic>;
+
+  forgotPassword(request: ForgotPasswordRequest): Observable<Empty>;
+
+  resetPassword(request: ResetPasswordRequest): Observable<Empty>;
+
+  resetPasswordWithToken(request: ResetPasswordWithTokenRequest): Observable<Empty>;
+
+  resendEmail(request: ResendEmailRequest): Observable<Empty>;
 }
 
 export interface AuthServiceController {
@@ -136,11 +172,32 @@ export interface AuthServiceController {
   ): Promise<TokenDataResponse> | Observable<TokenDataResponse> | TokenDataResponse;
 
   getUserById(request: GetUserByIdRequest): Promise<AuthPublic> | Observable<AuthPublic> | AuthPublic;
+
+  verifyEmail(request: VerifyEmailRequest): Promise<AuthPublic> | Observable<AuthPublic> | AuthPublic;
+
+  forgotPassword(request: ForgotPasswordRequest): void;
+
+  resetPassword(request: ResetPasswordRequest): void;
+
+  resetPasswordWithToken(request: ResetPasswordWithTokenRequest): void;
+
+  resendEmail(request: ResendEmailRequest): void;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createUser", "getUserByCredential", "createToken", "decodeToken", "getUserById"];
+    const grpcMethods: string[] = [
+      "createUser",
+      "getUserByCredential",
+      "createToken",
+      "decodeToken",
+      "getUserById",
+      "verifyEmail",
+      "forgotPassword",
+      "resetPassword",
+      "resetPasswordWithToken",
+      "resendEmail",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);

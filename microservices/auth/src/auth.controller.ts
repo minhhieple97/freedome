@@ -1,9 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { MessagePattern } from '@nestjs/microservices';
 import {
   CreateUserDto,
-  EVENTS_HTTP,
   IAccessTokenPayload,
   ITokenResponse,
   ResetPasswordDtoWithTokenDto,
@@ -12,8 +10,11 @@ import {
 import {
   AuthServiceControllerMethods,
   DecodeTokenRequest,
+  ForgotPasswordRequest,
   GetUserByIdRequest,
   LoginAuthRequest,
+  ResendEmailRequest,
+  VerifyEmailRequest,
 } from 'proto/types';
 
 @Controller()
@@ -29,38 +30,27 @@ export class AuthController {
     return this.authService.getAuthUserById(id);
   }
 
-  @MessagePattern(EVENTS_HTTP.VERYFY_EMAIL)
-  async verifyEmail(token: string) {
+  async verifyEmail({ token }: VerifyEmailRequest) {
     const user = await this.authService.getUserByEmailToken(token);
     return this.authService.verifyEmail(user.id, true);
   }
 
-  @MessagePattern(EVENTS_HTTP.FORGOT_PASSWORD)
-  async forgotPasswod(email: string) {
-    await this.authService.forgotPassword(email);
-    return { message: 'success' };
+  forgotPassword({ email }: ForgotPasswordRequest) {
+    return this.authService.forgotPassword(email);
   }
 
-  @MessagePattern(EVENTS_HTTP.RESET_PASSWORD)
-  async resetPassword(
-    resetPasswordDtoWithUserId: ResetPasswordDtoWithUserIdDto,
-  ) {
-    await this.authService.resetPassword(resetPasswordDtoWithUserId);
-    return { message: 'success' };
+  resetPassword(resetPasswordDtoWithUserId: ResetPasswordDtoWithUserIdDto) {
+    return this.authService.resetPassword(resetPasswordDtoWithUserId);
   }
 
-  @MessagePattern(EVENTS_HTTP.RESET_PASSWORD_TOKEN)
-  async resetPasswordWithToken(
+  resetPasswordWithToken(
     resetPasswordDtoWithUserId: ResetPasswordDtoWithTokenDto,
   ) {
-    await this.authService.resetPasswordWithToken(resetPasswordDtoWithUserId);
-    return { message: 'success' };
+    return this.authService.resetPasswordWithToken(resetPasswordDtoWithUserId);
   }
 
-  @MessagePattern(EVENTS_HTTP.RESEND_EMAIL)
-  async resendEmail(email: string) {
-    await this.authService.resendEmail(email);
-    return { message: 'success' };
+  resendEmail({ email }: ResendEmailRequest) {
+    return this.authService.resendEmail(email);
   }
   getUserByCredential(loginUserRequest: LoginAuthRequest) {
     return this.authService.getUserByCredential(loginUserRequest);

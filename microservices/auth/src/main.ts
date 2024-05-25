@@ -31,12 +31,6 @@ async function bootstrap() {
   }
   app
     .connectMicroservice({
-      transport: Transport.TCP,
-      options: { host: '0.0.0.0', port: appConfig.tcpPort },
-    })
-    .listen();
-  app
-    .connectMicroservice({
       transport: Transport.GRPC,
       options: {
         package: PROTOBUF_PACKAGE.AUTH,

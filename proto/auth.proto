@@ -1,5 +1,5 @@
 syntax = "proto3";
-
+import "google/protobuf/empty.proto";
 package auth;
 
 // Importing Timestamp from the Google Protobuf library for date-time fields.
@@ -11,8 +11,31 @@ service AuthService {
   rpc CreateToken(CreateTokenRequest) returns (TokenResponse) {}
   rpc DecodeToken(DecodeTokenRequest) returns (TokenDataResponse) {}
   rpc GetUserById(GetUserByIdRequest) returns (AuthPublic) {}
+  rpc VerifyEmail (VerifyEmailRequest) returns (AuthPublic) {}
+  rpc ForgotPassword (ForgotPasswordRequest) returns (google.protobuf.Empty) {}
+  rpc ResetPassword (ResetPasswordRequest) returns (google.protobuf.Empty) {}
+  rpc ResetPasswordWithToken (ResetPasswordWithTokenRequest) returns (google.protobuf.Empty) {}
+  rpc ResendEmail (ResendEmailRequest) returns (google.protobuf.Empty) {}
 }
-
+message ResetPasswordRequest {
+  int32 userId = 1;
+  string password = 2;
+}
+message ResendEmailRequest {
+  string email = 1;
+}
+message ResetPasswordWithTokenRequest {
+  string token = 1;
+}
+message ForgotPasswordRequest {
+  string email = 1;
+}
+message ForgotPasswordResponse {
+  bool success = 1;
+}
+message VerifyEmailRequest {
+  string token = 1;
+}
 message GetUserByIdRequest {
   int32 id = 1;
 }

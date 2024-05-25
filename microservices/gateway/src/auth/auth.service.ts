@@ -1,18 +1,11 @@
-import {
-  Injectable,
-  Inject,
-  BadRequestException,
-  HttpException,
-  NotFoundException,
-} from '@nestjs/common';
-import { ClientGrpc, ClientProxy, RpcException } from '@nestjs/microservices';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { ClientGrpc, RpcException } from '@nestjs/microservices';
 import { firstValueFrom, Observable, of, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import {
   CreateUserDto,
   LoginUserDto,
   ResetPasswordDto,
-  EVENTS_HTTP,
   SERVICE_NAME,
   convertGrpcTimestampToPrisma,
 } from '@freedome/common';
@@ -29,10 +22,7 @@ import { AUTH_SERVICE_NAME, AuthPublic, AuthServiceClient } from 'proto/types';
 @Injectable()
 export class AuthService {
   private authService: AuthServiceClient;
-  constructor(
-    @Inject(SERVICE_NAME.AUTH) private readonly authServiceClient: ClientProxy,
-    @Inject(SERVICE_NAME.AUTH) private clientGrpc: ClientGrpc,
-  ) {}
+  constructor(@Inject(SERVICE_NAME.AUTH) private clientGrpc: ClientGrpc) {}
   onModuleInit() {
     this.authService =
       this.clientGrpc.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
@@ -145,82 +135,81 @@ export class AuthService {
   }
 
   verifyEmail(token: string): Observable<IAuthDocument> {
-    return this.authServiceClient.send(EVENTS_HTTP.VERYFY_EMAIL, token).pipe(
+    return this.authService.verifyEmail({ token }).pipe(
       switchMap((response) => {
-        return of(response);
+        return of({
+          ...response,
+          createdAt: convertGrpcTimestampToPrisma(response.createdAt),
+          updatedAt: convertGrpcTimestampToPrisma(response.updatedAt),
+        });
       }),
-      catchError((err) => {
-        if (err instanceof BadRequestException) {
-          throw err;
-        }
-        throw new BadRequestException();
-      }),
+      catchError((error) =>
+        throwError(
+          () =>
+            new RpcException({
+              code: error.code,
+              message: error.details,
+            }),
+        ),
+      ),
     );
   }
 
-  forgotPassword(email: string): Observable<{ message: string }> {
-    return this.authServiceClient.send(EVENTS_HTTP.FORGOT_PASSWORD, email).pipe(
-      switchMap((res) => {
-        return of(res);
-      }),
-      catchError((err) => {
-        if (err instanceof BadRequestException) {
-          throw err;
-        }
-        throw new BadRequestException();
-      }),
+  forgotPassword(email: string) {
+    return this.authService.forgotPassword({ email }).pipe(
+      catchError((error) =>
+        throwError(
+          () =>
+            new RpcException({
+              code: error.code,
+              message: error.details,
+            }),
+        ),
+      ),
     );
   }
 
-  resetPassword(
-    resetPasswordDto: ResetPasswordDto,
-    userId: number,
-  ): Observable<{ message: string }> {
-    return this.authServiceClient
-      .send(EVENTS_HTTP.RESET_PASSWORD, { ...resetPasswordDto, userId })
+  resetPassword(resetPasswordDto: ResetPasswordDto, userId: number) {
+    return this.authService.resetPassword({ ...resetPasswordDto, userId }).pipe(
+      catchError((error) =>
+        throwError(
+          () =>
+            new RpcException({
+              code: error.code,
+              message: error.details,
+            }),
+        ),
+      ),
+    );
+  }
+
+  resetPasswordWithToken(resetPasswordDto: ResetPasswordDto, token: string) {
+    return this.authService
+      .resetPasswordWithToken({ ...resetPasswordDto, token })
       .pipe(
-        switchMap((res) => {
-          return of(res);
-        }),
-        catchError((err) => {
-          if (err instanceof BadRequestException) {
-            throw err;
-          }
-          throw new BadRequestException();
-        }),
+        catchError((error) =>
+          throwError(
+            () =>
+              new RpcException({
+                code: error.code,
+                message: error.details,
+              }),
+          ),
+        ),
       );
   }
 
-  resetPasswordWithToken(
-    resetPasswordDto: ResetPasswordDto,
-    token: string,
-  ): Observable<{ message: string }> {
-    return this.authServiceClient
-      .send(EVENTS_HTTP.RESET_PASSWORD_TOKEN, { ...resetPasswordDto, token })
-      .pipe(
-        switchMap((res) => {
-          return of(res);
-        }),
-        catchError((err) => {
-          if (err instanceof HttpException) {
-            throw err;
-          }
-          throw new BadRequestException();
-        }),
-      );
-  }
-
-  resendEmail(email: string): Observable<{ message: string }> {
-    return this.authServiceClient.send(EVENTS_HTTP.RESEND_EMAIL, email).pipe(
-      switchMap((res) => {
-        return of(res);
-      }),
-      catchError((err) => {
-        if (err instanceof HttpException) {
-          throw err;
-        }
-        throw new BadRequestException();
-      }),
+  resendEmail(email: string) {
+    return this.authService.resendEmail({ email }).pipe(
+      catchError((error) =>
+        throwError(
+          () =>
+            new RpcException({
+              code: error.code,
+              message: error.details,
+            }),
+        ),
+      ),
     );
   }
 }
