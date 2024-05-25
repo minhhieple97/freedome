@@ -4,21 +4,7 @@ export * from './chat.interface';
 export * from './gig.interface';
 export * from './order.interface';
 export * from './review.interface';
-export {
-  ISearchResult,
-  IHitsTotal,
-  IQueryList,
-  IQueryString,
-  ITerm,
-  IPaginateProps,
-} from './search.interface';
-export {
-  SellerType,
-  ILanguage,
-  IExperience,
-  IEducation,
-  ICertificate,
-  ISellerDocument,
-} from './seller.interface';
-export { IEmailLocals } from './email.interface';
-export { IEnv, IUploadR2, Method } from './r2.interface';
+export * from './search.interface';
+export * from './seller.interface';
+export * from './email.interface';
+export * from './r2.interface';
