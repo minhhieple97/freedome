@@ -6,11 +6,15 @@ import {
   EVENTS_HTTP,
   IAccessTokenPayload,
   ITokenResponse,
-  LoginUserDto,
   ResetPasswordDtoWithTokenDto,
   ResetPasswordDtoWithUserIdDto,
 } from '@freedome/common';
-import { AuthServiceControllerMethods, LoginAuthRequest } from 'proto/types';
+import {
+  AuthServiceControllerMethods,
+  DecodeTokenRequest,
+  GetUserByIdRequest,
+  LoginAuthRequest,
+} from 'proto/types';
 
 @Controller()
 @AuthServiceControllerMethods()
@@ -21,13 +25,7 @@ export class AuthController {
     return this.authService.createUser(userInfo);
   }
 
-  @MessagePattern(EVENTS_HTTP.USER_SEARCH_BY_CREDENTIALS)
-  getUserByConditional(loginUserDto: LoginUserDto) {
-    return this.authService.getUserByCredential(loginUserDto);
-  }
-
-  @MessagePattern(EVENTS_HTTP.USER_GET_BY_ID)
-  getUserById(id: number) {
+  getUserById({ id }: GetUserByIdRequest) {
     return this.authService.getAuthUserById(id);
   }
 
@@ -71,8 +69,10 @@ export class AuthController {
   async createToken(data: IAccessTokenPayload): Promise<ITokenResponse> {
     return this.authService.createToken(data);
   }
-  public async decodeToken(token: string): Promise<IAccessTokenPayload> {
-    const tokenData = await this.authService.decodeToken(token);
+  public async decodeToken(
+    tokenValue: DecodeTokenRequest,
+  ): Promise<IAccessTokenPayload> {
+    const tokenData = await this.authService.decodeToken(tokenValue);
     return tokenData;
   }
 }

@@ -9,7 +9,6 @@ import { AppConfigService } from '@auth/config/app/config.service';
 import { TokenService } from './services/token.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from '@freedome/common/upload';
-import { TokenController } from './token.controller';
 import { SearchModule } from './search/search.module';
 
 @Module({
@@ -45,7 +44,7 @@ import { SearchModule } from './search/search.module';
       },
     ]),
   ],
-  controllers: [AuthController, TokenController],
+  controllers: [AuthController],
   providers: [AuthService, TokenService, AppConfigService],
 })
 export class AuthModule {}

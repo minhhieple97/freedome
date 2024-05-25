@@ -86,6 +86,9 @@ importers:
       express:
         specifier: ^4.19.2
         version: 4.19.2
+      google-protobuf:
+        specifier: ^3.21.2
+        version: 3.21.2
       helmet:
         specifier: ^7.1.0
         version: 7.1.0
@@ -165,6 +168,9 @@ importers:
       '@types/express':
         specifier: ^4.17.17
         version: 4.17.17
+      '@types/google-protobuf':
+        specifier: ^3.15.12
+        version: 3.15.12
       '@types/hpp':
         specifier: ^0.2.6
         version: 0.2.6
@@ -1567,6 +1573,9 @@ packages:
   '@types/glob@7.2.0':
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
 
+  '@types/google-protobuf@3.15.12':
+    resolution: {integrity: sha512-40um9QqwHjRS92qnOaDpL7RmDK15NuZYo9HihiJRbYkMQZlWnuH8AdvbMy8/o6lgLmKbDUKa+OALCltHdbOTpQ==}
+
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
 
@@ -2890,6 +2899,9 @@ packages:
   globby@11.1.0:
     resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
     engines: {node: '>=10'}
+
+  google-protobuf@3.21.2:
+    resolution: {integrity: sha512-3MSOYFO5U9mPGikIYCzK0SaThypfGgS6bHqrUGXG3DPHCrb+txNqeEcns1W0lkGfk0rCyNXm7xB9rMxnCiZOoA==}
 
   gopd@1.0.1:
     resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
@@ -6695,6 +6707,8 @@ snapshots:
       '@types/minimatch': 3.0.5
       '@types/node': 20.3.1
 
+  '@types/google-protobuf@3.15.12': {}
+
   '@types/graceful-fs@4.1.9':
     dependencies:
       '@types/node': 20.3.1
@@ -8358,6 +8372,8 @@ snapshots:
       ignore: 5.3.1
       merge2: 1.4.1
       slash: 3.0.0
+
+  google-protobuf@3.21.2: {}
 
   gopd@1.0.1:
     dependencies:

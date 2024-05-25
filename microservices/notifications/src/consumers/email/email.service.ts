@@ -64,7 +64,6 @@ export class EmailService {
         locals,
       });
     } catch (error) {
-      console.log(error);
       this.logger.error('Error sending email', error);
     }
   }
