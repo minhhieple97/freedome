@@ -11,6 +11,10 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "auth";
 
+export interface GetUserByIdRequest {
+  id: number;
+}
+
 export interface CreateUserResponse {
   user: Auth | undefined;
   accessToken: string;
@@ -68,7 +72,11 @@ export interface Auth {
   /** The token for resetting the user's password, which is optional. */
   passwordResetToken: string;
   /** The expiration date and time for the password reset token, which is optional. */
-  passwordResetExpires: Timestamp | undefined;
+  passwordResetExpires:
+    | Timestamp
+    | undefined;
+  /** The date and time when the user was updated. */
+  updatedAt: Timestamp | undefined;
 }
 
 export interface LoginAuthRequest {
@@ -110,6 +118,8 @@ export interface TokenDataResponse {
   id: number;
   email: string;
   username: string;
+  iat: number;
+  exp: number;
 }
 
 export interface CreateTokenRequest {
@@ -127,7 +137,9 @@ export interface AuthServiceClient {
 
   createToken(request: CreateTokenRequest): Observable<TokenResponse>;
 
-  decodeToken(request: DecodeTokenRequest): Observable<TokenResponse>;
+  decodeToken(request: DecodeTokenRequest): Observable<TokenDataResponse>;
+
+  getUserById(request: GetUserByIdRequest): Observable<Auth>;
 }
 
 export interface AuthServiceController {
@@ -137,12 +149,16 @@ export interface AuthServiceController {
 
   createToken(request: CreateTokenRequest): Promise<TokenResponse> | Observable<TokenResponse> | TokenResponse;
 
-  decodeToken(request: DecodeTokenRequest): Promise<TokenResponse> | Observable<TokenResponse> | TokenResponse;
+  decodeToken(
+    request: DecodeTokenRequest,
+  ): Promise<TokenDataResponse> | Observable<TokenDataResponse> | TokenDataResponse;
+
+  getUserById(request: GetUserByIdRequest): Promise<Auth> | Observable<Auth> | Auth;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createUser", "getUserByCredential", "createToken", "decodeToken"];
+    const grpcMethods: string[] = ["createUser", "getUserByCredential", "createToken", "decodeToken", "getUserById"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
