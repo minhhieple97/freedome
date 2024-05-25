@@ -9,9 +9,14 @@ service AuthService {
   rpc CreateUser (CreateAuthDto) returns (CreateUserResponse) {}
   rpc GetUserByCredential(LoginAuthRequest) returns (Auth) {}
   rpc CreateToken(CreateTokenRequest) returns (TokenResponse) {}
-  rpc DecodeToken(DecodeTokenRequest) returns (TokenResponse) {}
-
+  rpc DecodeToken(DecodeTokenRequest) returns (TokenDataResponse) {}
+  rpc GetUserById(GetUserByIdRequest) returns (Auth) {}
 }
+
+message GetUserByIdRequest {
+  int32 id = 1;
+}
+
 message CreateUserResponse {
     Auth user = 1;
     string accessToken = 2;
@@ -86,6 +91,9 @@ message Auth {
 
   // The expiration date and time for the password reset token, which is optional.
   google.protobuf.Timestamp passwordResetExpires = 15;
+
+  // The date and time when the user was updated.
+  google.protobuf.Timestamp updatedAt = 16;
 }
 
 
@@ -132,6 +140,8 @@ message TokenDataResponse {
     int32 id = 1;
     string email = 2;
     string username = 3;
+    int64 iat = 4;
+    int64 exp = 5;
 }
 
 message CreateTokenRequest {
