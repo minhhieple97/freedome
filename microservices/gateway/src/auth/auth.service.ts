@@ -3,6 +3,7 @@ import {
   Inject,
   BadRequestException,
   HttpException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ClientGrpc, ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom, Observable, of, throwError } from 'rxjs';
@@ -13,6 +14,7 @@ import {
   ResetPasswordDto,
   EVENTS_HTTP,
   SERVICE_NAME,
+  convertGrpcTimestampToPrisma,
 } from '@freedome/common';
 import { IAuthDocument, ITokenResponse } from '@freedome/common/interfaces';
 import { Response } from 'express';
@@ -36,11 +38,28 @@ export class AuthService {
       this.clientGrpc.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
   }
 
-  async getUserByToken(userId: number): Promise<IAuthDocument | null> {
+  async getUserByToken(userId: number) {
     const userInfo = await firstValueFrom(
-      this.authServiceClient.send(EVENTS_HTTP.USER_GET_BY_ID, userId),
+      this.authService.getUserById({ id: userId }).pipe(
+        catchError((error) =>
+          throwError(
+            () =>
+              new RpcException({
+                code: error.code,
+                message: error.details,
+              }),
+          ),
+        ),
+      ),
     );
-    return userInfo;
+    if (!userInfo) {
+      throw new NotFoundException('User not found');
+    }
+    return {
+      ...userInfo,
+      createdAt: convertGrpcTimestampToPrisma(userInfo.createdAt),
+      updatedAt: convertGrpcTimestampToPrisma(userInfo.updatedAt),
+    };
   }
 
   createUser(userRequest: CreateUserDto, res: Response): Observable<any> {

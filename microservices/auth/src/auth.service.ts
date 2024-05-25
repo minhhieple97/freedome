@@ -17,10 +17,10 @@ import {
   ResetPasswordDtoWithTokenDto,
   ResetPasswordDtoWithUserIdDto,
   SERVICE_NAME,
+  dateToTimestamp,
 } from '@freedome/common';
 import {
   BadRequestException,
-  HttpStatus,
   Inject,
   Injectable,
   NotFoundException,
@@ -35,6 +35,7 @@ import { TokenService } from './services/token.service';
 import { PrismaError } from '@freedome/common/enums';
 import { sensitiveFields } from './prisma/sensitive-fields.prisma';
 import { getRandomCharacters } from './common/helpers/random.helper';
+import { DecodeTokenRequest } from 'proto/types';
 @Injectable()
 export class AuthService {
   constructor(
@@ -105,12 +106,19 @@ export class AuthService {
       },
     });
     if (!user) {
-      return {
-        status: HttpStatus.NOT_FOUND,
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
         message: 'user_not_found',
-      };
+      });
     }
-    return _.omit(user, sensitiveFields);
+    return _.omit(
+      {
+        ...user,
+        createdAt: dateToTimestamp(user.createdAt),
+        updatedAt: dateToTimestamp(user.updatedAt),
+      },
+      sensitiveFields,
+    );
   }
   async updateAuthRecord(id: number, data: Partial<Auth>) {
     const updatedAuth = await this.prismaService.auth.update({
@@ -368,7 +376,7 @@ export class AuthService {
       refreshToken,
     };
   }
-  decodeToken(token: string): Promise<IAccessTokenPayload> {
-    return this.tokenService.decodeToken(token);
+  decodeToken(tokenValue: DecodeTokenRequest): Promise<IAccessTokenPayload> {
+    return this.tokenService.decodeToken(tokenValue);
   }
 }

@@ -1,4 +1,4 @@
-import { EVENTS_HTTP, IAuthDocument, SERVICE_NAME } from '@freedome/common';
+import { SERVICE_NAME } from '@freedome/common';
 import {
   CanActivate,
   ExecutionContext,
@@ -6,33 +6,38 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { Observable, catchError, map, tap } from 'rxjs';
+import { ClientGrpc, RpcException } from '@nestjs/microservices';
+import { Observable, catchError, map, tap, throwError } from 'rxjs';
 import { ACCESS_TOKEN_KEY } from '../constants';
+import { AUTH_SERVICE_NAME, AuthServiceClient } from 'proto/types';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(
-    @Inject(SERVICE_NAME.AUTH) private readonly authClient: ClientProxy,
-  ) {}
+  private authService: AuthServiceClient;
+  constructor(@Inject(SERVICE_NAME.AUTH) private clientGrpc: ClientGrpc) {}
+  onModuleInit() {
+    this.authService =
+      this.clientGrpc.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
+  }
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const jwt = context.switchToHttp().getRequest().cookies?.[ACCESS_TOKEN_KEY];
     if (!jwt) throw new UnauthorizedException();
-    return this.authClient
-      .send<IAuthDocument>(EVENTS_HTTP.TOKEN_DECODE, jwt)
-      .pipe(
-        tap((res) => {
-          context.switchToHttp().getRequest().user = res;
-        }),
-        map(() => true),
-        catchError((err) => {
-          if (err instanceof UnauthorizedException) {
-            throw err;
-          }
-          throw new UnauthorizedException();
-        }),
-      );
+    return this.authService.decodeToken({ token: jwt }).pipe(
+      tap((res) => {
+        context.switchToHttp().getRequest().user = res;
+      }),
+      map(() => true),
+      catchError((error) =>
+        throwError(
+          () =>
+            new RpcException({
+              code: error.code,
+              message: error.details,
+            }),
+        ),
+      ),
+    );
   }
 }

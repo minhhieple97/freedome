@@ -1,7 +1,9 @@
 import { IAccessTokenPayload } from '@freedome/common';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-
+import { RpcException } from '@nestjs/microservices';
+import * as grpc from '@grpc/grpc-js';
+import { DecodeTokenRequest } from 'proto/types';
 @Injectable()
 export class TokenService {
   constructor(private readonly jwtService: JwtService) {}
@@ -32,9 +34,14 @@ export class TokenService {
     );
     return token;
   }
-  async decodeToken(token: string) {
+  async decodeToken({ token }: DecodeTokenRequest) {
     const tokenData = this.jwtService.decode(token);
-    if (!tokenData) throw new UnauthorizedException();
+    if (!tokenData) {
+      throw new RpcException({
+        code: grpc.status.UNAUTHENTICATED,
+        message: 'Wrong credentials provided',
+      });
+    }
     return tokenData;
   }
 }
