@@ -10,6 +10,7 @@ import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
 import * as hpp from 'hpp';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { LoggerInterceptor } from '@freedome/common/interceptors';
 const logger = new LoggerService('APIGW Service');
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(GatewayModule, {
@@ -42,6 +43,7 @@ async function bootstrap() {
   app.useBodyParser('json', { limit: '5mb' });
   app.use(hpp());
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new LoggerInterceptor());
   if (appConfig.nodeEnv == 'development') {
     const options = new DocumentBuilder()
       .setTitle('API docs')
