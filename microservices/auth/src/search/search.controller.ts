@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { SearchService } from './search.service';
-import { ISearchResult, SearchGigsDtoParam } from '@freedome/common';
+import { SearchGigsDtoParam } from '@freedome/common';
 import { sortBy } from 'lodash';
 
 @Controller('search')
