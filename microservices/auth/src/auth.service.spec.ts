@@ -1,5 +1,3 @@
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { Auth } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
