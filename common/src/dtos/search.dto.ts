@@ -6,8 +6,7 @@ import {
   Max,
   IsNumber,
 } from 'class-validator';
-import { IPaginateProps } from '../interfaces';
-import { Transform, Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 export class PaginateDtoParam {
   @IsString()
   @IsOptional()
@@ -25,25 +24,35 @@ export class PaginateDtoParam {
 
 export class SearchGigsDtoParam {
   @IsString()
+  @IsOptional()
   searchQuery: string;
 
   @IsOptional()
   @IsString()
-  deliveryTime?: string;
+  deliveryTime: string;
 
   @IsInt()
   @Min(0)
   @IsOptional()
   @Transform(({ value }) => Number(value))
-  min?: number;
+  min: number;
 
   @IsInt()
   @Max(100)
   @IsOptional()
   @Transform(({ value }) => Number(value))
-  max?: number;
+  max: number;
 
+  @IsString()
   @IsOptional()
-  @Type(() => PaginateDtoParam)
-  paginate: IPaginateProps;
+  from: string;
+
+  @IsNumber()
+  @IsOptional()
+  @Transform(({ value }) => Number(value))
+  size: number;
+
+  @IsString()
+  @IsOptional()
+  type: string;
 }
