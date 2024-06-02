@@ -136,6 +136,53 @@ export interface CreateTokenRequest {
   username: string;
 }
 
+export interface GigResponse {
+  sellerId: string;
+  username: string;
+  profilePicture: string;
+  email: string;
+  title: string;
+  description: string;
+  categories: string;
+  subCategories: string[];
+  tags: string[];
+  active: boolean;
+  expectedDelivery: string;
+  basicTitle: string;
+  basicDescription: string;
+  ratingsCount: number;
+  ratingSum: number;
+  price: number;
+  sortId: number;
+  ratingCategories: GigResponse_RatingCategories | undefined;
+  coverImage: string;
+  createdAt: string;
+  id: string;
+}
+
+export interface GigResponse_RatingCategories {
+  five: number;
+  four: number;
+  three: number;
+  two: number;
+  one: number;
+}
+
+export interface SearchGigsResponse {
+  gigs: GigResponse[];
+  total: number;
+}
+
+export interface SearchGigsRequest {
+  searchQuery: string;
+  deliveryTime: string;
+  min: number;
+  max: number;
+  from: string;
+  size: number;
+  type: string;
+}
+
 export const AUTH_PACKAGE_NAME = "auth";
 
 export interface AuthServiceClient {
@@ -158,6 +205,8 @@ export interface AuthServiceClient {
   resetPasswordWithToken(request: ResetPasswordWithTokenRequest): Observable<Empty>;
 
   resendEmail(request: ResendEmailRequest): Observable<Empty>;
+
+  searchGigs(request: SearchGigsRequest): Observable<SearchGigsResponse>;
 }
 
 export interface AuthServiceController {
@@ -182,6 +231,10 @@ export interface AuthServiceController {
   resetPasswordWithToken(request: ResetPasswordWithTokenRequest): void;
 
   resendEmail(request: ResendEmailRequest): void;
+
+  searchGigs(
+    request: SearchGigsRequest,
+  ): Promise<SearchGigsResponse> | Observable<SearchGigsResponse> | SearchGigsResponse;
 }
 
 export function AuthServiceControllerMethods() {
@@ -197,6 +250,7 @@ export function AuthServiceControllerMethods() {
       "resetPassword",
       "resetPasswordWithToken",
       "resendEmail",
+      "searchGigs",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

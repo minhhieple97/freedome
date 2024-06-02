@@ -5,18 +5,6 @@ package auth;
 // Importing Timestamp from the Google Protobuf library for date-time fields.
 import "google/protobuf/timestamp.proto";
 
-service AuthService {
-  rpc CreateUser (CreateAuthDto) returns (CreateUserResponse) {}
-  rpc GetUserByCredential(LoginAuthRequest) returns (AuthPublic) {}
-  rpc CreateToken(CreateTokenRequest) returns (TokenResponse) {}
-  rpc DecodeToken(DecodeTokenRequest) returns (TokenDataResponse) {}
-  rpc GetUserById(GetUserByIdRequest) returns (AuthPublic) {}
-  rpc VerifyEmail (VerifyEmailRequest) returns (AuthPublic) {}
-  rpc ForgotPassword (ForgotPasswordRequest) returns (google.protobuf.Empty) {}
-  rpc ResetPassword (ResetPasswordRequest) returns (google.protobuf.Empty) {}
-  rpc ResetPasswordWithToken (ResetPasswordWithTokenRequest) returns (google.protobuf.Empty) {}
-  rpc ResendEmail (ResendEmailRequest) returns (google.protobuf.Empty) {}
-}
 message ResetPasswordRequest {
   int32 userId = 1;
   string password = 2;
@@ -150,4 +138,65 @@ message CreateTokenRequest {
   int32 id = 1;
   string email = 2;
   string username = 3;
+}
+
+message GigResponse {
+  string sellerId = 1;
+  string username = 2;
+  string profilePicture = 3;
+  string email = 4;
+  string title = 5;
+  string description = 6;
+  string categories = 7;
+  repeated string subCategories = 8;
+  repeated string tags = 9;
+  bool active = 10;
+  string expectedDelivery = 11;
+  string basicTitle = 12;
+  string basicDescription = 13;
+  int32 ratingsCount = 14;
+  int32 ratingSum = 15;
+  int32 price = 16;
+  int32 sortId = 17;
+  message RatingCategories {
+    int32 five = 1;
+    int32 four = 2;
+    int32 three = 3;
+    int32 two = 4;
+    int32 one = 5;
+  }
+  RatingCategories ratingCategories = 18;
+  string coverImage = 19;
+  string createdAt = 20;
+  string id = 21;
+}
+
+
+message SearchGigsResponse {
+  repeated GigResponse gigs = 1;
+  int32 total = 2;
+}
+
+message SearchGigsRequest {
+  string searchQuery = 1;
+  string deliveryTime = 2;
+  int32 min = 3;
+  int32 max = 4;
+  string from = 5;
+  int32 size = 6;
+  string type = 7;
+}
+
+service AuthService {
+  rpc CreateUser (CreateAuthDto) returns (CreateUserResponse) {}
+  rpc GetUserByCredential(LoginAuthRequest) returns (AuthPublic) {}
+  rpc CreateToken(CreateTokenRequest) returns (TokenResponse) {}
+  rpc DecodeToken(DecodeTokenRequest) returns (TokenDataResponse) {}
+  rpc GetUserById(GetUserByIdRequest) returns (AuthPublic) {}
+  rpc VerifyEmail (VerifyEmailRequest) returns (AuthPublic) {}
+  rpc ForgotPassword (ForgotPasswordRequest) returns (google.protobuf.Empty) {}
+  rpc ResetPassword (ResetPasswordRequest) returns (google.protobuf.Empty) {}
+  rpc ResetPasswordWithToken (ResetPasswordWithTokenRequest) returns (google.protobuf.Empty) {}
+  rpc ResendEmail (ResendEmailRequest) returns (google.protobuf.Empty) {}
+  rpc SearchGigs(SearchGigsRequest) returns (SearchGigsResponse) {}
 }
