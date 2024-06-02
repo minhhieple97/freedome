@@ -25,7 +25,7 @@ export class SearchService {
   searchGigs(searchGigsRequest: SearchGigsRequest) {
     const { searchQuery, deliveryTime, min, max, from, size, type } =
       searchGigsRequest;
-    const searchGigsRequest_ = {
+    const searchGigsRequestPayload = {
       searchQuery: searchQuery || EMPTY_STRING,
       deliveryTime: deliveryTime || EMPTY_STRING,
       min: min || EMPTY_NUMBER,
@@ -34,7 +34,7 @@ export class SearchService {
       size: size || DEFAULT_SIZE,
       type: type || 'backward',
     };
-    return this.authService.searchGigs(searchGigsRequest_).pipe(
+    return this.authService.searchGigs(searchGigsRequestPayload).pipe(
       catchError((error) =>
         throwError(
           () =>

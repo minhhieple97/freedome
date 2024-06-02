@@ -3,17 +3,11 @@ import { AppConfigModule } from './config/app/config.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppConfigService } from './config/app/config.service';
 import { SERVICE_NAME } from '@freedome/common';
-import { MessageController } from './message.controller';
-import { ReviewController } from './review.controller';
-import { SearchController } from './search.controller';
-import { SellerController } from './seller.controller';
-import { CurrentUserController } from './current-user.controller';
-import { GigController } from './gig.controller';
-import { OrderController } from './order.controller';
 import { ElasticsearchModule } from '@freedome/common/elasticsearch';
 import { TerminusModule } from '@nestjs/terminus';
 import HealthModule from './api/health/health.module';
 import { AuthModule } from './auth/auth.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -22,6 +16,7 @@ import { AuthModule } from './auth/auth.module';
     TerminusModule,
     ElasticsearchModule,
     HealthModule,
+    SearchModule,
     ClientsModule.registerAsync([
       {
         imports: [AppConfigModule],
@@ -109,14 +104,6 @@ import { AuthModule } from './auth/auth.module';
       },
     ]),
   ],
-  controllers: [
-    MessageController,
-    ReviewController,
-    SearchController,
-    SellerController,
-    CurrentUserController,
-    GigController,
-    OrderController,
-  ],
+  controllers: [],
 })
 export class GatewayModule {}

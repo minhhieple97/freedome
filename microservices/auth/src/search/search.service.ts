@@ -7,11 +7,11 @@ import {
   ISearchResult,
   ISellerGig,
   LoggerService,
-  SearchGigsDtoParam,
 } from '@freedome/common';
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { uniqueId } from 'lodash';
+import { SearchGigsRequest } from 'proto/types';
 
 @Injectable()
 export class SearchService {
@@ -22,11 +22,10 @@ export class SearchService {
     private readonly appConfigService: AppConfigService,
   ) {}
   public async createIndex() {
-    this.logger.log(`Creating index ${this.gigIndex}`);
     const checkIndex = await this.esService.indices.exists({
       index: this.gigIndex,
     });
-    this.logger.log(`Index ${this.gigIndex} ${checkIndex}`);
+    this.logger.log(`Index ${this.gigIndex} already exists`);
     if (!checkIndex) {
       this.logger.log(`Created index ${this.gigIndex}`);
       await this.esService.indices.create({
@@ -50,14 +49,11 @@ export class SearchService {
     });
     return _source as ISellerGig;
   }
-  async gigsSearch({
-    searchQuery,
-    paginate,
-    deliveryTime,
-    min,
-    max,
-  }: SearchGigsDtoParam): Promise<ISearchResult> {
-    const { from, size, type } = paginate;
+  async gigsSearch(
+    searchGigsRequest: SearchGigsRequest,
+  ): Promise<ISearchResult> {
+    const { searchQuery, deliveryTime, min, max, size, type, from } =
+      searchGigsRequest;
     const queryList: IQueryList[] = [
       {
         query_string: {
@@ -81,7 +77,7 @@ export class SearchService {
       },
     ];
 
-    if (deliveryTime !== 'undefined') {
+    if (deliveryTime) {
       queryList.push({
         query_string: {
           fields: ['expectedDelivery'],
@@ -89,16 +85,21 @@ export class SearchService {
         },
       });
     }
-
-    if (!isNaN(parseInt(`${min}`)) && !isNaN(parseInt(`${max}`))) {
-      queryList.push({
-        range: {
-          price: {
-            gte: min,
-            lte: max,
-          },
-        },
-      });
+    const priceRange = {} as { gte?: number; lte?: number };
+    if (Number.isInteger(min) && min >= 0) {
+      priceRange.gte = min;
+    }
+    if (Number.isInteger(max) && max >= 0 && max >= min) {
+      priceRange.lte = max;
+    }
+    queryList.push({
+      range: {
+        price: priceRange,
+      },
+    });
+    const searchAfter = {} as { search_after: [string] };
+    if (from) {
+      searchAfter.search_after = [from];
     }
     const result: SearchResponse = await this.esService.search({
       index: this.gigIndex,
@@ -113,7 +114,7 @@ export class SearchService {
           sortId: type === 'forward' ? 'asc' : 'desc',
         },
       ],
-      ...(from !== '0' && { search_after: [from] }),
+      ...searchAfter,
     });
     const total: IHitsTotal = result.hits.total as IHitsTotal;
     return {
