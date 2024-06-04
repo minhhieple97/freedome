@@ -183,6 +183,10 @@ export interface SearchGigsRequest {
   type: string;
 }
 
+export interface SeedUserRequest {
+  count: number;
+}
+
 export const AUTH_PACKAGE_NAME = "auth";
 
 export interface AuthServiceClient {
@@ -207,6 +211,8 @@ export interface AuthServiceClient {
   resendEmail(request: ResendEmailRequest): Observable<Empty>;
 
   searchGigs(request: SearchGigsRequest): Observable<SearchGigsResponse>;
+
+  seedUser(request: SeedUserRequest): Observable<Empty>;
 }
 
 export interface AuthServiceController {
@@ -235,6 +241,8 @@ export interface AuthServiceController {
   searchGigs(
     request: SearchGigsRequest,
   ): Promise<SearchGigsResponse> | Observable<SearchGigsResponse> | SearchGigsResponse;
+
+  seedUser(request: SeedUserRequest): void;
 }
 
 export function AuthServiceControllerMethods() {
@@ -251,6 +259,7 @@ export function AuthServiceControllerMethods() {
       "resetPasswordWithToken",
       "resendEmail",
       "searchGigs",
+      "seedUser",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

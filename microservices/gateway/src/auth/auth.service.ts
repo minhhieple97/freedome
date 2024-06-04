@@ -17,7 +17,12 @@ import {
   REFRESH_TOKEN_EXPIRES_IN,
   REFRESH_TOKEN_KEY,
 } from '@gateway/common/constants';
-import { AUTH_SERVICE_NAME, AuthPublic, AuthServiceClient } from 'proto/types';
+import {
+  AUTH_SERVICE_NAME,
+  AuthPublic,
+  AuthServiceClient,
+  SeedUserRequest,
+} from 'proto/types';
 
 @Injectable()
 export class AuthService {
@@ -201,6 +206,19 @@ export class AuthService {
 
   resendEmail(email: string) {
     return this.authService.resendEmail({ email }).pipe(
+      catchError((error) =>
+        throwError(
+          () =>
+            new RpcException({
+              code: error.code,
+              message: error.details,
+            }),
+        ),
+      ),
+    );
+  }
+  seedUser(seedUserRequest: SeedUserRequest) {
+    return this.authService.seedUser(seedUserRequest).pipe(
       catchError((error) =>
         throwError(
           () =>

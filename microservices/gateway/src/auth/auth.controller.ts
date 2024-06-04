@@ -8,6 +8,7 @@ import {
   UseGuards,
   Param,
   Put,
+  Query,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import {
@@ -27,6 +28,7 @@ import {
   ResendEmailDto,
   ResetPasswordDto,
   ResetPasswrdResponseDto,
+  SeedUserDtoParams,
   VerifyAuthEmailResponseDto,
   VerifyRequestDto,
 } from '@freedome/common';
@@ -38,6 +40,7 @@ import {
 import { Response } from 'express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
+import { Empty } from 'google/protobuf/empty';
 
 @ApiBearerAuth('authorization')
 @Controller('auth')
@@ -129,5 +132,10 @@ export class AuthController {
   })
   public resendEmail(@Body() resendEmail: ResendEmailDto) {
     return this.authService.resendEmail(resendEmail.email);
+  }
+  @Post('seed')
+  @UseGuards(JwtAuthGuard)
+  seedUser(@Query() seedUserDtoParams: SeedUserDtoParams): Observable<Empty> {
+    return this.authService.seedUser(seedUserDtoParams);
   }
 }

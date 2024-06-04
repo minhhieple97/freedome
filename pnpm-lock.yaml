@@ -14,6 +14,9 @@ importers:
       '@elastic/elasticsearch':
         specifier: ^8.13.1
         version: 8.13.1
+      '@faker-js/faker':
+        specifier: ^8.4.1
+        version: 8.4.1
       '@grpc/grpc-js':
         specifier: ^1.10.8
         version: 1.10.8
@@ -134,6 +137,9 @@ importers:
       ts-proto:
         specifier: ^1.176.0
         version: 1.176.0
+      unique-username-generator:
+        specifier: ^1.3.0
+        version: 1.3.0
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
@@ -665,6 +671,10 @@ packages:
   '@eslint/js@8.42.0':
     resolution: {integrity: sha512-6SWlXpWU5AvId8Ac7zjzmIOqMOba/JWY8XZ4A7q7Gn1Vlfg/SFFIlrtHXt9nPn4op9ZPAkl91Jao+QQv3r/ukw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@faker-js/faker@8.4.1':
+    resolution: {integrity: sha512-XQ3cU+Q8Uqmrbf2e0cIC/QN43sTBSC8KF12u29Mb47tWrt2hAgBXSgpZMj4Ao8Uk0iJcU99QsOCaIL8934obCg==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0, npm: '>=6.14.13'}
 
   '@fastify/busboy@2.1.1':
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
@@ -4705,6 +4715,9 @@ packages:
   unicode-substring@0.1.0:
     resolution: {integrity: sha512-36Xaw9wXi7MB/3/EQZZHkZyyiRNa9i3k9YtPAz2KfqMVH2xutdXyMHn4Igarmnvr+wOrfWa/6njhY+jPpXN2EQ==}
 
+  unique-username-generator@1.3.0:
+    resolution: {integrity: sha512-oPs+Jq9UlXmcrpzrpYvWOWVUVLkJ0/x8zM66ikWEBe1l/hBqXS5fofsDvdScLIlPtqQKlu8/Y91b6T2XtIFubQ==}
+
   universalify@2.0.1:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
@@ -5712,6 +5725,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.42.0': {}
+
+  '@faker-js/faker@8.4.1': {}
 
   '@fastify/busboy@2.1.1': {}
 
@@ -10424,6 +10439,8 @@ snapshots:
 
   unicode-substring@0.1.0:
     optional: true
+
+  unique-username-generator@1.3.0: {}
 
   universalify@2.0.1: {}
 

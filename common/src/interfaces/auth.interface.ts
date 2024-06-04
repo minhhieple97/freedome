@@ -32,6 +32,8 @@ export interface IAuthDocument {
   country?: string;
   profilePicture?: string;
   emailVerified?: boolean;
+  deviceType?: string;
+  browserName?: string;
   emailVerificationToken?: string;
   createdAt?: Date;
   updatedAt?: Date;

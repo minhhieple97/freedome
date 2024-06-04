@@ -14,6 +14,7 @@ import {
   GetUserByIdRequest,
   LoginAuthRequest,
   ResendEmailRequest,
+  SeedUserRequest,
   VerifyEmailRequest,
 } from 'proto/types';
 import { GrpcMethod } from '@nestjs/microservices';
@@ -76,5 +77,10 @@ export class AuthController {
   ): Promise<IAccessTokenPayload> {
     const tokenData = await this.authService.decodeToken(tokenValue);
     return tokenData;
+  }
+
+  @GrpcMethod(AUTH_SERVICE_NAME, 'seedUser')
+  public seedUser(seedUserRequest: SeedUserRequest): Promise<void> {
+    return this.authService.seedUser(seedUserRequest);
   }
 }

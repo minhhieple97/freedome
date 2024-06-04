@@ -186,7 +186,9 @@ message SearchGigsRequest {
   int32 size = 6;
   string type = 7;
 }
-
+message SeedUserRequest {
+  int32 count = 1;
+}
 service AuthService {
   rpc CreateUser (CreateAuthDto) returns (CreateUserResponse) {}
   rpc GetUserByCredential(LoginAuthRequest) returns (AuthPublic) {}
@@ -199,4 +201,5 @@ service AuthService {
   rpc ResetPasswordWithToken (ResetPasswordWithTokenRequest) returns (google.protobuf.Empty) {}
   rpc ResendEmail (ResendEmailRequest) returns (google.protobuf.Empty) {}
   rpc SearchGigs(SearchGigsRequest) returns (SearchGigsResponse) {}
+  rpc SeedUser (SeedUserRequest) returns (google.protobuf.Empty) {}
 }

@@ -56,3 +56,11 @@ export class SearchGigsDtoParam {
   @IsOptional()
   type: string;
 }
+
+export class SeedUserDtoParams {
+  @IsInt()
+  @Max(20)
+  @IsOptional()
+  @Transform(({ value }) => Number(value))
+  count: number;
+}

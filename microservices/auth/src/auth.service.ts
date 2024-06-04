@@ -6,6 +6,10 @@ import { UploadService } from '@freedome/common/upload';
 import { AppConfigService } from '@auth/config/app/config.service';
 import * as grpc from '@grpc/grpc-js';
 import { PrismaService } from './prisma/prisma.service';
+import * as crypto from 'crypto';
+import { faker } from '@faker-js/faker';
+import { generateUsername } from 'unique-username-generator';
+
 import {
   CreateUserDto,
   EMAIL_TEMPLATES_NAME,
@@ -30,7 +34,7 @@ import { TokenService } from './services/token.service';
 import { PrismaError } from '@freedome/common/enums';
 import { sensitiveFields } from './prisma/sensitive-fields.prisma';
 import { getRandomCharacters } from './common/helpers/random.helper';
-import { DecodeTokenRequest } from 'proto/types';
+import { DecodeTokenRequest, SeedUserRequest } from 'proto/types';
 @Injectable()
 export class AuthService {
   constructor(
@@ -48,9 +52,10 @@ export class AuthService {
       const profilePublicId = await this.uploadAuthAvatar(
         userInfo.profilePicture,
       );
+
       const authRecord = {
         username: userInfo.username,
-        email: userInfo.email,
+        email: _.lowerCase(userInfo.email),
         country: userInfo.country,
         browserName: userInfo.browserName,
         deviceType: userInfo.deviceType,
@@ -141,7 +146,7 @@ export class AuthService {
   ): Promise<Auth | null> {
     const user = await this.prismaService.auth.findFirst({
       where: {
-        OR: [{ username }, { email }],
+        OR: [{ username }, { email: _.lowerCase(email) }],
       },
     });
     return user;
@@ -157,7 +162,7 @@ export class AuthService {
   async getUserByEmail(email: string): Promise<Auth | null> {
     const user = await this.prismaService.auth.findFirst({
       where: {
-        email,
+        email: _.lowerCase(email),
       },
     });
     return user;
@@ -392,5 +397,37 @@ export class AuthService {
   }
   decodeToken(tokenValue: DecodeTokenRequest): Promise<IAccessTokenPayload> {
     return this.tokenService.decodeToken(tokenValue);
+  }
+  async seedUser(seedUserRequest: SeedUserRequest) {
+    const { count } = seedUserRequest;
+    const users = [];
+    const usernames: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const username: string = generateUsername('', 0, 12);
+      usernames.push(username);
+    }
+
+    for (let i = 0; i < usernames.length; i++) {
+      const username = usernames[i];
+      const email = faker.internet.email();
+      const password = 'qwerty';
+      const country = faker.location.country();
+      const profilePublicId = uuidV4();
+      const randomBytes: Buffer = await Promise.resolve(crypto.randomBytes(20));
+      const randomCharacters: string = randomBytes.toString('hex');
+      const authData: IAuthDocument = {
+        username,
+        email: _.lowerCase(email),
+        profilePublicId,
+        password,
+        country,
+        emailVerificationToken: randomCharacters,
+        emailVerified: true,
+        deviceType: 'mobile',
+        browserName: 'Chrome',
+      };
+      users.push(authData);
+    }
+    await this.prismaService.auth.createMany({ data: users });
   }
 }
