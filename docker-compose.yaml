@@ -152,6 +152,22 @@ services:
       - elastic
     depends_on:
       - elasticsearch
+  user:
+    build:
+      context: .
+      dockerfile: ./microservices/user/Dockerfile
+      target: development
+    expose:
+      - '3002'
+    volumes:
+      - .:/usr/src/app
+      - ./proto:/proto
+    env_file:
+      - ./microservices/user/.env
+    networks:
+      - elastic
+    depends_on:
+      - elasticsearch
 networks:
   elastic:
     name: elastic
