@@ -38,9 +38,6 @@ export class AppConfigService {
   get secretKeyTwo(): string {
     return this.configService.get<string>('SECRET_KEY_TWO');
   }
-  get databaseUrl(): string {
-    return this.configService.get<string>('DATABASE_URL');
-  }
   get rabbitmqEndpoint(): string {
     return this.configService.get<string>('RABBITMQ_ENDPOINT');
   }

@@ -15,6 +15,7 @@ import { redisStore } from 'cache-manager-redis-yet';
     }),
     CacheModule.registerAsync({
       isGlobal: true,
+      imports: [AppConfigModule],
       useFactory: async (appConfigService: AppConfigService) => ({
         store: await redisStore({
           socket: {

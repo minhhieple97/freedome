@@ -18,7 +18,6 @@ import { AppConfigService } from './config.service';
         GATEWAY_JWT_TOKEN: Joi.string().required(),
         SECRET_KEY_ONE: Joi.string().required(),
         SECRET_KEY_TWO: Joi.string().required(),
-        DATABASE_URL: Joi.string().required(),
         RABBITMQ_ENDPOINT: Joi.string().required(),
         AWS_ACCESS_KEY_ID: Joi.string().required(),
         AWS_SECRET_ACCESS_KEY: Joi.string().required(),
