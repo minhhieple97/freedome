@@ -12,8 +12,8 @@ services:
     networks:
       - elastic
   mongodb:
-    container_name: mongodb_container
-    image: mongo:latest
+    container_name: mongodb
+    image: mongo:7.0
     restart: always
     ports:
       - 27017:27017
@@ -33,6 +33,15 @@ services:
       - '5432:5432'
     volumes:
       - ./docker-volumes/postgres-data:/var/lib/postgresql
+    networks:
+      - elastic
+  redis: 
+    image: redis:6.2-alpine
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - ./docker-volumes/redis-data:/data
     networks:
       - elastic
   postgres_auth:
@@ -168,6 +177,9 @@ services:
       - elastic
     depends_on:
       - elasticsearch
+      - redis
+      - mongodb       
+
 networks:
   elastic:
     name: elastic

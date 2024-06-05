@@ -65,4 +65,16 @@ export class AppConfigService {
   get authGrpcUrl(): string {
     return this.configService.get<string>('AUTH_GRPC_URL');
   }
+  getMongoUri(): string {
+    return this.configService.get<string>('MONGODB_URI');
+  }
+  getRedisHost(): string {
+    return this.configService.get<string>('REDIS_HOST');
+  }
+  getRedisPort(): number {
+    return Number(this.configService.get<number>('REDIS_PORT'));
+  }
+  getRedisPassword(): string {
+    return this.configService.get<string>('REDIS_PASSWORD');
+  }
 }

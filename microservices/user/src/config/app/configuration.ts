@@ -14,4 +14,8 @@ export default registerAs('app', () => ({
   awsRegion: process.env.AWS_S3_REGION,
   awsBucketS3Name: process.env.AWS_BUCKET_S3_NAME,
   authGrpcUrl: process.env.AUTH_GRPC_URL,
+  mongodbUri: process.env.MONGODB_URI,
+  redisHost: process.env.REDIS_HOST,
+  redisPort: process.env.REDIS_PORT,
+  redisPassword: process.env.REDIS_PASSWORD,
 }));
