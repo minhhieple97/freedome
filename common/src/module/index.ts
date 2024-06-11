@@ -1,1 +1,2 @@
-export * from './redis/redis.module';
+export * from './redis';
+export * from './elasticsearch';

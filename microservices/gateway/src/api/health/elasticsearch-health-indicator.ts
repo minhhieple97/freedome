@@ -1,4 +1,4 @@
-import { ElasticsearchService } from '@freedome/common/elasticsearch';
+import { ElasticsearchService } from '@freedome/common/module/elasticsearch';
 import { Injectable } from '@nestjs/common';
 import {
   HealthIndicator,

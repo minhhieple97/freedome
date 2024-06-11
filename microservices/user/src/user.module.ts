@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AppConfigModule } from './config/app/config.module';
-import { RedisModule } from '@freedome/common/module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppConfigService } from './config/app/config.service';
+import { RedisModule } from '@freedome/common/module';
 @Module({
   imports: [
     AppConfigModule,
