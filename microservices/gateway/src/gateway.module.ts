@@ -8,9 +8,11 @@ import { TerminusModule } from '@nestjs/terminus';
 import HealthModule from './api/health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { SearchModule } from './search/search.module';
+import { RedisModule } from '@freedome/common/module';
 
 @Module({
   imports: [
+    RedisModule,
     AuthModule,
     AppConfigModule,
     TerminusModule,

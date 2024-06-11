@@ -34,7 +34,11 @@
       "@auth/config": ["microservices/auth/src/config"],
       "@auth/config/*": ["microservices/auth/src/config/*"],
       "@auth/common": ["microservices/auth/src/common"],
-      "@auth/common/*": ["microservices/auth/src/common/*"]
+      "@auth/common/*": ["microservices/auth/src/common/*"],
+      "@user/config": ["microservices/user/src/config"],
+      "@user/config/*": ["microservices/user/src/config/*"],
+      "@user/common": ["microservices/user/src/common"],
+      "@user/common/*": ["microservices/user/src/common/*"]
     }
   },
   "types": ["node", "Multer"]

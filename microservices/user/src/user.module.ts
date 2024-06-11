@@ -1,29 +1,16 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { AppConfigModule } from './config/app/config.module';
+import { RedisModule } from '@freedome/common/module';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppConfigService } from './config/app/config.service';
-import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-redis-yet';
 @Module({
   imports: [
+    AppConfigModule,
+    RedisModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (appConfigService: AppConfigService) => ({
         uri: appConfigService.getMongoUri(),
-      }),
-      inject: [AppConfigService],
-    }),
-    CacheModule.registerAsync({
-      isGlobal: true,
-      imports: [AppConfigModule],
-      useFactory: async (appConfigService: AppConfigService) => ({
-        store: await redisStore({
-          socket: {
-            host: appConfigService.getRedisHost(),
-            port: appConfigService.getRedisPort(),
-          },
-          password: appConfigService.getRedisPassword(),
-        }),
       }),
       inject: [AppConfigService],
     }),
