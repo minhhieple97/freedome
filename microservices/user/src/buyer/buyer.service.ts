@@ -6,21 +6,51 @@ import { Buyer, BuyerDocument } from './buyer.schema';
 @Injectable()
 export class BuyerService {
   constructor(
-    @InjectModel(Buyer.name) private buyerModel: Model<BuyerDocument>,
+    @InjectModel(Buyer.name) private readonly buyerModel: Model<BuyerDocument>,
   ) {}
 
-  async create(buyer: Buyer): Promise<Buyer> {
-    const createdBuyer = new this.buyerModel(buyer);
-    return createdBuyer.save();
+  async getBuyerByEmail(email: string): Promise<BuyerDocument | null> {
+    return this.buyerModel.findOne({ email }).exec();
   }
 
-  async findAll(): Promise<Buyer[]> {
-    return this.buyerModel.find().exec();
+  async getBuyerByUsername(username: string): Promise<BuyerDocument | null> {
+    return this.buyerModel.findOne({ username }).exec();
   }
 
-  async findById(id: string): Promise<Buyer> {
-    return this.buyerModel.findById(id).exec();
+  async getRandomBuyers(count: number): Promise<BuyerDocument[]> {
+    return this.buyerModel.aggregate([{ $sample: { size: count } }]);
   }
 
-  // Add more methods as needed
+  async createBuyer(buyerData: BuyerDocument): Promise<void> {
+    const checkIfBuyerExist = await this.getBuyerByEmail(buyerData.email);
+    if (!checkIfBuyerExist) {
+      await this.buyerModel.create(buyerData);
+    }
+  }
+
+  async updateBuyerIsSellerProp(email: string): Promise<void> {
+    await this.buyerModel
+      .updateOne(
+        { email },
+        {
+          $set: {
+            isSeller: true,
+          },
+        },
+      )
+      .exec();
+  }
+
+  async updateBuyerPurchasedGigsProp(
+    buyerId: string,
+    purchasedGigId: string,
+    type: string,
+  ): Promise<void> {
+    const updateOperation =
+      type === 'purchased-gigs'
+        ? { $push: { purchasedGigs: purchasedGigId } }
+        : { $pull: { purchasedGigs: purchasedGigId } };
+
+    await this.buyerModel.updateOne({ _id: buyerId }, updateOperation).exec();
+  }
 }
