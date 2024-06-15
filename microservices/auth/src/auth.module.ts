@@ -10,6 +10,7 @@ import { TokenService } from './services/token.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from '@freedome/common/upload';
 import { SearchModule } from './search/search.module';
+import { RabbitModule } from '@freedome/common/module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { SearchModule } from './search/search.module';
     AppConfigModule,
     PrismaModule,
     UploadModule,
+    RabbitModule,
     JwtModule.registerAsync({
       imports: [AppConfigModule],
       useFactory: (appConfigService: AppConfigService) => {

@@ -7,8 +7,8 @@ import { ElasticsearchModule } from '@freedome/common/module';
 @Module({
   imports: [AppConfigModule, ElasticsearchModule],
   controllers: [SearchController],
-  providers: [SearchService, AppConfigService],
-  exports: [],
+  providers: [AppConfigService, SearchService],
+  exports: [SearchService],
 })
 export class SearchModule implements OnModuleInit {
   constructor(private readonly searchService: SearchService) {}

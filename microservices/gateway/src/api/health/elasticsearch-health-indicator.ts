@@ -1,5 +1,5 @@
-import { ElasticsearchService } from '@freedome/common/module/elasticsearch';
 import { Injectable } from '@nestjs/common';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
 import {
   HealthIndicator,
   HealthIndicatorResult,
@@ -14,7 +14,7 @@ export class ElasticsearchHealthIndicator extends HealthIndicator {
 
   async isHealthy(key: string): Promise<HealthIndicatorResult> {
     try {
-      await this.elasticsearchService.checkElasticsearchConnection();
+      await this.elasticsearchService.ping();
       return this.getStatus(key, true);
     } catch (error) {
       throw new HealthCheckError(
