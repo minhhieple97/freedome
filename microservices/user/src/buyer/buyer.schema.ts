@@ -15,6 +15,9 @@ export class Buyer {
   @Prop({ required: true })
   country: string;
 
+  @Prop({ required: true })
+  profilePublicId: string;
+
   @Prop({ default: false })
   isSeller: boolean;
 
