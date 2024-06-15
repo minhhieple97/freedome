@@ -8,6 +8,7 @@ export interface IBuyerDocument {
   country: string;
   isSeller?: boolean;
   purchasedGigs: string[];
+  profilePublicId: string;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 }
