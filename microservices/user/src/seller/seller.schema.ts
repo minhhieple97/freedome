@@ -4,9 +4,9 @@ import {
   RatingCategory,
   RatingCategorySchema,
 } from '../ratting-category/ratting-category.schema';
+import { LanguageLevel } from '@freedome/common/enums';
 
 export type SellerDocument = Seller & Document;
-
 @Schema({ versionKey: false })
 export class Seller {
   @Prop({ required: true })
@@ -33,7 +33,11 @@ export class Seller {
   @Prop([
     {
       language: { type: String, required: true },
-      level: { type: String, required: true },
+      level: {
+        type: String,
+        enum: Object.values(LanguageLevel),
+        required: true,
+      },
     },
   ])
   languages: { language: string; level: string }[];
