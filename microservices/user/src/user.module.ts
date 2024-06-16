@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppConfigModule } from './config/app/config.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppConfigService } from './config/app/config.service';
-import { RedisModule } from '@freedome/common/module';
+import { RabbitModule, RedisModule } from '@freedome/common/module';
 import { SellerModule } from './seller/seller.module';
 import { BuyerModule } from './buyer/buyer.module';
 @Module({
@@ -11,6 +11,7 @@ import { BuyerModule } from './buyer/buyer.module';
     RedisModule,
     SellerModule,
     BuyerModule,
+    RabbitModule,
     MongooseModule.forRootAsync({
       imports: [AppConfigModule],
       useFactory: async (appConfigService: AppConfigService) => ({

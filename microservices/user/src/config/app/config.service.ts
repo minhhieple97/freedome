@@ -59,8 +59,8 @@ export class AppConfigService {
   get elasticSearchUrl(): string {
     return this.configService.get<string>('ELASTIC_SEARCH_URL');
   }
-  get authGrpcUrl(): string {
-    return this.configService.get<string>('AUTH_GRPC_URL');
+  get userGrpcUrl(): string {
+    return this.configService.get<string>('USER_GRPC_URL');
   }
   getMongoUri(): string {
     return this.configService.get<string>('MONGODB_URI');

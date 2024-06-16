@@ -25,7 +25,7 @@ import { AppConfigService } from './config.service';
         AWS_BUCKET_S3_NAME: Joi.string().required(),
         GIG_ELASTIC_SEARCH_INDEX: Joi.string().required(),
         ELASTIC_SEARCH_URL: Joi.string().required(),
-        AUTH_GRPC_URL: Joi.string().required(),
+        USER_GRPC_URL: Joi.string().required(),
         MONGODB_URI: Joi.string().required(),
         REDIS_HOST: Joi.string().required(),
         REDIS_PORT: Joi.number().required(),

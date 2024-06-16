@@ -3,7 +3,7 @@ import { SearchGigsDtoParam } from '@freedome/common';
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Observable } from 'rxjs';
-import { SearchGigsResponse } from 'proto/types';
+import { SearchGigsResponse } from 'proto/types/auth';
 
 @Controller('search')
 @ApiTags('search')

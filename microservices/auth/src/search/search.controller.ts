@@ -5,7 +5,7 @@ import {
   AUTH_SERVICE_NAME,
   SearchGigsRequest,
   SearchGigsResponse,
-} from 'proto/types';
+} from 'proto/types/auth';
 import { GrpcMethod } from '@nestjs/microservices';
 
 @Controller()

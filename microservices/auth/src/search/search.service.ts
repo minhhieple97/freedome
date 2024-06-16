@@ -11,7 +11,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { uniqueId } from 'lodash';
-import { SearchGigsRequest } from 'proto/types';
+import { SearchGigsRequest } from 'proto/types/auth';
 
 @Injectable()
 export class SearchService {

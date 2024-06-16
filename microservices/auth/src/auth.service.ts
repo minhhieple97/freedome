@@ -34,7 +34,7 @@ import { TokenService } from './services/token.service';
 import { PrismaError } from '@freedome/common/enums';
 import { sensitiveFields } from './prisma/sensitive-fields.prisma';
 import { getRandomCharacters } from './common/helpers/random.helper';
-import { DecodeTokenRequest, SeedUserRequest } from 'proto/types';
+import { DecodeTokenRequest, SeedUserRequest } from 'proto/types/auth';
 @Injectable()
 export class AuthService {
   constructor(
@@ -67,7 +67,7 @@ export class AuthService {
         data: authRecord,
       });
       this.sendVerifyEmail(createdUser.email, emailVerificationToken);
-      // this.sendAuthInfoToBuyerService(createdUser);
+      this.sendAuthInfoToBuyerService(createdUser);
       const accessToken = this.tokenService.createAccessToken({
         id: createdUser.id,
         email: createdUser.email,

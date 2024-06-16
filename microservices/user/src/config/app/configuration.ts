@@ -17,4 +17,5 @@ export default registerAs('app', () => ({
   redisHost: process.env.REDIS_HOST,
   redisPort: process.env.REDIS_PORT,
   redisPassword: process.env.REDIS_PASSWORD,
+  userGrpcUrl: process.env.USER_GRPC_URL,
 }));
