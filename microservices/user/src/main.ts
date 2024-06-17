@@ -15,15 +15,15 @@ async function bootstrap() {
   const appConfig: AppConfigService = app.get(AppConfigService);
   const rabbitMqService = app.get(RabbitMqService);
   app.init();
-  // app
-  //   .connectMicroservice({
-  //     transport: Transport.GRPC,
-  //     options: {
-  //       package: USER_PACKAGE_NAME,
-  //       protoPath: join(__dirname, '../../../../proto/user.proto'),
-  //       url: appConfig.userGrpcUrl,
-  //     },
-  //   })
-  //   .listen();
+  app
+    .connectMicroservice({
+      transport: Transport.GRPC,
+      options: {
+        package: USER_PACKAGE_NAME,
+        protoPath: join(__dirname, '../../../../proto/user.proto'),
+        url: appConfig.userGrpcUrl,
+      },
+    })
+    .listen();
 }
 bootstrap();

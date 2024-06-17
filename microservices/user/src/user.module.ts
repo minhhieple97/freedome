@@ -5,6 +5,7 @@ import { AppConfigService } from './config/app/config.service';
 import { RabbitModule, RedisModule } from '@freedome/common/module';
 import { SellerModule } from './seller/seller.module';
 import { BuyerModule } from './buyer/buyer.module';
+import { UserController } from './user.controller';
 @Module({
   imports: [
     AppConfigModule,
@@ -20,7 +21,7 @@ import { BuyerModule } from './buyer/buyer.module';
       inject: [AppConfigService],
     }),
   ],
-  controllers: [],
+  controllers: [UserController],
   providers: [],
 })
 export class UserModule {}

@@ -6,6 +6,7 @@ import { SERVICE_NAME } from '@freedome/common';
 import HealthModule from './api/health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { SearchModule } from './search/search.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { SearchModule } from './search/search.module';
     AppConfigModule,
     HealthModule,
     SearchModule,
+    UserModule,
     ClientsModule.registerAsync([
       {
         imports: [AppConfigModule],
