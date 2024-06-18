@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Buyer, BuyerDocument } from './buyer.schema';
+import { IAuthBuyerMessageDetails, IBuyerDocument } from '@freedome/common';
 
 @Injectable()
 export class BuyerService {
@@ -21,11 +22,17 @@ export class BuyerService {
     return this.buyerModel.aggregate([{ $sample: { size: count } }]);
   }
 
-  async createBuyer(buyerData: BuyerDocument): Promise<void> {
-    const checkIfBuyerExist = await this.getBuyerByEmail(buyerData.email);
-    if (!checkIfBuyerExist) {
-      await this.buyerModel.create(buyerData);
-    }
+  async createBuyer(buyerData: IAuthBuyerMessageDetails): Promise<void> {
+    const { username, email, profilePublicId, country, createdAt } = buyerData;
+    const buyer: IBuyerDocument = {
+      username,
+      email,
+      profilePublicId,
+      country,
+      purchasedGigs: [],
+      createdAt,
+    };
+    await this.buyerModel.create(buyer);
   }
 
   async updateBuyerIsSellerProp(email: string): Promise<void> {

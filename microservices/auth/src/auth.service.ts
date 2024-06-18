@@ -42,6 +42,8 @@ export class AuthService {
     private readonly appConfigService: AppConfigService,
     @Inject(SERVICE_NAME.NOTIFICATIONS)
     private notificationsServiceClient: ClientProxy,
+    @Inject(SERVICE_NAME.USER)
+    private userServiceClient: ClientProxy,
     private readonly tokenService: TokenService,
     private readonly uploadService: UploadService,
   ) {}
@@ -55,7 +57,7 @@ export class AuthService {
 
       const authRecord = {
         username: userInfo.username,
-        email: _.lowerCase(userInfo.email),
+        email: userInfo.email,
         country: userInfo.country,
         browserName: userInfo.browserName,
         deviceType: userInfo.deviceType,
@@ -214,9 +216,9 @@ export class AuthService {
       profilePublicId: auth.profilePublicId,
       country: auth.country,
       createdAt: auth.createdAt,
-      type: 'auth',
+      type: SERVICE_NAME.AUTH,
     };
-    this.notificationsServiceClient.emit(EVENTS_RMQ.USER_BUYER, messageDetails);
+    this.userServiceClient.emit(EVENTS_RMQ.USER_BUYER, messageDetails);
   }
   async getUserByCredential(
     loginUserDto: LoginUserDto,
