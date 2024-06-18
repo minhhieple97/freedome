@@ -4,11 +4,10 @@ export interface IBuyerDocument {
   _id?: string | ObjectId;
   username?: string;
   email?: string;
-  profilePicture?: string;
+  profilePublicId?: string;
   country: string;
   isSeller?: boolean;
   purchasedGigs: string[];
-  profilePublicId: string;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 }
