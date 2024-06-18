@@ -1,5 +1,6 @@
 export const AUTH_EMAIL_QUEUE_NAME = 'auth_email_queue';
 export const ORDER_EMAIL_QUEUE_NAME = 'order_email_queue';
+export const USER_BUYER_QUEUE_NAME = 'user_buyer_queue';
 export const EVENTS_RMQ = {
   AUTH_EMAIL: 'auth_email',
   USER_BUYER: 'user_buyer',

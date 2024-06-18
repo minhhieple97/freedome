@@ -4,7 +4,11 @@ import { AuthService } from './auth.service';
 import { AppConfigModule } from './config/app/config.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AUTH_EMAIL_QUEUE_NAME, SERVICE_NAME } from '@freedome/common';
+import {
+  AUTH_EMAIL_QUEUE_NAME,
+  SERVICE_NAME,
+  USER_BUYER_QUEUE_NAME,
+} from '@freedome/common';
 import { AppConfigService } from '@auth/config/app/config.service';
 import { TokenService } from './services/token.service';
 import { JwtModule } from '@nestjs/jwt';
@@ -37,6 +41,23 @@ import { RabbitModule } from '@freedome/common/module';
           options: {
             urls: [appConfig.rabbitmqEndpoint],
             queue: AUTH_EMAIL_QUEUE_NAME,
+            queueOptions: {
+              durable: true,
+            },
+          },
+        }),
+        inject: [AppConfigService],
+      },
+    ]),
+    ClientsModule.registerAsync([
+      {
+        imports: [AppConfigModule],
+        name: SERVICE_NAME.USER,
+        useFactory: (appConfig: AppConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [appConfig.rabbitmqEndpoint],
+            queue: USER_BUYER_QUEUE_NAME,
             queueOptions: {
               durable: true,
             },
