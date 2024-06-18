@@ -36,6 +36,7 @@ export class CreateUserDto {
   @IsEmail(undefined, { message: 'Invalid email' })
   @Length(4, 32)
   @IsNotEmpty({ message: 'Email is a required field' })
+  @Transform((params) => params.value.toLowerCase())
   email: string;
 
   @IsOptional()
