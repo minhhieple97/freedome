@@ -8,6 +8,7 @@ import {
   LoggerService,
 } from '@freedome/common';
 import { Transport } from '@nestjs/microservices';
+import { RabbitMqService } from '@freedome/common/module';
 const logger = new LoggerService('Notifications Service');
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(
@@ -17,17 +18,9 @@ async function bootstrap(): Promise<void> {
     },
   );
   const appConfig: AppConfigService = app.get(AppConfigService);
+  const rabbitMqService = app.get(RabbitMqService);
   for (const queueName of [AUTH_EMAIL_QUEUE_NAME, ORDER_EMAIL_QUEUE_NAME]) {
-    app.connectMicroservice({
-      transport: Transport.RMQ,
-      options: {
-        urls: [appConfig.rabbitmqEndpoint],
-        queue: queueName,
-        queueOptions: {
-          durable: true,
-        },
-      },
-    });
+    app.connectMicroservice(rabbitMqService.getRmqOptions(queueName));
   }
   await app.startAllMicroservices();
   app
