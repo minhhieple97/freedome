@@ -95,4 +95,7 @@ export class AppConfigService {
   get authGrpcUrl(): string {
     return this.configService.get<string>('AUTH_GRPC_URL');
   }
+  get userGrpcUrl(): string {
+    return this.configService.get<string>('USER_GRPC_URL');
+  }
 }

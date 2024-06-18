@@ -9,7 +9,7 @@ import {
 import { ClientGrpc, RpcException } from '@nestjs/microservices';
 import { Observable, catchError, map, tap, throwError } from 'rxjs';
 import { ACCESS_TOKEN_KEY } from '../constants';
-import { AUTH_SERVICE_NAME, AuthServiceClient } from 'proto/types';
+import { AUTH_SERVICE_NAME, AuthServiceClient } from 'proto/types/auth';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {

@@ -16,7 +16,7 @@ import {
   ResendEmailRequest,
   SeedUserRequest,
   VerifyEmailRequest,
-} from 'proto/types';
+} from 'proto/types/auth';
 import { GrpcMethod } from '@nestjs/microservices';
 
 @Controller()

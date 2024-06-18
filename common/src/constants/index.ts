@@ -10,6 +10,7 @@ export const SERVICE_NAME = {
   ORDER: 'order',
   SELLER: 'seller',
   SEARCH: 'search',
+  USER: 'user',
 };
 
 export const EMAIL_TEMPLATES_NAME = {

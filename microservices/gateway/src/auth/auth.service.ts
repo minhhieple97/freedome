@@ -22,7 +22,7 @@ import {
   AuthPublic,
   AuthServiceClient,
   SeedUserRequest,
-} from 'proto/types';
+} from 'proto/types/auth';
 
 @Injectable()
 export class AuthService {

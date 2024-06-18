@@ -10,7 +10,7 @@ import {
   AUTH_SERVICE_NAME,
   AuthServiceClient,
   SearchGigsRequest,
-} from 'proto/types';
+} from 'proto/types/auth';
 import { catchError, throwError } from 'rxjs';
 
 @Injectable()

@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { RpcException } from '@nestjs/microservices';
 import * as grpc from '@grpc/grpc-js';
-import { DecodeTokenRequest } from 'proto/types';
+import { DecodeTokenRequest } from 'proto/types/auth';
 @Injectable()
 export class TokenService {
   constructor(private readonly jwtService: JwtService) {}

@@ -3,20 +3,18 @@ import { AppConfigModule } from './config/app/config.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppConfigService } from './config/app/config.service';
 import { SERVICE_NAME } from '@freedome/common';
-import { ElasticsearchModule } from '@freedome/common/elasticsearch';
-import { TerminusModule } from '@nestjs/terminus';
 import HealthModule from './api/health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { SearchModule } from './search/search.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
     AuthModule,
     AppConfigModule,
-    TerminusModule,
-    ElasticsearchModule,
     HealthModule,
     SearchModule,
+    UserModule,
     ClientsModule.registerAsync([
       {
         imports: [AppConfigModule],
