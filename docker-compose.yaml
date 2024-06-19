@@ -103,8 +103,6 @@ services:
       - ./proto:/proto
     env_file:
       - ./microservices/notifications/.env
-    expose:
-      - '3001'
     networks:
       - elastic
     depends_on:
@@ -131,8 +129,6 @@ services:
       context: .
       dockerfile: ./microservices/auth/Dockerfile
       target: development
-    expose:
-      - '3002'
     volumes:
       - .:/usr/src/app
       - ./proto:/proto
@@ -147,8 +143,6 @@ services:
       context: .
       dockerfile: ./microservices/user/Dockerfile
       target: development
-    expose:
-      - '3005'
     volumes:
       - .:/usr/src/app
       - ./proto:/proto
