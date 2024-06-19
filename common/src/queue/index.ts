@@ -1,9 +1,14 @@
 export const AUTH_EMAIL_QUEUE_NAME = 'auth_email_queue';
 export const ORDER_EMAIL_QUEUE_NAME = 'order_email_queue';
 export const USER_BUYER_QUEUE_NAME = 'user_buyer_queue';
+export const USER_SELLER_QUEUE_NAME = 'user_seller_queue';
 export const EVENTS_RMQ = {
   AUTH_EMAIL: 'auth_email',
   USER_BUYER: 'user_buyer',
+  CREATE_ORDER: 'create_order',
+  CANCEL_ORDER: 'cancel_order',
+  UPDATE_GIG_COUNT: 'update_gig_count',
+  APPROVE_ORDER: 'approve_order',
 };
 export const EVENTS_HTTP = {
   USER_CREATE: 'user_create',
