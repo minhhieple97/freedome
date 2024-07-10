@@ -13,21 +13,22 @@ import { generateUsername } from 'unique-username-generator';
 import {
   CreateUserDto,
   EMAIL_TEMPLATES_NAME,
-  EVENTS_RMQ,
+  EXCHANGE_NAME,
   IAuthBuyerMessageDetails,
   IAuthDocument,
   IEmailMessageDetails,
   LoginUserDto,
+  ROUTING_KEY,
   ResetPasswordDtoWithTokenDto,
   ResetPasswordDtoWithUserIdDto,
   SERVICE_NAME,
   dateToTimestamp,
 } from '@freedome/common';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as _ from 'lodash';
 import { v4 as uuidV4 } from 'uuid';
 import { BUCKET_S3_FOLDER_NAME } from './common/constants';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { RpcException } from '@nestjs/microservices';
 import { hash, compare } from 'bcryptjs';
 import { Auth, Prisma } from '@prisma/client';
 import { TokenService } from './services/token.service';
@@ -35,17 +36,15 @@ import { PrismaError } from '@freedome/common/enums';
 import { sensitiveFields } from './prisma/sensitive-fields.prisma';
 import { getRandomCharacters } from './common/helpers/random.helper';
 import { DecodeTokenRequest, SeedUserRequest } from 'proto/types/auth';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly appConfigService: AppConfigService,
-    @Inject(SERVICE_NAME.NOTIFICATIONS)
-    private notificationsServiceClient: ClientProxy,
-    @Inject(SERVICE_NAME.USER)
-    private userServiceClient: ClientProxy,
     private readonly tokenService: TokenService,
     private readonly uploadService: UploadService,
+    private readonly amqpConnection: AmqpConnection,
   ) {}
   async createUser(userInfo: CreateUserDto) {
     try {
@@ -68,8 +67,8 @@ export class AuthService {
       const createdUser = await this.prismaService.auth.create({
         data: authRecord,
       });
-      this.sendVerifyEmail(createdUser.email, emailVerificationToken);
-      this.sendAuthInfoToBuyerService(createdUser);
+      await this.sendVerifyEmail(createdUser.email, emailVerificationToken);
+      await this.sendAuthInfoToBuyerService(createdUser);
       const accessToken = this.tokenService.createAccessToken({
         id: createdUser.id,
         email: createdUser.email,
@@ -200,16 +199,20 @@ export class AuthService {
     });
     return profilePublicId;
   }
-  sendVerifyEmail(receiverEmail: string, emailVerificationToken: string) {
+  async sendVerifyEmail(receiverEmail: string, emailVerificationToken: string) {
     const verificationLink = `${this.appConfigService.clientUrl}/confirm_email?v_token=${emailVerificationToken}`;
     const messageDetails: IEmailMessageDetails = {
       receiverEmail,
       verifyLink: verificationLink,
       template: EMAIL_TEMPLATES_NAME.VERIFY_EMAIL,
     };
-    this.notificationsServiceClient.emit(EVENTS_RMQ.AUTH_EMAIL, messageDetails);
+    this.amqpConnection.publish(
+      EXCHANGE_NAME.EMAIL_NOTIFICATIONS,
+      ROUTING_KEY.AUTH_EMAIL,
+      messageDetails,
+    );
   }
-  sendAuthInfoToBuyerService(auth: Auth) {
+  async sendAuthInfoToBuyerService(auth: Auth) {
     const messageDetails: IAuthBuyerMessageDetails = {
       username: auth.username,
       email: auth.email,
@@ -218,7 +221,11 @@ export class AuthService {
       createdAt: auth.createdAt,
       type: SERVICE_NAME.AUTH,
     };
-    this.userServiceClient.emit(EVENTS_RMQ.USER_BUYER, messageDetails);
+    this.amqpConnection.publish(
+      EXCHANGE_NAME.USER_BUYER,
+      ROUTING_KEY.CREATE_USER_BUYER,
+      messageDetails,
+    );
   }
   async getUserByCredential(
     loginUserDto: LoginUserDto,
@@ -296,7 +303,11 @@ export class AuthService {
       template: EMAIL_TEMPLATES_NAME.FORGOT_PASSWORD,
       username: user.username,
     };
-    this.notificationsServiceClient.emit(EVENTS_RMQ.AUTH_EMAIL, messageDetails);
+    this.amqpConnection.publish(
+      EXCHANGE_NAME.EMAIL_NOTIFICATIONS,
+      ROUTING_KEY.AUTH_EMAIL,
+      messageDetails,
+    );
   }
   async resetPassword(
     resetPasswordDtoWithUserId: ResetPasswordDtoWithUserIdDto,
@@ -378,7 +389,7 @@ export class AuthService {
         emailVerificationToken,
       },
     });
-    this.sendVerifyEmail(user.email, emailVerificationToken);
+    await this.sendVerifyEmail(user.email, emailVerificationToken);
   }
   createToken(data: IAccessTokenPayload): ITokenResponse {
     const { id, email, username } = data;

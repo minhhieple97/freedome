@@ -27,4 +27,9 @@ export class SellerController {
   handleUpdateTotalGigsCount(data: IUpdateTotalGigsCount) {
     return this.sellerService.updateTotalGigsCount(data);
   }
+
+  @MessagePattern(EVENTS_RMQ.REVIEW)
+  handleReviewEvent(data: IUpdateTotalGigsCount) {
+    return this.sellerService.updateTotalGigsCount(data);
+  }
 }

@@ -2,13 +2,34 @@ import { Module } from '@nestjs/common';
 import { AppConfigModule } from './config/app/config.module';
 import { NotificationService } from './notification.service';
 import { EmailModule } from './consumers/email/email.module';
-import { NotificationController } from './notification.controller';
 import { ElasticsearchModule } from '@freedome/common/module/elasticsearch';
-import { RabbitModule } from '@freedome/common/module';
+import { EXCHANGE_NAME } from '@freedome/common';
+import { RabbitMQExchangeType } from '@freedome/common/enums';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { AppConfigService } from './config/app/config.service';
 @Module({
-  imports: [AppConfigModule, ElasticsearchModule, EmailModule, RabbitModule],
-  controllers: [NotificationController],
+  imports: [
+    AppConfigModule,
+    ElasticsearchModule,
+    EmailModule,
+    RabbitMQModule.forRootAsync(RabbitMQModule, {
+      imports: [AppConfigModule],
+      useFactory: (appConfigService: AppConfigService) => ({
+        exchanges: [
+          {
+            name: EXCHANGE_NAME.EMAIL_NOTIFICATIONS,
+            type: RabbitMQExchangeType.Direct,
+          },
+        ],
+        uri: appConfigService.rabbitmqEndpoint,
+        connectionInitOptions: { wait: false },
+      }),
+      inject: [AppConfigService],
+    }),
+    NotificationModule,
+  ],
+  controllers: [],
   providers: [NotificationService],
-  exports: [NotificationService],
+  exports: [],
 })
 export class NotificationModule {}
