@@ -5,18 +5,23 @@ import { Seller, SellerDocument } from './seller.schema';
 import { BuyerService } from '../buyer/buyer.service';
 import {
   IOrderMessage,
-  IRatingTypes,
   IReviewMessageDetails,
   ICreateOrderForSeller,
   IUpdateTotalGigsCount,
+  EXCHANGE_NAME,
+  ROUTING_KEY,
+  USER_SELLER_QUEUE_NAME,
+  SELLER_REVIEW_QUEUE_NAME,
+  IRatingTypes,
 } from '@freedome/common';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 @Injectable()
 export class SellerService {
   constructor(
     @InjectModel(Seller.name)
     private readonly sellerModel: Model<SellerDocument>,
-    private readonly buyerService: BuyerService, // Inject BuyerService
+    private readonly buyerService: BuyerService,
   ) {}
 
   async getSellerById(sellerId: string): Promise<SellerDocument | null> {
@@ -37,7 +42,7 @@ export class SellerService {
 
   async createSeller(sellerData: SellerDocument): Promise<SellerDocument> {
     const createdSeller = await this.sellerModel.create(sellerData);
-    await this.buyerService.updateBuyerIsSellerProp(createdSeller.email); // Use injected service
+    await this.buyerService.updateBuyerIsSellerProp(createdSeller.email);
     return createdSeller;
   }
 
@@ -68,7 +73,11 @@ export class SellerService {
       )
       .exec();
   }
-
+  @RabbitSubscribe({
+    exchange: EXCHANGE_NAME.USER_SELLER,
+    routingKey: ROUTING_KEY.UPDATE_GIG_COUNT,
+    queue: USER_SELLER_QUEUE_NAME,
+  })
   async updateTotalGigsCount({
     sellerId,
     count,
@@ -77,7 +86,11 @@ export class SellerService {
       .updateOne({ _id: sellerId }, { $inc: { totalGigs: count } })
       .exec();
   }
-
+  @RabbitSubscribe({
+    exchange: EXCHANGE_NAME.USER_SELLER,
+    routingKey: ROUTING_KEY.CREATE_ORDER,
+    queue: USER_SELLER_QUEUE_NAME,
+  })
   async updateSellerOngoingJobsProp({
     sellerId,
     ongoingJobs,
@@ -86,7 +99,11 @@ export class SellerService {
       .updateOne({ _id: sellerId }, { $inc: { ongoingJobs } })
       .exec();
   }
-
+  @RabbitSubscribe({
+    exchange: EXCHANGE_NAME.USER_SELLER,
+    routingKey: ROUTING_KEY.CANCEL_ORDER,
+    queue: USER_SELLER_QUEUE_NAME,
+  })
   async updateSellerCancelledJobsProp(sellerId: string): Promise<void> {
     await this.sellerModel
       .updateOne(
@@ -95,7 +112,11 @@ export class SellerService {
       )
       .exec();
   }
-
+  @RabbitSubscribe({
+    exchange: EXCHANGE_NAME.USER_SELLER,
+    routingKey: ROUTING_KEY.APPROVE_ORDER,
+    queue: USER_SELLER_QUEUE_NAME,
+  })
   updateSellerCompletedJobsProp = async (
     data: IOrderMessage,
   ): Promise<void> => {
@@ -120,7 +141,11 @@ export class SellerService {
       )
       .exec();
   };
-
+  @RabbitSubscribe({
+    exchange: EXCHANGE_NAME.SELLER_REVIEW,
+    queue: SELLER_REVIEW_QUEUE_NAME,
+    routingKey: ROUTING_KEY.BUYER_REVIEW,
+  })
   async updateSellerReview(data: IReviewMessageDetails): Promise<void> {
     const ratingTypes: IRatingTypes = {
       '1': 'one',

@@ -3,6 +3,7 @@ export const ORDER_EMAIL_QUEUE_NAME = 'order_email_queue';
 export const USER_BUYER_QUEUE_NAME = 'user_buyer_queue';
 export const USER_SELLER_QUEUE_NAME = 'user_seller_queue';
 export const SELLER_REVIEW_QUEUE_NAME = 'seller_review_queue';
+export const ACCEPT_ALL_MESSAGE_FROM_TOPIC = '#';
 export const EVENTS_RMQ = {
   AUTH_EMAIL: 'auth_email',
   USER_BUYER: 'user_buyer',
@@ -28,9 +29,16 @@ export const EVENTS_HTTP = {
 export const EXCHANGE_NAME = {
   EMAIL_NOTIFICATIONS: 'email_notifications',
   USER_BUYER: 'user_buyer',
+  USER_SELLER: 'user_seller',
+  SELLER_REVIEW: 'seller_review',
 };
 
 export const ROUTING_KEY = {
   AUTH_EMAIL: 'auth_email',
   CREATE_USER_BUYER: 'create_user_buyer',
+  CREATE_ORDER: 'create_order',
+  APPROVE_ORDER: 'approve_order',
+  CANCEL_ORDER: 'cancel_order',
+  UPDATE_GIG_COUNT: 'update_gig_count',
+  BUYER_REVIEW: 'buyer_review',
 };

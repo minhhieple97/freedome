@@ -25,10 +25,23 @@ import { RabbitMQExchangeType } from '@freedome/common/enums';
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       imports: [AppConfigModule],
       useFactory: (appConfigService: AppConfigService) => ({
+        // queues: [],
         exchanges: [
           {
             name: EXCHANGE_NAME.USER_BUYER,
             type: RabbitMQExchangeType.Direct,
+          },
+          {
+            name: EXCHANGE_NAME.USER_SELLER,
+            type: RabbitMQExchangeType.Direct,
+          },
+          {
+            name: EXCHANGE_NAME.SELLER_REVIEW,
+            type: RabbitMQExchangeType.Topic,
+          },
+          {
+            name: 'aumo.topic',
+            type: 'topic',
           },
         ],
         uri: appConfigService.rabbitmqEndpoint,

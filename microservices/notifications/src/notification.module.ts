@@ -20,6 +20,10 @@ import { AppConfigService } from './config/app/config.service';
             name: EXCHANGE_NAME.EMAIL_NOTIFICATIONS,
             type: RabbitMQExchangeType.Direct,
           },
+          {
+            name: EXCHANGE_NAME.SELLER_REVIEW,
+            type: RabbitMQExchangeType.Topic,
+          },
         ],
         uri: appConfigService.rabbitmqEndpoint,
         connectionInitOptions: { wait: false },

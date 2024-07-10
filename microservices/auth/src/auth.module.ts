@@ -38,6 +38,10 @@ import { RabbitMQExchangeType } from '@freedome/common/enums';
             name: EXCHANGE_NAME.USER_BUYER,
             type: RabbitMQExchangeType.Direct,
           },
+          {
+            name: EXCHANGE_NAME.SELLER_REVIEW,
+            type: RabbitMQExchangeType.Topic,
+          },
         ],
         uri: appConfigService.rabbitmqEndpoint,
         connectionInitOptions: { wait: false },
