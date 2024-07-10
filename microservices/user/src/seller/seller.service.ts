@@ -3,7 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Seller, SellerDocument } from './seller.schema';
 import { BuyerService } from '../buyer/buyer.service';
-import { IRatingTypes, IReviewMessageDetails } from '@freedome/common';
+import {
+  IOrderMessage,
+  IRatingTypes,
+  IReviewMessageDetails,
+  ICreateOrderForSeller,
+  IUpdateTotalGigsCount,
+} from '@freedome/common';
 
 @Injectable()
 export class SellerService {
@@ -63,16 +69,19 @@ export class SellerService {
       .exec();
   }
 
-  async updateTotalGigsCount(sellerId: string, count: number): Promise<void> {
+  async updateTotalGigsCount({
+    sellerId,
+    count,
+  }: IUpdateTotalGigsCount): Promise<void> {
     await this.sellerModel
       .updateOne({ _id: sellerId }, { $inc: { totalGigs: count } })
       .exec();
   }
 
-  async updateSellerOngoingJobsProp(
-    sellerId: string,
-    ongoingJobs: number,
-  ): Promise<void> {
+  async updateSellerOngoingJobsProp({
+    sellerId,
+    ongoingJobs,
+  }: ICreateOrderForSeller): Promise<void> {
     await this.sellerModel
       .updateOne({ _id: sellerId }, { $inc: { ongoingJobs } })
       .exec();
@@ -86,6 +95,31 @@ export class SellerService {
       )
       .exec();
   }
+
+  updateSellerCompletedJobsProp = async (
+    data: IOrderMessage,
+  ): Promise<void> => {
+    const {
+      sellerId,
+      ongoingJobs,
+      completedJobs,
+      totalEarnings,
+      recentDelivery,
+    } = data;
+    await this.sellerModel
+      .updateOne(
+        { _id: sellerId },
+        {
+          $inc: {
+            ongoingJobs,
+            completedJobs,
+            totalEarnings,
+          },
+          $set: { recentDelivery: new Date(recentDelivery) },
+        },
+      )
+      .exec();
+  };
 
   async updateSellerReview(data: IReviewMessageDetails): Promise<void> {
     const ratingTypes: IRatingTypes = {

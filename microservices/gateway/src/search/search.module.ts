@@ -5,7 +5,7 @@ import { AppConfigModule } from '@gateway/config/app/config.module';
 import { AppConfigService } from '@gateway/config/app/config.service';
 import { SearchService } from './search.service';
 import { SearchController } from './search.controller';
-import { AUTH_PACKAGE_NAME, AUTH_SERVICE_NAME } from 'proto/types/auth';
+import { AUTH_PACKAGE_NAME } from 'proto/types/auth';
 import { SERVICE_NAME } from '@freedome/common';
 
 @Module({

@@ -2,7 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Buyer, BuyerDocument } from './buyer.schema';
-import { IAuthBuyerMessageDetails, IBuyerDocument } from '@freedome/common';
+import {
+  EXCHANGE_NAME,
+  IAuthBuyerMessageDetails,
+  IBuyerDocument,
+  ROUTING_KEY,
+  USER_BUYER_QUEUE_NAME,
+} from '@freedome/common';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 @Injectable()
 export class BuyerService {
@@ -21,7 +28,11 @@ export class BuyerService {
   async getRandomBuyers(count: number): Promise<BuyerDocument[]> {
     return this.buyerModel.aggregate([{ $sample: { size: count } }]);
   }
-
+  @RabbitSubscribe({
+    exchange: EXCHANGE_NAME.USER_BUYER,
+    routingKey: ROUTING_KEY.CREATE_USER_BUYER,
+    queue: USER_BUYER_QUEUE_NAME,
+  })
   async createBuyer(buyerData: IAuthBuyerMessageDetails): Promise<void> {
     const { username, email, profilePublicId, country, createdAt } = buyerData;
     const buyer: IBuyerDocument = {
