@@ -8,9 +8,7 @@ import { TokenService } from './services/token.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from '@freedome/common/upload';
 import { SearchModule } from './search/search.module';
-import { EXCHANGE_NAME } from '@freedome/common';
-import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { RabbitMQExchangeType } from '@freedome/common/enums';
+import { RabbitMQDynamicModule } from '@freedome/common/module/rabbitmq';
 @Module({
   imports: [
     SearchModule,
@@ -26,28 +24,7 @@ import { RabbitMQExchangeType } from '@freedome/common/enums';
       },
       inject: [AppConfigService],
     }),
-    RabbitMQModule.forRootAsync(RabbitMQModule, {
-      imports: [AppConfigModule],
-      useFactory: (appConfigService: AppConfigService) => ({
-        exchanges: [
-          {
-            name: EXCHANGE_NAME.EMAIL_NOTIFICATIONS,
-            type: RabbitMQExchangeType.Direct,
-          },
-          {
-            name: EXCHANGE_NAME.USER_BUYER,
-            type: RabbitMQExchangeType.Direct,
-          },
-          {
-            name: EXCHANGE_NAME.SELLER_REVIEW,
-            type: RabbitMQExchangeType.Topic,
-          },
-        ],
-        uri: appConfigService.rabbitmqEndpoint,
-        connectionInitOptions: { wait: false },
-      }),
-      inject: [AppConfigService],
-    }),
+    RabbitMQDynamicModule.forRootAsync(),
   ],
   controllers: [AuthController],
   providers: [AuthService, TokenService, AppConfigService],

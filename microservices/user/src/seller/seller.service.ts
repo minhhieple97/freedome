@@ -13,8 +13,9 @@ import {
   USER_SELLER_QUEUE_NAME,
   SELLER_REVIEW_QUEUE_NAME,
   IRatingTypes,
+  GIG_QUEUE,
 } from '@freedome/common';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 @Injectable()
 export class SellerService {
@@ -22,6 +23,7 @@ export class SellerService {
     @InjectModel(Seller.name)
     private readonly sellerModel: Model<SellerDocument>,
     private readonly buyerService: BuyerService,
+    private readonly amqpConnection: AmqpConnection,
   ) {}
 
   async getSellerById(sellerId: string): Promise<SellerDocument | null> {
@@ -169,4 +171,11 @@ export class SellerService {
       )
       .exec();
   }
+
+  @RabbitSubscribe({
+    exchange: EXCHANGE_NAME.GIG,
+    queue: GIG_QUEUE,
+    routingKey: ROUTING_KEY.GET_SELLERS,
+  })
+  async seedRandomSeller(data): Promise<void> {}
 }

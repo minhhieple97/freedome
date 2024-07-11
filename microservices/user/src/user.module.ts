@@ -6,9 +6,7 @@ import { RedisModule } from '@freedome/common/module';
 import { SellerModule } from './seller/seller.module';
 import { BuyerModule } from './buyer/buyer.module';
 import { UserController } from './user.controller';
-import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { EXCHANGE_NAME } from '@freedome/common';
-import { RabbitMQExchangeType } from '@freedome/common/enums';
+import { RabbitMQDynamicModule } from '@freedome/common/module/rabbitmq';
 @Module({
   imports: [
     AppConfigModule,
@@ -22,33 +20,7 @@ import { RabbitMQExchangeType } from '@freedome/common/enums';
       }),
       inject: [AppConfigService],
     }),
-    RabbitMQModule.forRootAsync(RabbitMQModule, {
-      imports: [AppConfigModule],
-      useFactory: (appConfigService: AppConfigService) => ({
-        // queues: [],
-        exchanges: [
-          {
-            name: EXCHANGE_NAME.USER_BUYER,
-            type: RabbitMQExchangeType.Direct,
-          },
-          {
-            name: EXCHANGE_NAME.USER_SELLER,
-            type: RabbitMQExchangeType.Direct,
-          },
-          {
-            name: EXCHANGE_NAME.SELLER_REVIEW,
-            type: RabbitMQExchangeType.Topic,
-          },
-          {
-            name: 'aumo.topic',
-            type: 'topic',
-          },
-        ],
-        uri: appConfigService.rabbitmqEndpoint,
-        connectionInitOptions: { wait: false },
-      }),
-      inject: [AppConfigService],
-    }),
+    RabbitMQDynamicModule.forRootAsync(),
   ],
   controllers: [UserController],
   providers: [],
