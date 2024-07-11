@@ -7,7 +7,7 @@ import {
 import { LanguageLevel } from '@freedome/common/enums';
 
 export type SellerDocument = Seller & Document;
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, timestamps: true })
 export class Seller {
   @Prop({ required: true })
   fullName: string;

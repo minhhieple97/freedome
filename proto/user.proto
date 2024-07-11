@@ -1,14 +1,35 @@
 syntax = "proto3";
 package user;
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 service UserService {
-  rpc SayHello (HelloRequest) returns (HelloResponse) {}
+    rpc GetUserBuyerWithEmail (GetUserBuyerWithEmailRequest) returns (GetUserBuyerResponse) {}
+    rpc GetUserBuyerWithUsername (GetUserBuyerWithUsernameRequest) returns (GetUserBuyerResponse) {}
 }
 
-message HelloRequest {
-  string name = 1;
+message GetUserBuyerWithEmailRequest {
+  string email = 1;
+}
+message GetUserBuyerWithUsernameRequest {
+  string username = 1;
 }
 
-message HelloResponse {
-  string message = 1;
+message GetUserBuyerResponse {
+  oneof result {
+    BuyerData buyer = 1;
+    google.protobuf.Empty null = 2;
+  }
+}
+
+message BuyerData {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  string profile_public_id = 4;
+  string country = 5;
+  bool is_seller = 6;
+  repeated string purchased_gigs = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
 }

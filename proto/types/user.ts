@@ -5,42 +5,96 @@
 // source: proto/user.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Timestamp } from 'google/protobuf/timestamp';
+import { Empty } from 'google/protobuf/empty';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "user";
+export const protobufPackage = 'user';
 
-export interface HelloRequest {
-  name: string;
+export interface GetUserBuyerWithEmailRequest {
+  email: string;
 }
 
-export interface HelloResponse {
-  message: string;
+export interface GetUserBuyerWithUsernameRequest {
+  username: string;
 }
 
-export const USER_PACKAGE_NAME = "user";
+export interface GetUserBuyerResponse {
+  buyer?: BuyerData | undefined;
+  null?: Empty | undefined;
+}
+
+export interface BuyerData {
+  id: string;
+  username: string;
+  email: string;
+  profilePublicId: string;
+  country: string;
+  isSeller: boolean;
+  purchasedGigs: string[];
+  createdAt: Timestamp | undefined;
+  updatedAt: Timestamp | undefined;
+}
+
+export const USER_PACKAGE_NAME = 'user';
 
 export interface UserServiceClient {
-  sayHello(request: HelloRequest): Observable<HelloResponse>;
+  getUserBuyerWithEmail(
+    request: GetUserBuyerWithEmailRequest,
+  ): Observable<GetUserBuyerResponse>;
+
+  getUserBuyerWithUsername(
+    request: GetUserBuyerWithUsernameRequest,
+  ): Observable<GetUserBuyerResponse>;
 }
 
 export interface UserServiceController {
-  sayHello(request: HelloRequest): Promise<HelloResponse> | Observable<HelloResponse> | HelloResponse;
+  getUserBuyerWithEmail(
+    request: GetUserBuyerWithEmailRequest,
+  ):
+    | Promise<GetUserBuyerResponse>
+    | Observable<GetUserBuyerResponse>
+    | GetUserBuyerResponse;
+
+  getUserBuyerWithUsername(
+    request: GetUserBuyerWithUsernameRequest,
+  ):
+    | Promise<GetUserBuyerResponse>
+    | Observable<GetUserBuyerResponse>
+    | GetUserBuyerResponse;
 }
 
 export function UserServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["sayHello"];
+    const grpcMethods: string[] = [
+      'getUserBuyerWithEmail',
+      'getUserBuyerWithUsername',
+    ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('UserService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('UserService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const USER_SERVICE_NAME = "UserService";
+export const USER_SERVICE_NAME = 'UserService';
