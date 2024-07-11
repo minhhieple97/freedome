@@ -4,7 +4,7 @@ import * as mongoose from 'mongoose';
 
 export type BuyerDocument = Buyer & Document;
 
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, timestamps: true })
 export class Buyer {
   @Prop({ required: true, index: true })
   username: string;
@@ -24,8 +24,11 @@ export class Buyer {
   @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Gig' }])
   purchasedGigs: mongoose.Types.ObjectId[];
 
-  @Prop({ type: Date })
-  createdAt: Date;
+  @Prop()
+  createdAt?: Date;
+
+  @Prop()
+  updatedAt?: Date;
 }
 
 export const BuyerSchema = SchemaFactory.createForClass(Buyer);
