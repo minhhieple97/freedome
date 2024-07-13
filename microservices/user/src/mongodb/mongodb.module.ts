@@ -1,11 +1,10 @@
-import { Module, DynamicModule, Global } from '@nestjs/common';
+import { Module, DynamicModule } from '@nestjs/common';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { AppConfigModule } from '@user/config/app/config.module';
 import { AppConfigService } from '@user/config/app/config.service';
 import { Seller, SellerSchema } from '../seller/seller.schema';
 import { Buyer, BuyerSchema } from '../buyer/buyer.schema';
 
-@Global()
 @Module({})
 export class MongoDBModule {
   static forRootAsync(): DynamicModule {
@@ -28,6 +27,7 @@ export class MongoDBModule {
         ]),
       ],
       exports: [MongooseModule],
+      global: true,
     };
   }
 }
