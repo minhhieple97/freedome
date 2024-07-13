@@ -1,12 +1,16 @@
 import { Module } from '@nestjs/common';
 import { AppConfigModule } from './config/app/config.module';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { Transport } from '@nestjs/microservices';
 import { AppConfigService } from './config/app/config.service';
 import { SERVICE_NAME } from '@freedome/common';
 import HealthModule from './api/health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { SearchModule } from './search/search.module';
 import { UserModule } from './user/user.module';
+import { USER_PACKAGE_NAME } from 'proto/types/user';
+import { join } from 'path';
+import { AUTH_PACKAGE_NAME } from 'proto/types/auth';
+import { GrpcClientModule } from '@freedome/common/module/grpc-client/grpc-client.module';
 
 @Module({
   imports: [
@@ -15,87 +19,29 @@ import { UserModule } from './user/user.module';
     HealthModule,
     SearchModule,
     UserModule,
-    ClientsModule.registerAsync([
+    GrpcClientModule.registerAsync([
       {
+        name: USER_PACKAGE_NAME,
         imports: [AppConfigModule],
-        name: SERVICE_NAME.NOTIFICATIONS,
         useFactory: (appConfig: AppConfigService) => ({
-          transport: Transport.TCP,
+          transport: Transport.GRPC,
           options: {
-            host: appConfig.notificationsHost,
-            port: appConfig.notificationsPort,
+            package: SERVICE_NAME.USER,
+            protoPath: join(__dirname, '../../../../proto/user.proto'),
+            url: appConfig.userGrpcUrl,
           },
         }),
         inject: [AppConfigService],
       },
       {
+        name: AUTH_PACKAGE_NAME,
         imports: [AppConfigModule],
-        name: SERVICE_NAME.GIG,
         useFactory: (appConfig: AppConfigService) => ({
-          transport: Transport.TCP,
+          transport: Transport.GRPC,
           options: {
-            host: appConfig.gigHost,
-            port: appConfig.gigPort,
-          },
-        }),
-        inject: [AppConfigService],
-      },
-      {
-        imports: [AppConfigModule],
-        name: SERVICE_NAME.MESSAGE,
-        useFactory: (appConfig: AppConfigService) => ({
-          transport: Transport.TCP,
-          options: {
-            host: appConfig.messageHost,
-            port: appConfig.messagePort,
-          },
-        }),
-        inject: [AppConfigService],
-      },
-      {
-        imports: [AppConfigModule],
-        name: SERVICE_NAME.REVIEW,
-        useFactory: (appConfig: AppConfigService) => ({
-          transport: Transport.TCP,
-          options: {
-            host: appConfig.reviewHost,
-            port: appConfig.reviewPort,
-          },
-        }),
-        inject: [AppConfigService],
-      },
-      {
-        imports: [AppConfigModule],
-        name: SERVICE_NAME.ORDER,
-        useFactory: (appConfig: AppConfigService) => ({
-          transport: Transport.TCP,
-          options: {
-            host: appConfig.orderHost,
-            port: appConfig.orderPort,
-          },
-        }),
-        inject: [AppConfigService],
-      },
-      {
-        imports: [AppConfigModule],
-        name: SERVICE_NAME.SELLER,
-        useFactory: (appConfig: AppConfigService) => ({
-          transport: Transport.TCP,
-          options: {
-            host: appConfig.sellerHost,
-            port: appConfig.sellerPort,
-          },
-        }),
-        inject: [AppConfigService],
-      },
-      {
-        imports: [AppConfigModule],
-        name: SERVICE_NAME.SEARCH,
-        useFactory: (appConfig: AppConfigService) => ({
-          transport: Transport.TCP,
-          options: {
-            host: appConfig.searchHost,
-            port: appConfig.searchPort,
+            package: SERVICE_NAME.AUTH,
+            protoPath: join(__dirname, '../../../../proto/auth.proto'),
+            url: appConfig.authGrpcUrl,
           },
         }),
         inject: [AppConfigService],

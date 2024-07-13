@@ -30,6 +30,10 @@ export class RabbitMQDynamicModule {
                 name: EXCHANGE_NAME.GIG,
                 type: RabbitMQExchangeType.Direct,
               },
+              {
+                name: EXCHANGE_NAME.USER_SELLER,
+                type: RabbitMQExchangeType.Direct,
+              },
             ],
             uri: process.env.RABBITMQ_ENDPOINT,
             connectionInitOptions: { wait: false },

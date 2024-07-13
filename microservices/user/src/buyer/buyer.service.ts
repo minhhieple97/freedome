@@ -17,11 +17,13 @@ export class BuyerService {
     @InjectModel(Buyer.name) private readonly buyerModel: Model<BuyerDocument>,
   ) {}
 
-  async getBuyerByEmail(email: string): Promise<BuyerDocument | null> {
+  async getUserBuyerWithEmail(email: string): Promise<BuyerDocument | null> {
     return this.buyerModel.findOne({ email }).exec();
   }
 
-  async getBuyerByUsername(username: string): Promise<BuyerDocument | null> {
+  async getUserBuyerWithUsername(
+    username: string,
+  ): Promise<BuyerDocument | null> {
     return this.buyerModel.findOne({ username }).exec();
   }
 

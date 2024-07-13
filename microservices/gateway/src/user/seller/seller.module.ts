@@ -1,12 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
-import { SellerService } from './seller.service';
+import { Module } from '@nestjs/common';
 
-@Controller('seller')
-export class SellerController {
-  constructor(private readonly sellerService: SellerService) {}
-
-  @Get()
-  getSellers() {
-    return this.sellerService.getSellers();
-  }
-}
+@Module({
+  controllers: [],
+})
+export class SellerModule {}

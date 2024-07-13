@@ -19,7 +19,7 @@ export class BuyerController {
   async getUserBuyerWithEmail(
     data: GetUserBuyerWithEmailRequest,
   ): Promise<GetUserBuyerResponse> {
-    const buyer = await this.buyerService.getBuyerByEmail(data.email);
+    const buyer = await this.buyerService.getUserBuyerWithEmail(data.email);
 
     if (!buyer) {
       return { null: new Empty() };
@@ -44,7 +44,9 @@ export class BuyerController {
   async getUserBuyerWithUsername(
     data: GetUserBuyerWithUsernameRequest,
   ): Promise<GetUserBuyerResponse> {
-    const buyer = await this.buyerService.getBuyerByUsername(data.username);
+    const buyer = await this.buyerService.getUserBuyerWithUsername(
+      data.username,
+    );
 
     if (!buyer) {
       return { null: new Empty() };
