@@ -1,11 +1,10 @@
 syntax = "proto3";
 package user;
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 
 service UserService {
-    rpc GetUserBuyerWithEmail (GetUserBuyerWithEmailRequest) returns (GetUserBuyerResponse) {}
-    rpc GetUserBuyerWithUsername (GetUserBuyerWithUsernameRequest) returns (GetUserBuyerResponse) {}
+    rpc GetUserBuyerWithEmail (GetUserBuyerWithEmailRequest) returns (BuyerData) {}
+    rpc GetUserBuyerWithUsername (GetUserBuyerWithUsernameRequest) returns (BuyerData) {}
 }
 
 message GetUserBuyerWithEmailRequest {
@@ -13,13 +12,6 @@ message GetUserBuyerWithEmailRequest {
 }
 message GetUserBuyerWithUsernameRequest {
   string username = 1;
-}
-
-message GetUserBuyerResponse {
-  oneof result {
-    BuyerData buyer = 1;
-    google.protobuf.Empty null = 2;
-  }
 }
 
 message BuyerData {

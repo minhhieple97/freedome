@@ -6,9 +6,8 @@
 
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
-import { Timestamp } from 'google/protobuf/timestamp';
-import { Empty } from 'google/protobuf/empty';
 import { Observable } from 'rxjs';
+import { Timestamp } from '../../google/protobuf/timestamp';
 
 export const protobufPackage = 'user';
 
@@ -18,11 +17,6 @@ export interface GetUserBuyerWithEmailRequest {
 
 export interface GetUserBuyerWithUsernameRequest {
   username: string;
-}
-
-export interface GetUserBuyerResponse {
-  buyer?: BuyerData | undefined;
-  null?: Empty | undefined;
 }
 
 export interface BuyerData {
@@ -42,27 +36,21 @@ export const USER_PACKAGE_NAME = 'user';
 export interface UserServiceClient {
   getUserBuyerWithEmail(
     request: GetUserBuyerWithEmailRequest,
-  ): Observable<GetUserBuyerResponse>;
+  ): Observable<BuyerData>;
 
   getUserBuyerWithUsername(
     request: GetUserBuyerWithUsernameRequest,
-  ): Observable<GetUserBuyerResponse>;
+  ): Observable<BuyerData>;
 }
 
 export interface UserServiceController {
   getUserBuyerWithEmail(
     request: GetUserBuyerWithEmailRequest,
-  ):
-    | Promise<GetUserBuyerResponse>
-    | Observable<GetUserBuyerResponse>
-    | GetUserBuyerResponse;
+  ): Promise<BuyerData> | Observable<BuyerData> | BuyerData;
 
   getUserBuyerWithUsername(
     request: GetUserBuyerWithUsernameRequest,
-  ):
-    | Promise<GetUserBuyerResponse>
-    | Observable<GetUserBuyerResponse>
-    | GetUserBuyerResponse;
+  ): Promise<BuyerData> | Observable<BuyerData> | BuyerData;
 }
 
 export function UserServiceControllerMethods() {
