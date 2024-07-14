@@ -1,16 +1,14 @@
 import { Controller } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { BuyerService } from './buyer.service';
-import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import {
   BuyerData,
-  GetUserBuyerResponse,
   GetUserBuyerWithEmailRequest,
   GetUserBuyerWithUsernameRequest,
   USER_SERVICE_NAME,
 } from 'proto/types/user';
 import { dateToTimestamp } from '@freedome/common';
-
+import * as grpc from '@grpc/grpc-js';
 @Controller()
 export class BuyerController {
   constructor(private readonly buyerService: BuyerService) {}
@@ -18,13 +16,16 @@ export class BuyerController {
   @GrpcMethod(USER_SERVICE_NAME, 'getUserBuyerWithEmail')
   async getUserBuyerWithEmail(
     data: GetUserBuyerWithEmailRequest,
-  ): Promise<GetUserBuyerResponse> {
+  ): Promise<BuyerData> {
     const buyer = await this.buyerService.getUserBuyerWithEmail(data.email);
 
     if (!buyer) {
-      return { null: new Empty() };
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'user_not_found',
+      });
     }
-
+    console.log({ buyer });
     const buyerData: BuyerData = {
       id: buyer._id.toString(),
       username: buyer.username,
@@ -37,19 +38,22 @@ export class BuyerController {
       updatedAt: dateToTimestamp(buyer.updatedAt),
     };
 
-    return { buyer: buyerData };
+    return buyerData;
   }
 
   @GrpcMethod(USER_SERVICE_NAME, 'getUserBuyerWithUsername')
   async getUserBuyerWithUsername(
     data: GetUserBuyerWithUsernameRequest,
-  ): Promise<GetUserBuyerResponse> {
+  ): Promise<BuyerData> {
     const buyer = await this.buyerService.getUserBuyerWithUsername(
       data.username,
     );
-
+    console.log({ buyer });
     if (!buyer) {
-      return { null: new Empty() };
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'user_not_found',
+      });
     }
 
     const buyerData: BuyerData = {
@@ -64,6 +68,6 @@ export class BuyerController {
       updatedAt: dateToTimestamp(buyer.updatedAt),
     };
 
-    return { buyer: buyerData };
+    return buyerData;
   }
 }
