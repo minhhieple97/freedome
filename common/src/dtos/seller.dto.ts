@@ -1,33 +1,32 @@
 import {
-  IsEmail,
-  IsNotEmpty,
   IsString,
-  IsUrl,
-  IsNumber,
-  Min,
+  IsOptional,
   IsArray,
   ValidateNested,
-  IsOptional,
+  IsEmail,
+  IsNumber,
   IsBoolean,
-  MinLength,
+  ArrayMinSize,
+  IsNotEmpty,
+  IsPositive,
+  Allow,
+  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { LanguageLevel } from '../enums';
 
 class Language {
-  @IsOptional()
-  _id?: string;
-
   @IsString()
   language: string;
 
-  @IsString()
-  level: string;
+  @IsEnum(LanguageLevel, {
+    message:
+      'Level must be one of: beginner, intermediate, advanced, or expert',
+  })
+  level: LanguageLevel;
 }
 
 class Experience {
-  @IsOptional()
-  _id?: string;
-
   @IsString()
   company: string;
 
@@ -48,9 +47,6 @@ class Experience {
 }
 
 class Education {
-  @IsOptional()
-  _id?: string;
-
   @IsString()
   country: string;
 
@@ -68,9 +64,6 @@ class Education {
 }
 
 class Certificate {
-  @IsOptional()
-  _id?: string;
-
   @IsString()
   name: string;
 
@@ -89,123 +82,127 @@ class RatingCategory {
   count: number;
 }
 
-export class SellerDto {
-  @IsOptional()
-  _id?: string;
+class RatingCategories {
+  @ValidateNested()
+  @Type(() => RatingCategory)
+  five: RatingCategory;
 
-  @IsOptional()
-  id?: string;
+  @ValidateNested()
+  @Type(() => RatingCategory)
+  four: RatingCategory;
 
+  @ValidateNested()
+  @Type(() => RatingCategory)
+  three: RatingCategory;
+
+  @ValidateNested()
+  @Type(() => RatingCategory)
+  two: RatingCategory;
+
+  @ValidateNested()
+  @Type(() => RatingCategory)
+  one: RatingCategory;
+}
+
+export class CreateSellerDto {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Fullname is required' })
   fullName: string;
 
   @IsString()
-  @IsOptional()
-  username?: string;
+  username: string;
 
   @IsString()
-  @IsOptional()
-  profilePublicId?: string;
+  profilePublicId: string;
 
   @IsEmail()
-  @IsOptional()
-  email?: string;
+  email: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Profile picture is required' })
+  profilePicture: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Seller description is required' })
   description: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Country field is required' })
   country: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Oneliner field is required' })
   oneliner: string;
 
   @IsArray()
+  @ArrayMinSize(1, { message: 'Please add at least one skill' })
   @IsString({ each: true })
-  @MinLength(1, { message: 'Please add at least one skill' })
   skills: string[];
 
   @IsArray()
+  @ArrayMinSize(1, { message: 'Please add at least one language' })
   @ValidateNested({ each: true })
   @Type(() => Language)
-  @MinLength(1, { message: 'Please add at least one language' })
   languages: Language[];
 
   @IsNumber()
-  @Min(0, { message: 'Response time must be greater than zero' })
+  @IsPositive({ message: 'Response time must be greater than zero' })
   responseTime: number;
 
   @IsArray()
+  @ArrayMinSize(1, { message: 'Please add at least one work experience' })
   @ValidateNested({ each: true })
   @Type(() => Experience)
-  @MinLength(1, { message: 'Please add at least one work experience' })
   experience: Experience[];
 
   @IsArray()
+  @ArrayMinSize(1, { message: 'Please add at least one education' })
   @ValidateNested({ each: true })
   @Type(() => Education)
-  @MinLength(1, { message: 'Please add at least one education' })
   education: Education[];
 
   @IsArray()
-  @IsOptional()
-  @IsUrl({}, { each: true })
-  socialLinks?: string[];
+  socialLinks: string[];
 
   @IsArray()
-  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => Certificate)
-  certificates?: Certificate[];
+  certificates: Certificate[];
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   ratingsCount?: number;
 
-  @IsOptional()
   @ValidateNested()
-  @Type(() => RatingCategory)
-  ratingCategories?: {
-    five: RatingCategory;
-    four: RatingCategory;
-    three: RatingCategory;
-    two: RatingCategory;
-    one: RatingCategory;
-  };
+  @Type(() => RatingCategories)
+  ratingCategories?: RatingCategories;
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   ratingSum?: number;
 
-  @IsString()
   @IsOptional()
+  @IsString()
+  @Allow(null)
   recentDelivery?: string;
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   ongoingJobs?: number;
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   completedJobs?: number;
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   cancelledJobs?: number;
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   totalEarnings?: number;
 
+  @IsOptional()
   @IsNumber()
-  @IsOptional()
   totalGigs?: number;
-
-  @IsString()
-  @IsOptional()
-  createdAt?: string;
 }

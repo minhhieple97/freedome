@@ -25,7 +25,6 @@ export class BuyerController {
         message: 'user_not_found',
       });
     }
-    console.log({ buyer });
     const buyerData: BuyerData = {
       id: buyer._id.toString(),
       username: buyer.username,
@@ -48,7 +47,6 @@ export class BuyerController {
     const buyer = await this.buyerService.getUserBuyerWithUsername(
       data.username,
     );
-    console.log({ buyer });
     if (!buyer) {
       throw new RpcException({
         code: grpc.status.NOT_FOUND,

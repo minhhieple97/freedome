@@ -19,6 +19,10 @@ export interface GetUserBuyerWithUsernameRequest {
   username: string;
 }
 
+export interface GetUserSellerByIdRequest {
+  id: string;
+}
+
 export interface BuyerData {
   id: string;
   username: string;
@@ -27,6 +31,94 @@ export interface BuyerData {
   country: string;
   isSeller: boolean;
   purchasedGigs: string[];
+  createdAt: Timestamp | undefined;
+  updatedAt: Timestamp | undefined;
+}
+
+export interface CreateSellerRequest {
+  profilePublicId: string;
+  fullName: string;
+  email: string;
+  profilePicture: string;
+  description: string;
+  oneliner: string;
+  country: string;
+  skills: string[];
+  languages: Language[];
+  responseTime: number;
+  experience: Experience[];
+  education: Education[];
+  socialLinks: string[];
+  certificates: Certificate[];
+  username: string;
+}
+
+export interface Language {
+  language: string;
+  level: string;
+}
+
+export interface Experience {
+  company: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+  currentlyWorkingHere: boolean;
+}
+
+export interface Education {
+  country: string;
+  university: string;
+  title: string;
+  major: string;
+  year: string;
+}
+
+export interface Certificate {
+  name: string;
+  from: string;
+  year: number;
+}
+
+export interface RatingCategory {
+  value: number;
+  count: number;
+}
+
+export interface RatingCategories {
+  five: RatingCategory | undefined;
+  four: RatingCategory | undefined;
+  three: RatingCategory | undefined;
+  two: RatingCategory | undefined;
+  one: RatingCategory | undefined;
+}
+
+export interface CreateSellerResponse {
+  Id: string;
+  profilePublicId: string;
+  fullName: string;
+  username: string;
+  email: string;
+  description: string;
+  country: string;
+  oneliner: string;
+  skills: string[];
+  ratingsCount: number;
+  ratingSum: number;
+  ratingCategories: RatingCategories | undefined;
+  languages: Language[];
+  responseTime: number;
+  recentDelivery: Timestamp | undefined;
+  experience: Experience[];
+  education: Education[];
+  socialLinks: string[];
+  certificates: Certificate[];
+  ongoingJobs: number;
+  completedJobs: number;
+  cancelledJobs: number;
+  totalEarnings: number;
+  totalGigs: number;
   createdAt: Timestamp | undefined;
   updatedAt: Timestamp | undefined;
 }
@@ -41,6 +133,14 @@ export interface UserServiceClient {
   getUserBuyerWithUsername(
     request: GetUserBuyerWithUsernameRequest,
   ): Observable<BuyerData>;
+
+  createSeller(request: CreateSellerRequest): Observable<CreateSellerResponse>;
+
+  updateSeller(request: CreateSellerRequest): Observable<CreateSellerResponse>;
+
+  getSellerById(
+    request: GetUserSellerByIdRequest,
+  ): Observable<CreateSellerResponse>;
 }
 
 export interface UserServiceController {
@@ -51,6 +151,27 @@ export interface UserServiceController {
   getUserBuyerWithUsername(
     request: GetUserBuyerWithUsernameRequest,
   ): Promise<BuyerData> | Observable<BuyerData> | BuyerData;
+
+  createSeller(
+    request: CreateSellerRequest,
+  ):
+    | Promise<CreateSellerResponse>
+    | Observable<CreateSellerResponse>
+    | CreateSellerResponse;
+
+  updateSeller(
+    request: CreateSellerRequest,
+  ):
+    | Promise<CreateSellerResponse>
+    | Observable<CreateSellerResponse>
+    | CreateSellerResponse;
+
+  getSellerById(
+    request: GetUserSellerByIdRequest,
+  ):
+    | Promise<CreateSellerResponse>
+    | Observable<CreateSellerResponse>
+    | CreateSellerResponse;
 }
 
 export function UserServiceControllerMethods() {
@@ -58,6 +179,9 @@ export function UserServiceControllerMethods() {
     const grpcMethods: string[] = [
       'getUserBuyerWithEmail',
       'getUserBuyerWithUsername',
+      'createSeller',
+      'updateSeller',
+      'getSellerById',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(

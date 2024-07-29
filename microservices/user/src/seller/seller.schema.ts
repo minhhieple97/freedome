@@ -143,6 +143,9 @@ export class Seller {
 
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;
+
+  @Prop({ type: Date, default: Date.now })
+  updatedAt: Date;
 }
 
 export const SellerSchema = SchemaFactory.createForClass(Seller);
