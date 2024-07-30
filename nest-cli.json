@@ -79,7 +79,7 @@
       "type": "application",
       "root": "microservices/gig",
       "entryFile": "src/main",
-      "sourceRoot": "microservices/gig/src",
+      "sourceRoot": "./",
       "compilerOptions": {
         "tsConfigPath": "microservices/gig/tsconfig.app.json",
         "assets": ["proto/*.proto"],

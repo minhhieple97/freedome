@@ -21,64 +21,29 @@
     "noUnusedLocals": true,
     "noUncheckedIndexedAccess": true,
     "paths": {
-      "@freedome/common": [
-        "common/src"
-      ],
-      "@freedome/common/*": [
-        "common/src/*"
-      ],
-      "@gateway/config": [
-        "microservices/gateway/src/config"
-      ],
-      "@gateway/config/*": [
-        "microservices/gateway/src/config/*"
-      ],
-      "@gateway/common": [
-        "microservices/gateway/src/common"
-      ],
-      "@gateway/common/*": [
-        "microservices/gateway/src/common/*"
-      ],
-      "@notifications/config": [
-        "microservices/notifications/src/config"
-      ],
-      "@notifications/config/*": [
-        "microservices/notifications/src/config/*"
-      ],
-      "@notifications/common": [
-        "microservices/notifications/src/common"
-      ],
-      "@notifications/common/*": [
-        "microservices/notifications/src/common/*"
-      ],
-      "@auth/config": [
-        "microservices/auth/src/config"
-      ],
-      "@auth/config/*": [
-        "microservices/auth/src/config/*"
-      ],
-      "@auth/common": [
-        "microservices/auth/src/common"
-      ],
-      "@auth/common/*": [
-        "microservices/auth/src/common/*"
-      ],
-      "@user/config": [
-        "microservices/user/src/config"
-      ],
-      "@user/config/*": [
-        "microservices/user/src/config/*"
-      ],
-      "@user/common": [
-        "microservices/user/src/common"
-      ],
-      "@user/common/*": [
-        "microservices/user/src/common/*"
-      ]
+      "@freedome/common": ["common/src"],
+      "@freedome/common/*": ["common/src/*"],
+      "@gateway/config": ["microservices/gateway/src/config"],
+      "@gateway/config/*": ["microservices/gateway/src/config/*"],
+      "@gateway/common": ["microservices/gateway/src/common"],
+      "@gateway/common/*": ["microservices/gateway/src/common/*"],
+      "@notifications/config": ["microservices/notifications/src/config"],
+      "@notifications/config/*": ["microservices/notifications/src/config/*"],
+      "@notifications/common": ["microservices/notifications/src/common"],
+      "@notifications/common/*": ["microservices/notifications/src/common/*"],
+      "@auth/config": ["microservices/auth/src/config"],
+      "@auth/config/*": ["microservices/auth/src/config/*"],
+      "@auth/common": ["microservices/auth/src/common"],
+      "@auth/common/*": ["microservices/auth/src/common/*"],
+      "@user/config": ["microservices/user/src/config"],
+      "@user/config/*": ["microservices/user/src/config/*"],
+      "@user/common": ["microservices/user/src/common"],
+      "@user/common/*": ["microservices/user/src/common/*"],
+      "@gig/config": ["microservices/gig/src/config"],
+      "@gig/config/*": ["microservices/gig/src/config/*"],
+      "@gig/common": ["microservices/gig/src/common"],
+      "@gig/common/*": ["microservices/gig/src/common/*"]
     }
   },
-  "types": [
-    "node",
-    "Multer"
-  ]
+  "types": ["node", "Multer"]
 }
