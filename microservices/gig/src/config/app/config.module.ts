@@ -13,6 +13,7 @@ import { AppConfigService } from './config.service';
           .valid('development', 'production', 'testing', 'staging')
           .required(),
         GIG_GRPC_URL: Joi.string().required(),
+        GIG_ELASTIC_SEARCH_INDEX: Joi.string().required(),
       }),
     }),
   ],
