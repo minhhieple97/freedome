@@ -1,7 +1,8 @@
-import { SERVICE_NAME } from '@freedome/common';
+import { convertGrpcTimestampToPrisma, SERVICE_NAME } from '@freedome/common';
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
+import { ClientGrpc, RpcException } from '@nestjs/microservices';
 import { USER_SERVICE_NAME, UserServiceClient } from 'proto/types/user';
+import { catchError, of, switchMap, throwError } from 'rxjs';
 
 @Injectable()
 export class BuyerService {
@@ -11,8 +12,44 @@ export class BuyerService {
     this.userService =
       this.clientGrpc.getService<UserServiceClient>(USER_SERVICE_NAME);
   }
-  getBuyers() {
-    // Logic to get buyers from a database or API
-    return [];
+  getUserBuyerWithEmail(email: string) {
+    return this.userService.getUserBuyerWithEmail({ email }).pipe(
+      switchMap((response) => {
+        return of({
+          ...response,
+          createdAt: convertGrpcTimestampToPrisma(response.createdAt),
+          updatedAt: convertGrpcTimestampToPrisma(response.updatedAt),
+        });
+      }),
+      catchError((error) =>
+        throwError(
+          () =>
+            new RpcException({
+              code: error.code,
+              message: error.details,
+            }),
+        ),
+      ),
+    );
+  }
+  getUserBuyerWithUsername(username: string) {
+    return this.userService.getUserBuyerWithUsername({ username }).pipe(
+      switchMap((response) => {
+        return of({
+          ...response,
+          createdAt: convertGrpcTimestampToPrisma(response.createdAt),
+          updatedAt: convertGrpcTimestampToPrisma(response.updatedAt),
+        });
+      }),
+      catchError((error) =>
+        throwError(
+          () =>
+            new RpcException({
+              code: error.code,
+              message: error.details,
+            }),
+        ),
+      ),
+    );
   }
 }

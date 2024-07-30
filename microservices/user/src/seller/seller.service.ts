@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Seller, SellerDocument } from './seller.schema';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { BuyerService } from '../buyer/buyer.service';
+import { SellerRepository } from './seller.repository';
 import {
   IOrderMessage,
   IReviewMessageDetails,
@@ -13,68 +12,83 @@ import {
   USER_SELLER_QUEUE_NAME,
   SELLER_REVIEW_QUEUE_NAME,
   IRatingTypes,
-  GIG_QUEUE,
+  ISellerDocument,
+  dateToTimestamp,
 } from '@freedome/common';
-import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import * as grpc from '@grpc/grpc-js';
+import { SellerDocument } from './seller.schema';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class SellerService {
   constructor(
-    @InjectModel(Seller.name)
-    private readonly sellerModel: Model<SellerDocument>,
+    private readonly sellerRepository: SellerRepository,
     private readonly buyerService: BuyerService,
-    private readonly amqpConnection: AmqpConnection,
   ) {}
 
-  async getSellerById(sellerId: string): Promise<SellerDocument | null> {
-    return this.sellerModel.findById(sellerId).exec();
+  async getSellerById(sellerId: string) {
+    const seller = (await this.sellerRepository.findById(sellerId)).toObject();
+    if (!seller) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'Seller not found',
+      });
+    }
+    const result = {
+      ...seller,
+      createdAt: dateToTimestamp(seller.createdAt),
+      updatedAt: dateToTimestamp(seller.updatedAt),
+    };
+    return result;
   }
 
   async getSellerByUsername(username: string): Promise<SellerDocument | null> {
-    return this.sellerModel.findOne({ username }).exec();
+    return this.sellerRepository.findByUsername(username);
   }
 
   async getSellerByEmail(email: string): Promise<SellerDocument | null> {
-    return this.sellerModel.findOne({ email }).exec();
+    return this.sellerRepository.findByEmail(email);
   }
 
   async getRandomSellers(size: number): Promise<SellerDocument[]> {
-    return this.sellerModel.aggregate([{ $sample: { size } }]);
+    return this.sellerRepository.getRandomSellers(size);
   }
 
-  async createSeller(sellerData: SellerDocument): Promise<SellerDocument> {
-    const createdSeller = await this.sellerModel.create(sellerData);
+  async createSeller(sellerData: ISellerDocument) {
+    const { email } = sellerData;
+    const existingSeller = await this.sellerRepository.findByEmail(email);
+    if (existingSeller) {
+      throw new RpcException({
+        code: grpc.status.ALREADY_EXISTS,
+        message: 'Seller already exists',
+      });
+    }
+    const createdSeller = (
+      await this.sellerRepository.create(sellerData)
+    ).toObject();
     await this.buyerService.updateBuyerIsSellerProp(createdSeller.email);
-    return createdSeller;
+    return {
+      ...createdSeller,
+      createdAt: dateToTimestamp(createdSeller.createdAt),
+      updatedAt: dateToTimestamp(createdSeller.updatedAt),
+    };
   }
 
   async updateSeller(
     sellerId: string,
-    sellerData: SellerDocument,
+    sellerData: ISellerDocument,
   ): Promise<SellerDocument | null> {
-    return this.sellerModel
-      .findByIdAndUpdate(
-        sellerId,
-        {
-          $set: {
-            profilePublicId: sellerData.profilePublicId,
-            fullName: sellerData.fullName,
-            description: sellerData.description,
-            country: sellerData.country,
-            skills: sellerData.skills,
-            oneliner: sellerData.oneliner,
-            languages: sellerData.languages,
-            responseTime: sellerData.responseTime,
-            experience: sellerData.experience,
-            education: sellerData.education,
-            socialLinks: sellerData.socialLinks,
-            certificates: sellerData.certificates,
-          },
-        },
-        { new: true }, // Return the updated document
-      )
-      .exec();
+    const { email } = sellerData;
+    const existingSeller = await this.sellerRepository.findByEmail(email);
+    if (!existingSeller) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'Seller not found',
+      });
+    }
+    return this.sellerRepository.update(sellerId, sellerData);
   }
+
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.UPDATE_GIG_COUNT,
@@ -84,10 +98,9 @@ export class SellerService {
     sellerId,
     count,
   }: IUpdateTotalGigsCount): Promise<void> {
-    await this.sellerModel
-      .updateOne({ _id: sellerId }, { $inc: { totalGigs: count } })
-      .exec();
+    await this.sellerRepository.updateTotalGigsCount(sellerId, count);
   }
+
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.CREATE_ORDER,
@@ -97,23 +110,18 @@ export class SellerService {
     sellerId,
     ongoingJobs,
   }: ICreateOrderForSeller): Promise<void> {
-    await this.sellerModel
-      .updateOne({ _id: sellerId }, { $inc: { ongoingJobs } })
-      .exec();
+    await this.sellerRepository.updateOngoingJobs(sellerId, ongoingJobs);
   }
+
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.CANCEL_ORDER,
     queue: USER_SELLER_QUEUE_NAME,
   })
   async updateSellerCancelledJobsProp(sellerId: string): Promise<void> {
-    await this.sellerModel
-      .updateOne(
-        { _id: sellerId },
-        { $inc: { ongoingJobs: -1, cancelledJobs: 1 } },
-      )
-      .exec();
+    await this.sellerRepository.updateCancelledJobs(sellerId);
   }
+
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.APPROVE_ORDER,
@@ -129,20 +137,15 @@ export class SellerService {
       totalEarnings,
       recentDelivery,
     } = data;
-    await this.sellerModel
-      .updateOne(
-        { _id: sellerId },
-        {
-          $inc: {
-            ongoingJobs,
-            completedJobs,
-            totalEarnings,
-          },
-          $set: { recentDelivery: new Date(recentDelivery) },
-        },
-      )
-      .exec();
+    await this.sellerRepository.updateCompletedJobs(
+      sellerId,
+      ongoingJobs,
+      completedJobs,
+      totalEarnings,
+      new Date(recentDelivery),
+    );
   };
+
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.SELLER_REVIEW,
     queue: SELLER_REVIEW_QUEUE_NAME,
@@ -157,25 +160,10 @@ export class SellerService {
       '5': 'five',
     };
     const ratingKey: string = ratingTypes[`${data.rating}`];
-    await this.sellerModel
-      .updateOne(
-        { _id: data.sellerId },
-        {
-          $inc: {
-            ratingsCount: 1,
-            ratingSum: data.rating,
-            [`ratingCategories.${ratingKey}.value`]: data.rating,
-            [`ratingCategories.${ratingKey}.count`]: 1,
-          },
-        },
-      )
-      .exec();
+    await this.sellerRepository.updateReview(
+      data.sellerId,
+      data.rating,
+      ratingKey,
+    );
   }
-
-  @RabbitSubscribe({
-    exchange: EXCHANGE_NAME.GIG,
-    queue: GIG_QUEUE,
-    routingKey: ROUTING_KEY.GET_SELLERS,
-  })
-  async seedRandomSeller(data): Promise<void> {}
 }

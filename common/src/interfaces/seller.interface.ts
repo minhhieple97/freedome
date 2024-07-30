@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongoose';
 import { IRatingCategories } from './review.interface';
 
 export type SellerType =
@@ -47,20 +46,18 @@ export interface IEducation {
 }
 
 export interface ICertificate {
-  [key: string]: string | number | undefined;
   _id?: string;
   name: string;
   from: string;
-  year: number | string;
+  year: number;
 }
 
 export interface ISellerDocument extends Record<string, SellerType> {
-  _id?: string | ObjectId;
+  _id?: string;
   profilePublicId?: string;
   fullName: string;
-  username?: string;
+  username: string;
   email?: string;
-  profilePicture?: string;
   description: string;
   country: string;
   oneliner: string;
@@ -80,8 +77,8 @@ export interface ISellerDocument extends Record<string, SellerType> {
   cancelledJobs?: number;
   totalEarnings?: number;
   totalGigs?: number;
-  paypal?: string; // not needed
   createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
 
 export interface ICreateOrderForSeller {

@@ -43,8 +43,8 @@ import { AuthService } from './auth.service';
 import { Empty } from 'google/protobuf/empty';
 
 @ApiBearerAuth('authorization')
-@Controller('auth')
 @ApiTags('auth')
+@Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
