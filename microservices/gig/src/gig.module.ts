@@ -4,10 +4,13 @@ import { GigService } from './gig.service';
 import { AppConfigModule } from './config/app/config.module';
 import { RabbitMQDynamicModule } from '@freedome/common/module/rabbitmq';
 import { ElasticsearchModule } from '@freedome/common/module';
+import { SearchModule } from './search/search.module';
+import { SearchService } from './search/search.service';
 
 @Module({
   imports: [
     ElasticsearchModule,
+    SearchModule,
     AppConfigModule,
     RabbitMQDynamicModule.forRootAsync(),
   ],
@@ -15,8 +18,8 @@ import { ElasticsearchModule } from '@freedome/common/module';
   providers: [GigService],
 })
 export class GigModule {
-  constructor(private readonly gigService: GigService) {}
+  constructor(private readonly searchService: SearchService) {}
   public async onModuleInit() {
-    await this.gigService.createIndex();
+    await this.searchService.createIndex();
   }
 }
