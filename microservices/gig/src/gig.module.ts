@@ -15,7 +15,7 @@ import { SearchService } from './search/search.service';
     RabbitMQDynamicModule.forRootAsync(),
   ],
   controllers: [GigController],
-  providers: [GigService],
+  providers: [GigService, SearchService],
 })
 export class GigModule {
   constructor(private readonly searchService: SearchService) {}
