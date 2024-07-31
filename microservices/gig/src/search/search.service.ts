@@ -1,7 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { ISellerGig, LoggerService } from '@freedome/common';
-import { GetResponse } from '@elastic/elasticsearch/lib/api/types';
+import {
+  IHitsTotal,
+  IPaginateProps,
+  IQueryList,
+  ISearchResult,
+  ISellerGig,
+  LoggerService,
+} from '@freedome/common';
+import {
+  GetResponse,
+  SearchResponse,
+} from '@elastic/elasticsearch/lib/api/types';
 import { AppConfigService } from '@gig/config/app/config.service';
 
 @Injectable()
@@ -72,5 +82,112 @@ export class SearchService {
         error,
       );
     }
+  }
+  async gigsSearchBySellerId(
+    searchQuery: string,
+    active: boolean,
+  ): Promise<ISearchResult> {
+    const queryList: IQueryList[] = [
+      {
+        query_string: {
+          fields: ['sellerId'],
+          query: `*${searchQuery}*`,
+        },
+      },
+      {
+        term: {
+          active,
+        },
+      },
+    ];
+
+    const result: SearchResponse = await this.esService.search({
+      index: this.gigIndex,
+      query: {
+        bool: {
+          must: [...queryList],
+        },
+      },
+    });
+
+    const total: IHitsTotal = result.hits.total as IHitsTotal;
+    return {
+      total: total.value,
+      hits: result.hits.hits,
+    };
+  }
+
+  async gigsSearch(
+    searchQuery: string,
+    paginate: IPaginateProps,
+    deliveryTime?: string,
+    min?: number,
+    max?: number,
+  ): Promise<ISearchResult> {
+    const { from, size, type } = paginate;
+    const queryList: IQueryList[] = [
+      {
+        query_string: {
+          fields: [
+            'username',
+            'title',
+            'description',
+            'basicDescription',
+            'basicTitle',
+            'categories',
+            'subCategories',
+            'tags',
+          ],
+          query: `*${searchQuery}*`,
+        },
+      },
+      {
+        term: {
+          active: true,
+        },
+      },
+    ];
+
+    if (deliveryTime !== 'undefined') {
+      queryList.push({
+        query_string: {
+          fields: ['expectedDelivery'],
+          query: `*${deliveryTime}*`,
+        },
+      });
+    }
+
+    if (!isNaN(parseInt(`${min}`)) && !isNaN(parseInt(`${max}`))) {
+      queryList.push({
+        range: {
+          price: {
+            gte: min,
+            lte: max,
+          },
+        },
+      });
+    }
+
+    const result: SearchResponse = await this.esService.search({
+      index: 'gigs',
+      size,
+      query: {
+        bool: {
+          must: [...queryList],
+        },
+      },
+      sort: [
+        {
+          sortId: type === 'forward' ? 'asc' : 'desc',
+        },
+      ],
+      ...(from !== '0' && { search_after: [from] }),
+    });
+
+    const total: IHitsTotal = result.hits.total as IHitsTotal;
+    return {
+      total: total.value,
+      hits: result.hits.hits,
+    };
   }
 }
