@@ -21,11 +21,11 @@ export interface ICreateGig extends Record<string, GigType> {
 }
 
 export interface ISellerGig {
-  _id?: string | ObjectId;
+  // _id?: string | ObjectId;
   // this "id" property is used because elastcisearch does not accept a key with an underscore "_id"
   // elasticsearch has _id as a reserved field name
   id?: string | ObjectId;
-  sellerId?: string | ObjectId;
+  sellerId?: ObjectId;
   title: string;
   username?: string;
   profilePicture?: string;
