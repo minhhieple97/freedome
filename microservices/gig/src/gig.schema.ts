@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 @Schema({
+  versionKey: false,
   timestamps: true,
   toJSON: {
     virtuals: true,
@@ -91,6 +92,12 @@ export class Gig extends Document {
 
   @Prop({ required: true })
   coverImage: string;
+
+  @Prop({ type: Date, default: Date.now })
+  createdAt: Date;
+
+  @Prop({ type: Date, default: Date.now })
+  updatedAt: Date;
 }
 
 export const GigSchema = SchemaFactory.createForClass(Gig);
