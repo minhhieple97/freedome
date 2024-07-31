@@ -26,4 +26,13 @@ export class GigService {
     }
     return resultsHits;
   }
+
+  async getSellerPausedGigs(sellerId: string): Promise<ISellerGig[]> {
+    const resultsHits: ISellerGig[] = [];
+    const gigs = await this.searchService.gigsSearchBySellerId(sellerId, false);
+    for (const item of gigs.hits) {
+      resultsHits.push(item._source as ISellerGig);
+    }
+    return resultsHits;
+  }
 }
