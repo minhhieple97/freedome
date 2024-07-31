@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+export type GigDocument = Gig & Document;
 @Schema({
   versionKey: false,
   timestamps: true,
@@ -12,7 +13,7 @@ import { Document, Types } from 'mongoose';
     },
   },
 })
-export class Gig extends Document {
+export class Gig {
   @Prop({ type: Types.ObjectId, index: true })
   sellerId: Types.ObjectId;
 
@@ -102,6 +103,6 @@ export class Gig extends Document {
 
 export const GigSchema = SchemaFactory.createForClass(Gig);
 
-GigSchema.virtual('id').get(function (this: Gig) {
+GigSchema.virtual('id').get(function (this: GigDocument) {
   return this._id;
 });

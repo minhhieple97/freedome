@@ -1,4 +1,4 @@
-import { Gig } from './../gig.schema';
+import { Gig, GigSchema } from './../gig.schema';
 import { AppConfigModule } from '@gig/config/app/config.module';
 import { AppConfigService } from '@gig/config/app/config.service';
 import { Module, DynamicModule } from '@nestjs/common';
@@ -20,7 +20,7 @@ export class MongoDBModule {
           }),
           inject: [AppConfigService],
         }),
-        MongooseModule.forFeature([{ name: Gig.name, schema: Gig }]),
+        MongooseModule.forFeature([{ name: Gig.name, schema: GigSchema }]),
       ],
       exports: [MongooseModule],
       global: true,

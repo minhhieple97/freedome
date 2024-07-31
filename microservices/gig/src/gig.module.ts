@@ -6,6 +6,7 @@ import { RabbitMQDynamicModule } from '@freedome/common/module/rabbitmq';
 import { ElasticsearchModule } from '@freedome/common/module';
 import { SearchModule } from './search/search.module';
 import { SearchService } from './search/search.service';
+import { MongoDBModule } from './mongodb/mongodb.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { SearchService } from './search/search.service';
     SearchModule,
     AppConfigModule,
     RabbitMQDynamicModule.forRootAsync(),
+    MongoDBModule.forRootAsync(),
   ],
   controllers: [GigController],
   providers: [GigService, SearchService],
