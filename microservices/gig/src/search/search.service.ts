@@ -10,6 +10,7 @@ import {
 } from '@freedome/common';
 import {
   GetResponse,
+  IndexResponse,
   SearchResponse,
 } from '@elastic/elasticsearch/lib/api/types';
 import { AppConfigService } from '@gig/config/app/config.service';
@@ -189,5 +190,26 @@ export class SearchService {
       total: total.value,
       hits: result.hits.hits,
     };
+  }
+  async addDataToIndex(
+    index: string,
+    itemId: string,
+    gigDocument: unknown,
+  ): Promise<void> {
+    try {
+      const result: IndexResponse = await this.esService.index({
+        index,
+        id: itemId,
+        document: gigDocument,
+      });
+
+      this.logger.debug(`Document indexed successfully: ${result.result}`);
+    } catch (error) {
+      this.logger.error('Error adding data to Elasticsearch index', {
+        index,
+        itemId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   }
 }
