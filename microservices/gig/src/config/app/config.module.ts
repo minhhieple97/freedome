@@ -14,6 +14,7 @@ import { AppConfigService } from './config.service';
           .required(),
         GIG_GRPC_URL: Joi.string().required(),
         GIG_ELASTIC_SEARCH_INDEX: Joi.string().required(),
+        MONGODB_URI: Joi.string().required(),
       }),
     }),
   ],

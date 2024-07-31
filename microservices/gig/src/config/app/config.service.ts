@@ -15,4 +15,7 @@ export class AppConfigService {
   get gigElasticSearchIndex(): string {
     return this.configService.get<string>('GIG_ELASTIC_SEARCH_INDEX');
   }
+  get mongoUri(): string {
+    return this.configService.get<string>('MONGODB_URI');
+  }
 }
