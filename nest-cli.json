@@ -74,6 +74,17 @@
         "assets": ["proto/*.proto"],
         "watchAssets": true
       }
+    },
+    "gig": {
+      "type": "application",
+      "root": "microservices/gig",
+      "entryFile": "src/main",
+      "sourceRoot": "./",
+      "compilerOptions": {
+        "tsConfigPath": "microservices/gig/tsconfig.app.json",
+        "assets": ["proto/*.proto"],
+        "watchAssets": true
+      }
     }
   }
 }

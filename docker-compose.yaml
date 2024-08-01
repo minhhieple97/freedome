@@ -154,6 +154,22 @@ services:
       - elasticsearch
       - redis
       - mongodb
+  gig:
+    build:
+      context: .
+      dockerfile: ./microservices/gig/Dockerfile
+      target: development
+    volumes:
+      - .:/usr/src/app
+      - ./proto:/proto
+    env_file:
+      - ./microservices/gig/.env
+    networks:
+      - elastic
+    depends_on:
+      - elasticsearch
+      - redis
+      - mongodb
   redis:
     image: redis
     ports:

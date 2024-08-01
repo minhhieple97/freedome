@@ -31,6 +31,9 @@ export class SearchService {
       await this.esService.indices.create({
         index: this.gigIndex,
       });
+      await this.esService.indices.refresh({
+        index: this.gigIndex,
+      });
     }
   }
   public async indexData(payload: any) {

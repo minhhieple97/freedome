@@ -38,7 +38,11 @@
       "@user/config": ["microservices/user/src/config"],
       "@user/config/*": ["microservices/user/src/config/*"],
       "@user/common": ["microservices/user/src/common"],
-      "@user/common/*": ["microservices/user/src/common/*"]
+      "@user/common/*": ["microservices/user/src/common/*"],
+      "@gig/config": ["microservices/gig/src/config"],
+      "@gig/config/*": ["microservices/gig/src/config/*"],
+      "@gig/common": ["microservices/gig/src/common"],
+      "@gig/common/*": ["microservices/gig/src/common/*"]
     }
   },
   "types": ["node", "Multer"]

@@ -44,4 +44,5 @@ export const ROUTING_KEY = {
   UPDATE_GIG_COUNT: 'update_gig_count',
   BUYER_REVIEW: 'buyer_review',
   GET_SELLERS: 'get_sellers',
+  UDPATE_GIG_COUNT: 'update-gig-count',
 };
