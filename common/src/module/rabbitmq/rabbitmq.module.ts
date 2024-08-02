@@ -27,7 +27,7 @@ export class RabbitMQDynamicModule {
                 type: RabbitMQExchangeType.Topic,
               },
               {
-                name: EXCHANGE_NAME.GIG,
+                name: EXCHANGE_NAME.UPDATE_GIG,
                 type: RabbitMQExchangeType.Direct,
               },
               {
