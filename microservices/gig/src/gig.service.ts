@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   EXCHANGE_NAME,
+  GIG_QUEUE_NAME,
   IRatingTypes,
   IReviewMessageDetails,
   ISellerGig,
@@ -11,7 +12,7 @@ import { AppConfigService } from './config/app/config.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Gig, GigDocument } from './gig.schema';
 import { Model } from 'mongoose';
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 @Injectable()
 export class GigService {
@@ -56,7 +57,7 @@ export class GigService {
       const count = 1;
       this.amqpConnection.publish(
         EXCHANGE_NAME.USER_SELLER,
-        ROUTING_KEY.UDPATE_GIG_COUNT,
+        ROUTING_KEY.UPDATE_GIG_COUNT,
         {
           gigSellerId: `${data.sellerId}`,
           count,
@@ -75,7 +76,7 @@ export class GigService {
     const count = -1;
     this.amqpConnection.publish(
       EXCHANGE_NAME.USER_SELLER,
-      ROUTING_KEY.UDPATE_GIG_COUNT,
+      ROUTING_KEY.UPDATE_GIG_COUNT,
       {
         gigSellerId: sellerId,
         count,
@@ -174,5 +175,14 @@ export class GigService {
         data,
       );
     }
+  }
+
+  @RabbitSubscribe({
+    exchange: EXCHANGE_NAME.UPDATE_GIG,
+    queue: GIG_QUEUE_NAME,
+    routingKey: ROUTING_KEY.UPDATE_GIG_FROM_BUYER_REVIEW,
+  })
+  async updateGigWhenBuyerReview(data: IReviewMessageDetails): Promise<void> {
+    await this.updateGigReview(data);
   }
 }

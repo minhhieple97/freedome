@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { BuyerService } from '../buyer/buyer.service';
 import { SellerRepository } from './seller.repository';
 import {
@@ -24,6 +24,7 @@ export class SellerService {
   constructor(
     private readonly sellerRepository: SellerRepository,
     private readonly buyerService: BuyerService,
+    private readonly amqpConnection: AmqpConnection,
   ) {}
 
   async getSellerById(sellerId: string) {
@@ -151,7 +152,9 @@ export class SellerService {
     queue: SELLER_REVIEW_QUEUE_NAME,
     routingKey: ROUTING_KEY.BUYER_REVIEW,
   })
-  async updateSellerReview(data: IReviewMessageDetails): Promise<void> {
+  async updateSellerWhenBuyerReview(
+    data: IReviewMessageDetails,
+  ): Promise<void> {
     const ratingTypes: IRatingTypes = {
       '1': 'one',
       '2': 'two',
@@ -164,6 +167,11 @@ export class SellerService {
       data.sellerId,
       data.rating,
       ratingKey,
+    );
+    this.amqpConnection.publish(
+      EXCHANGE_NAME.UPDATE_GIG,
+      ROUTING_KEY.UPDATE_GIG_FROM_BUYER_REVIEW,
+      data,
     );
   }
 }
