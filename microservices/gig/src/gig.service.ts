@@ -5,6 +5,7 @@ import {
   IRatingTypes,
   IReviewMessageDetails,
   ISellerGig,
+  LoggerService,
   ROUTING_KEY,
 } from '@freedome/common';
 import { SearchService } from './search/search.service';
@@ -13,6 +14,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Gig, GigDocument } from './gig.schema';
 import { Model } from 'mongoose';
 import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { RedisCacheService } from '@freedome/common/module';
 
 @Injectable()
 export class GigService {
@@ -22,8 +24,10 @@ export class GigService {
     @InjectModel(Gig.name)
     private readonly gigModel: Model<GigDocument>,
     private readonly amqpConnection: AmqpConnection,
+    private readonly redisCacheService: RedisCacheService,
   ) {}
   private readonly gigIndex = this.appConfigService.gigElasticSearchIndex;
+  private readonly logger = new LoggerService(GigService.name);
   async getGigById(gigId: string): Promise<ISellerGig> {
     const gigIndex = this.appConfigService.gigElasticSearchIndex;
     const gig: ISellerGig = await this.searchService.getIndexedData(
@@ -184,5 +188,14 @@ export class GigService {
   })
   async updateGigWhenBuyerReview(data: IReviewMessageDetails): Promise<void> {
     await this.updateGigReview(data);
+  }
+  async getUserSelectedGigCategory(key: string): Promise<string> {
+    try {
+      const response = (await this.redisCacheService.get(key)) as string;
+      return response || '';
+    } catch (error) {
+      this.logger.error('Error in getUserSelectedGigCategory method:', error);
+      return '';
+    }
   }
 }
