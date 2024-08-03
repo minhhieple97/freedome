@@ -1,16 +1,64 @@
 syntax = "proto3";
-
 package gig;
+import "google/protobuf/timestamp.proto";
 
 service GigService {
-  rpc FindOne (HeroById) returns (Hero);
+  rpc CreateGig(CreateGigRequest) returns (CreateGigResponse);
 }
 
-message HeroById {
-  int32 id = 1;
+
+
+message RatingCategoryItem {
+  double value = 1;
+  int32 count = 2;
 }
 
-message Hero {
-  int32 id = 1;
-  string name = 2;
+message RatingCategories {
+  RatingCategoryItem five = 1;
+  RatingCategoryItem four = 2;
+  RatingCategoryItem three = 3;
+  RatingCategoryItem two = 4;
+  RatingCategoryItem one = 5;
+}
+
+message CreateGigRequest {
+  string title = 1;
+  string username = 2;
+  string profilePicture = 3;
+  string email = 4;
+  string description = 5;
+  string categories = 6;
+  repeated string subCategories = 7;
+  repeated string tags = 8;
+  string expectedDelivery = 9;
+  string basicTitle = 10;
+  string basicDescription = 11;
+  double price = 12;
+  string coverImage = 13;
+  string sellerId = 14;
+}
+
+message CreateGigResponse {
+  string id = 1;
+  string sellerId = 2;
+  string title = 3;
+  string username = 4;
+  string profilePicture = 5;
+  string email = 6;
+  string description = 7;
+  bool active = 8;
+  string categories = 9;
+  repeated string subCategories = 10;
+  repeated string tags = 11;
+  double ratingsCount = 12;
+  double ratingSum = 13;
+  RatingCategories ratingCategories = 14;
+  string expectedDelivery = 15;
+  string basicTitle = 16;
+  string basicDescription = 17;
+  double price = 18;
+  string coverImage = 19;
+  google.protobuf.Timestamp createdAt = 20;
+  google.protobuf.Timestamp updatedAt = 21;
+  int32 sortId = 22;
 }

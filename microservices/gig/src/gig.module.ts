@@ -11,6 +11,7 @@ import {
 import { SearchModule } from './search/search.module';
 import { SearchService } from './search/search.service';
 import { MongoDBModule } from './mongodb/mongodb.module';
+import { UploadService } from '@freedome/common/upload';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { MongoDBModule } from './mongodb/mongodb.module';
     RedisModule,
   ],
   controllers: [GigController],
-  providers: [GigService, SearchService, RedisCacheService],
+  providers: [GigService, SearchService, RedisCacheService, UploadService],
 })
 export class GigModule {
   constructor(private readonly searchService: SearchService) {}
