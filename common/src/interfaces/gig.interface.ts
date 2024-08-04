@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongoose';
 import { IRatingCategories, IReviewDocument } from './review.interface';
 import { ISellerDocument } from './seller.interface';
 
@@ -21,8 +20,8 @@ export interface ICreateGig extends Record<string, GigType> {
 }
 
 export interface ISellerGig {
-  id?: string | ObjectId;
-  sellerId?: ObjectId;
+  id: string;
+  sellerId: string;
   title: string;
   username?: string;
   profilePicture?: string;
@@ -40,13 +39,9 @@ export interface ISellerGig {
   basicDescription: string;
   price: number;
   coverImage: string;
-  createdAt?: Date | string;
+  createdAt: string;
+  updatedAt: string;
   sortId?: number;
-  // this is added here because we will use the json format of the document
-  // at some point instead of the Mongoose document
-  // the json object which will contain the virtual field "id" without the field "_id" will be added to elasticsearch
-  // because "_id" is a reserved field name in elasticsearch.
-  toJSON?: () => unknown;
 }
 
 export interface IGigContext {

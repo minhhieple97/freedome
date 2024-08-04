@@ -9,6 +9,7 @@ import {
   LoggerService,
 } from '@freedome/common';
 import {
+  CountResponse,
   GetResponse,
   IndexResponse,
   SearchResponse,
@@ -210,6 +211,18 @@ export class SearchService {
         itemId,
         error: error instanceof Error ? error.message : 'Unknown error',
       });
+    }
+  }
+  async getDocumentCount(index: string): Promise<number> {
+    try {
+      const result: CountResponse = await this.esService.count({ index });
+      return result.count;
+    } catch (error) {
+      this.logger.error(
+        'GigService elasticsearch getDocumentCount() method error:',
+        error,
+      );
+      return 0;
     }
   }
 }

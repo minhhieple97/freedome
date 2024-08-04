@@ -3,10 +3,15 @@ import { GigController } from './gig.controller';
 import { GigService } from './gig.service';
 import { AppConfigModule } from './config/app/config.module';
 import { RabbitMQDynamicModule } from '@freedome/common/module/rabbitmq';
-import { ElasticsearchModule } from '@freedome/common/module';
+import {
+  ElasticsearchModule,
+  RedisCacheService,
+  RedisModule,
+} from '@freedome/common/module';
 import { SearchModule } from './search/search.module';
 import { SearchService } from './search/search.service';
 import { MongoDBModule } from './mongodb/mongodb.module';
+import { UploadService } from '@freedome/common/upload';
 
 @Module({
   imports: [
@@ -15,9 +20,10 @@ import { MongoDBModule } from './mongodb/mongodb.module';
     AppConfigModule,
     RabbitMQDynamicModule.forRootAsync(),
     MongoDBModule.forRootAsync(),
+    RedisModule,
   ],
   controllers: [GigController],
-  providers: [GigService, SearchService],
+  providers: [GigService, SearchService, RedisCacheService, UploadService],
 })
 export class GigModule {
   constructor(private readonly searchService: SearchService) {}
