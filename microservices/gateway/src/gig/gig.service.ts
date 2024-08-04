@@ -1,4 +1,7 @@
-import { CreateGigDto } from './../../../../common/src/dtos/gig.dto';
+import {
+  CreateGigDto,
+  UpdateGigDto,
+} from './../../../../common/src/dtos/gig.dto';
 import {
   convertGrpcTimestampToPrisma,
   IAuthDocument,
@@ -10,6 +13,7 @@ import {
   CreateGigRequest,
   GIG_SERVICE_NAME,
   GigServiceClient,
+  UpdateGigRequest,
 } from 'proto/types/gig';
 import { catchError, of, switchMap, throwError } from 'rxjs';
 
@@ -28,6 +32,31 @@ export class GigService {
       email: user.email,
     };
     return this.gigService.createGig(gigData).pipe(
+      switchMap((response) => {
+        return of({
+          ...response,
+          createdAt: convertGrpcTimestampToPrisma(response.createdAt),
+          updatedAt: convertGrpcTimestampToPrisma(response.updatedAt),
+        });
+      }),
+      catchError((error) =>
+        throwError(
+          () =>
+            new RpcException({
+              code: error.code,
+              message: error.details,
+            }),
+        ),
+      ),
+    );
+  }
+
+  updateGig(data: UpdateGigDto, gigId: string) {
+    const gigData: UpdateGigRequest = {
+      ...data,
+      id: gigId,
+    };
+    return this.gigService.updateGig(gigData).pipe(
       switchMap((response) => {
         return of({
           ...response,

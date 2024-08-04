@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Timestamp } from 'google/protobuf/timestamp';
 import { Observable } from 'rxjs';
-import { Timestamp } from '../../google/protobuf/timestamp';
 
 export const protobufPackage = 'gig';
 
@@ -66,10 +66,26 @@ export interface CreateGigResponse {
   sortId: number;
 }
 
+export interface UpdateGigRequest {
+  title: string;
+  description: string;
+  categories: string;
+  subCategories: string[];
+  tags: string[];
+  price: number;
+  coverImage: string;
+  expectedDelivery: string;
+  basicTitle: string;
+  basicDescription: string;
+  id: string;
+}
+
 export const GIG_PACKAGE_NAME = 'gig';
 
 export interface GigServiceClient {
   createGig(request: CreateGigRequest): Observable<CreateGigResponse>;
+
+  updateGig(request: UpdateGigRequest): Observable<CreateGigResponse>;
 }
 
 export interface GigServiceController {
@@ -79,11 +95,18 @@ export interface GigServiceController {
     | Promise<CreateGigResponse>
     | Observable<CreateGigResponse>
     | CreateGigResponse;
+
+  updateGig(
+    request: UpdateGigRequest,
+  ):
+    | Promise<CreateGigResponse>
+    | Observable<CreateGigResponse>
+    | CreateGigResponse;
 }
 
 export function GigServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['createGig'];
+    const grpcMethods: string[] = ['createGig', 'updateGig'];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(
         constructor.prototype,

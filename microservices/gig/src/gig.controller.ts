@@ -1,7 +1,11 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { GigService } from './gig.service';
-import { CreateGigRequest, GIG_SERVICE_NAME } from 'proto/types/gig';
+import {
+  CreateGigRequest,
+  GIG_SERVICE_NAME,
+  UpdateGigRequest,
+} from 'proto/types/gig';
 
 @Controller()
 export class GigController {
@@ -38,13 +42,10 @@ export class GigController {
   //   await this.gigService.deleteGig(data.gigId, data.sellerId);
   // }
 
-  // @GrpcMethod('GigService', 'updateGig')
-  // async updateGig(data: {
-  //   gigId: string;
-  //   gig: ISellerGig;
-  // }): Promise<ISellerGig> {
-  //   return this.gigService.updateGig(data.gigId, data.gig);
-  // }
+  @GrpcMethod(GIG_SERVICE_NAME, 'updateGig')
+  async updateGig(data: UpdateGigRequest) {
+    return this.gigService.updateGig(data);
+  }
 
   // @GrpcMethod('GigService', 'updateActiveGigProp')
   // async updateActiveGigProp(data: {

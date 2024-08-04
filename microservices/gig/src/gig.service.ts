@@ -6,6 +6,7 @@ import {
   IRatingTypes,
   IReviewMessageDetails,
   ISellerGig,
+  isValidBase64,
   LoggerService,
   ROUTING_KEY,
 } from '@freedome/common';
@@ -19,7 +20,9 @@ import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { RedisCacheService } from '@freedome/common/module';
 import { UploadService } from '@freedome/common/upload';
 import { BUCKET_S3_FOLDER_NAME } from '@auth/common/constants';
-import { CreateGigRequest } from 'proto/types/gig';
+import { CreateGigRequest, UpdateGigRequest } from 'proto/types/gig';
+import { RpcException } from '@nestjs/microservices';
+import * as grpc from '@grpc/grpc-js';
 
 @Injectable()
 export class GigService {
@@ -134,23 +137,47 @@ export class GigService {
     );
     await this.searchService.deleteIndexedData(this.gigIndex, `${gigId}`);
   }
-  async updateGig(gigId: string, gigData: ISellerGig): Promise<ISellerGig> {
-    const document: ISellerGig = (
+  async updateGig(gigData: UpdateGigRequest): Promise<GigDocument> {
+    const seller = (await this.gigModel.findById(gigData.id)).toObject();
+    if (!seller) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'Gig not found',
+      });
+    }
+    const {
+      id,
+      title,
+      description,
+      categories,
+      subCategories,
+      tags,
+      price,
+      coverImage,
+      expectedDelivery,
+      basicTitle,
+      basicDescription,
+    } = gigData;
+    const covertImageId = isValidBase64(coverImage)
+      ? await this.uploadGigCover(coverImage)
+      : coverImage;
+
+    const document = (
       await this.gigModel
         .findOneAndUpdate(
-          { _id: gigId },
+          { _id: id },
           {
             $set: {
-              title: gigData.title,
-              description: gigData.description,
-              categories: gigData.categories,
-              subCategories: gigData.subCategories,
-              tags: gigData.tags,
-              price: gigData.price,
-              coverImage: gigData.coverImage,
-              expectedDelivery: gigData.expectedDelivery,
-              basicTitle: gigData.basicTitle,
-              basicDescription: gigData.basicDescription,
+              title,
+              description,
+              categories,
+              subCategories,
+              tags,
+              price,
+              coverImage: covertImageId,
+              expectedDelivery,
+              basicTitle,
+              basicDescription,
             },
           },
           { new: true },
@@ -158,11 +185,10 @@ export class GigService {
         .exec()
     ).toObject();
     if (document) {
-      const data: ISellerGig = document.toJSON?.() as ISellerGig;
       await this.searchService.updateIndexedData(
         this.gigIndex,
-        String(document.id),
-        data,
+        document.id,
+        document,
       );
     }
     return document;
@@ -170,8 +196,8 @@ export class GigService {
   async updateActiveGigProp(
     gigId: string,
     gigActive: boolean,
-  ): Promise<ISellerGig> {
-    const document: ISellerGig = (
+  ): Promise<GigDocument> {
+    const document: GigDocument = (
       await this.gigModel
         .findOneAndUpdate(
           { _id: gigId },
@@ -185,11 +211,10 @@ export class GigService {
         .exec()
     ).toObject();
     if (document) {
-      const data: ISellerGig = document.toJSON?.() as ISellerGig;
       await this.searchService.updateIndexedData(
         'gigs',
         String(document.id),
-        data,
+        document,
       );
     }
     return document;
