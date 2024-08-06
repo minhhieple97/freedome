@@ -44,6 +44,7 @@ export class GigController {
 
   @Put(':id')
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update a gig' })
   @ApiResponse({
     status: 200,
@@ -53,7 +54,8 @@ export class GigController {
   async updateGig(
     @Param('id') id: string,
     @Body(ValidationPipe) updateGigDto: UpdateGigDto,
+    @Req() request: IAuthorizedRequest,
   ) {
-    return this.gigService.updateGig(updateGigDto, id);
+    return this.gigService.updateGig(updateGigDto, id, request.user.id);
   }
 }

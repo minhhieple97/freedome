@@ -8,14 +8,6 @@ import {
 } from 'class-validator';
 
 export class CreateGigDto {
-  @IsString({ message: 'Seller Id must be of type string' })
-  @IsNotEmpty({ message: 'Seller Id is required' })
-  sellerId: string;
-
-  @IsString({ message: 'Please add a profile picture' })
-  @IsNotEmpty({ message: 'Profile picture is required' })
-  profilePicture: string;
-
   @IsString({ message: 'Please add a gig title' })
   @IsNotEmpty({ message: 'Gig title is required' })
   title: string;
