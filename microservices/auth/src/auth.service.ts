@@ -1,5 +1,6 @@
 import {
   IAccessTokenPayload,
+  ICreateUser,
   ITokenResponse,
 } from '@freedome/common/interfaces';
 import { UploadService } from '@freedome/common/upload';
@@ -11,6 +12,7 @@ import { faker } from '@faker-js/faker';
 import { generateUsername } from 'unique-username-generator';
 
 import {
+  ACCEPT_ALL_MESSAGE_FROM_TOPIC,
   CreateUserDto,
   EMAIL_TEMPLATES_NAME,
   EXCHANGE_NAME,
@@ -69,6 +71,7 @@ export class AuthService {
       });
       await this.sendVerifyEmail(createdUser.email, emailVerificationToken);
       await this.sendAuthInfoToBuyerService(createdUser);
+
       const accessToken = this.tokenService.createAccessToken({
         id: createdUser.id,
         email: createdUser.email,
@@ -221,10 +224,22 @@ export class AuthService {
       createdAt: auth.createdAt,
       type: SERVICE_NAME.AUTH,
     };
+    const createUser: ICreateUser = {
+      userId: auth.id,
+      username: auth.username,
+      email: auth.email,
+      profilePublicId: auth.profilePublicId,
+      emailVerified: auth.emailVerified,
+    };
     this.amqpConnection.publish(
       EXCHANGE_NAME.USER_BUYER,
       ROUTING_KEY.CREATE_USER_BUYER,
       messageDetails,
+    );
+    this.amqpConnection.publish(
+      EXCHANGE_NAME.CREATE_USER,
+      ACCEPT_ALL_MESSAGE_FROM_TOPIC,
+      createUser,
     );
   }
   async getUserByCredential(
