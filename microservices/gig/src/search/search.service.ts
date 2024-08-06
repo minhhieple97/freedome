@@ -235,4 +235,23 @@ export class SearchService {
       return 0;
     }
   }
+  async bulkUpdate(updates: Array<{ id: string; doc: any }>) {
+    const body = updates.flatMap(({ id, doc }) => [
+      { update: { _index: this.gigIndex, _id: id } },
+      { doc: { doc } },
+    ]);
+    const bulkResponse = await this.esService.bulk({
+      refresh: true,
+      body,
+    });
+    if (bulkResponse.errors) {
+      const erroredDocuments = bulkResponse.items.filter(
+        (item: any) => item.update && item.update.error,
+      );
+      console.error('Bulk update errors:', erroredDocuments);
+      throw new Error('Bulk update failed');
+    }
+
+    return bulkResponse;
+  }
 }

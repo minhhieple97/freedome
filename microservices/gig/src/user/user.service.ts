@@ -51,15 +51,20 @@ export class UserService {
     const gigs = await this.gigModel.find({
       userId: updatedUser._id,
     });
-    await Promise.all(
-      gigs.map((gig) => {
-        return this.searchService.updateIndexedData(
-          gig.toObject()._id,
-          gig,
-          updatedUser,
-        );
-      }),
-    );
+
+    const updates = gigs.map((gig) => ({
+      id: gig._id.toString(),
+      doc: {
+        ...gig.toObject(),
+        user: {
+          username: updatedUser.username,
+          email: updatedUser.email,
+        },
+      },
+    }));
+
+    await this.searchService.bulkUpdate(updates);
+
     return updatedUser;
   }
 }
