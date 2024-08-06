@@ -3,6 +3,7 @@ import { AppConfigModule } from '@gig/config/app/config.module';
 import { AppConfigService } from '@gig/config/app/config.service';
 import { Module, DynamicModule } from '@nestjs/common';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
+import { User, UserSchema } from '../user/user.schema';
 
 @Module({})
 export class MongoDBModule {
@@ -20,7 +21,10 @@ export class MongoDBModule {
           }),
           inject: [AppConfigService],
         }),
-        MongooseModule.forFeature([{ name: Gig.name, schema: GigSchema }]),
+        MongooseModule.forFeature([
+          { name: Gig.name, schema: GigSchema },
+          { name: User.name, schema: UserSchema },
+        ]),
       ],
       exports: [MongooseModule],
       global: true,

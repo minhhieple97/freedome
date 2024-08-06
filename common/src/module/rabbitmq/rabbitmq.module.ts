@@ -34,6 +34,14 @@ export class RabbitMQDynamicModule {
                 name: EXCHANGE_NAME.USER_SELLER,
                 type: RabbitMQExchangeType.Direct,
               },
+              {
+                name: EXCHANGE_NAME.UPDATE_USER,
+                type: RabbitMQExchangeType.Topic,
+              },
+              {
+                name: EXCHANGE_NAME.CREATE_USER,
+                type: RabbitMQExchangeType.Topic,
+              },
             ],
             uri: process.env.RABBITMQ_ENDPOINT,
             connectionInitOptions: { wait: false },
