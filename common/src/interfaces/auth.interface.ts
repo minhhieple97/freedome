@@ -41,15 +41,6 @@ export interface IAuthDocument {
   passwordResetExpires?: Date;
 }
 
-export interface IAuthBuyerMessageDetails {
-  username?: string;
-  profilePublicId?: string;
-  email?: string;
-  country?: string;
-  createdAt?: Date;
-  type?: string;
-}
-
 export interface IEmailMessageDetails {
   receiverEmail?: string;
   template?: string;

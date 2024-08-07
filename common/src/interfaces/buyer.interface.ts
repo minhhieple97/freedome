@@ -2,10 +2,7 @@ import { ObjectId } from 'mongoose';
 
 export interface IBuyerDocument {
   _id?: string | ObjectId;
-  username?: string;
-  email?: string;
-  profilePublicId?: string;
-  country: string;
+  userId: string;
   isSeller?: boolean;
   purchasedGigs: string[];
   createdAt?: Date | string;

@@ -4,6 +4,9 @@ export interface ICreateUser {
   email: string;
   profilePublicId: string;
   emailVerified: boolean;
+  country?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 export interface IUpdateUser {
   userId: number;

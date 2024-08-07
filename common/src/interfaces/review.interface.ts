@@ -1,4 +1,5 @@
 export interface IReviewMessageDetails {
+  sellerId: string;
   gigId?: string;
   reviewerId?: string;
   review?: string;

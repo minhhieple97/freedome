@@ -6,7 +6,7 @@ export class User {
   @Prop({ required: true, index: true })
   userId: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, index: true })
   username: string;
 
   @Prop({ required: true })
@@ -17,6 +17,9 @@ export class User {
 
   @Prop({ required: true })
   emailVerified: boolean;
+
+  @Prop({})
+  country: string;
 
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;
