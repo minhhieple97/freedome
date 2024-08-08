@@ -15,7 +15,7 @@ export type GigDocument = Gig & Document;
 })
 export class Gig {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
+  user: Types.ObjectId;
 
   @Prop({ required: true })
   title: string;

@@ -12,18 +12,15 @@ import { faker } from '@faker-js/faker';
 import { generateUsername } from 'unique-username-generator';
 
 import {
-  ACCEPT_ALL_MESSAGE_FROM_TOPIC,
   CreateUserDto,
   EMAIL_TEMPLATES_NAME,
   EXCHANGE_NAME,
-  IAuthBuyerMessageDetails,
   IAuthDocument,
   IEmailMessageDetails,
   LoginUserDto,
   ROUTING_KEY,
   ResetPasswordDtoWithTokenDto,
   ResetPasswordDtoWithUserIdDto,
-  SERVICE_NAME,
   dateToTimestamp,
 } from '@freedome/common';
 import { Injectable } from '@nestjs/common';
@@ -70,7 +67,7 @@ export class AuthService {
         data: authRecord,
       });
       await this.sendVerifyEmail(createdUser.email, emailVerificationToken);
-      await this.sendAuthInfoToBuyerService(createdUser);
+      await this.sendEventWhenCreateUser(createdUser);
 
       const accessToken = this.tokenService.createAccessToken({
         id: createdUser.id,
@@ -215,31 +212,31 @@ export class AuthService {
       messageDetails,
     );
   }
-  async sendAuthInfoToBuyerService(auth: Auth) {
-    const messageDetails: IAuthBuyerMessageDetails = {
-      username: auth.username,
-      email: auth.email,
-      profilePublicId: auth.profilePublicId,
-      country: auth.country,
-      createdAt: auth.createdAt,
-      type: SERVICE_NAME.AUTH,
+  async sendEventWhenCreateUser(auth: Auth) {
+    const {
+      id,
+      username,
+      email,
+      profilePublicId,
+      emailVerified,
+      country,
+      createdAt,
+      updatedAt,
+    } = auth;
+    const messageDetails: ICreateUser = {
+      username,
+      email,
+      profilePublicId,
+      country,
+      createdAt,
+      updatedAt,
+      emailVerified,
+      userId: id,
     };
-    const createUser: ICreateUser = {
-      userId: auth.id,
-      username: auth.username,
-      email: auth.email,
-      profilePublicId: auth.profilePublicId,
-      emailVerified: auth.emailVerified,
-    };
-    this.amqpConnection.publish(
-      EXCHANGE_NAME.USER_BUYER,
-      ROUTING_KEY.CREATE_USER_BUYER,
-      messageDetails,
-    );
-    this.amqpConnection.publish(
+    await this.amqpConnection.publish(
       EXCHANGE_NAME.CREATE_USER,
-      ACCEPT_ALL_MESSAGE_FROM_TOPIC,
-      createUser,
+      ROUTING_KEY.EMPTY,
+      messageDetails,
     );
   }
   async getUserByCredential(

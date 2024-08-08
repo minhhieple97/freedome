@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { Seller, SellerDocument } from './seller.schema';
 import { ISellerDocument } from '@freedome/common';
 
@@ -18,9 +18,17 @@ export class SellerRepository {
   async findByUsername(username: string): Promise<SellerDocument | null> {
     return this.sellerModel.findOne({ username }).exec();
   }
+  async findOne(filter: FilterQuery<SellerDocument>): Promise<SellerDocument> {
+    const seller = await this.sellerModel.findOne(filter).exec();
+    return seller;
+  }
 
   async findByEmail(email: string): Promise<SellerDocument | null> {
     return this.sellerModel.findOne({ email }).exec();
+  }
+
+  async findByUserId(userId: string): Promise<SellerDocument | null> {
+    return this.sellerModel.findOne({ user: userId }).exec();
   }
 
   async getRandomSellers(size: number): Promise<SellerDocument[]> {
@@ -33,15 +41,13 @@ export class SellerRepository {
 
   async update(
     sellerId: string,
-    sellerData: ISellerDocument,
+    sellerData: Partial<ISellerDocument>,
   ): Promise<SellerDocument | null> {
     return this.sellerModel
       .findByIdAndUpdate(
         sellerId,
         {
           $set: {
-            profilePublicId: sellerData.profilePublicId,
-            fullName: sellerData.fullName,
             description: sellerData.description,
             country: sellerData.country,
             skills: sellerData.skills,

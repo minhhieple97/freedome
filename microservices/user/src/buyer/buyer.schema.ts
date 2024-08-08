@@ -8,12 +8,12 @@ export type BuyerDocument = Buyer & Document;
 @Schema({ versionKey: false, timestamps: true })
 export class Buyer {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
+  user: Types.ObjectId;
 
   @Prop({ default: false })
   isSeller: boolean;
 
-  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Gig' }])
+  @Prop([{ type: mongoose.Schema.Types.ObjectId }])
   purchasedGigs: mongoose.Types.ObjectId[];
 
   @Prop({ type: Date, default: Date.now })

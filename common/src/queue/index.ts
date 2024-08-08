@@ -16,6 +16,7 @@ export const EXCHANGE_NAME = {
   CREATE_USER: 'create_user',
 };
 export const ROUTING_KEY = {
+  EMPTY: '',
   AUTH_EMAIL: 'auth_email',
   CREATE_USER_BUYER: 'create_user_buyer',
   CREATE_ORDER: 'create_order',

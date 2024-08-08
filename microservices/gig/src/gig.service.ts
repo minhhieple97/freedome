@@ -298,7 +298,7 @@ export class GigService {
         message: 'Gig not found',
       });
     }
-    const user = (await this.userModel.findById(gig.userId)).toObject();
+    const user = (await this.userModel.findById(gig.user)).toObject();
     const ratingTypes: IRatingTypes = {
       '1': 'one',
       '2': 'two',

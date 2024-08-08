@@ -1,3 +1,5 @@
+import { User } from 'proto/types/user';
+
 export interface ICreateUser {
   userId: number;
   username: string;
@@ -14,4 +16,8 @@ export interface IUpdateUser {
   email?: string;
   profilePublicId?: string;
   emailVerified?: boolean;
+  country?: string;
+  updatedAt?: Date;
 }
+
+export type UserTemporary = User;

@@ -25,12 +25,12 @@ export class UserService {
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.CREATE_USER,
     routingKey: ACCEPT_ALL_MESSAGE_FROM_TOPIC,
-    queue: USER_QUEUE_NAME,
   })
   async create(createUserData: ICreateUser) {
     const createdUser = new this.userModel(createUserData);
     await createdUser.save();
   }
+
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.UPDATE_USER,
     routingKey: ACCEPT_ALL_MESSAGE_FROM_TOPIC,

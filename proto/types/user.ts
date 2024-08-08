@@ -6,10 +6,17 @@
 
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Timestamp } from 'google/protobuf/timestamp';
 import { Observable } from 'rxjs';
-import { Timestamp } from '../../google/protobuf/timestamp';
 
 export const protobufPackage = 'user';
+
+export interface User {
+  username: string;
+  email: string;
+  profilePublicId: string;
+  country: string;
+}
 
 export interface GetUserBuyerWithEmailRequest {
   email: string;
@@ -25,24 +32,17 @@ export interface GetUserSellerByIdRequest {
 
 export interface BuyerData {
   id: string;
-  username: string;
-  email: string;
-  profilePublicId: string;
-  country: string;
   isSeller: boolean;
   purchasedGigs: string[];
   createdAt: Timestamp | undefined;
   updatedAt: Timestamp | undefined;
+  user: User | undefined;
 }
 
 export interface CreateSellerRequest {
-  profilePublicId: string;
   fullName: string;
-  email: string;
-  profilePicture: string;
   description: string;
   oneliner: string;
-  country: string;
   skills: string[];
   languages: Language[];
   responseTime: number;
@@ -50,7 +50,22 @@ export interface CreateSellerRequest {
   education: Education[];
   socialLinks: string[];
   certificates: Certificate[];
-  username: string;
+  userId: number;
+}
+
+export interface UpdateSellerRequest {
+  id: string;
+  fullName: string;
+  description: string;
+  oneliner: string;
+  skills: string[];
+  languages: Language[];
+  responseTime: number;
+  experience: Experience[];
+  education: Education[];
+  socialLinks: string[];
+  certificates: Certificate[];
+  userId: number;
 }
 
 export interface Language {
@@ -95,13 +110,9 @@ export interface RatingCategories {
 }
 
 export interface CreateSellerResponse {
-  Id: string;
-  profilePublicId: string;
+  id: string;
   fullName: string;
-  username: string;
-  email: string;
   description: string;
-  country: string;
   oneliner: string;
   skills: string[];
   ratingsCount: number;
@@ -121,6 +132,7 @@ export interface CreateSellerResponse {
   totalGigs: number;
   createdAt: Timestamp | undefined;
   updatedAt: Timestamp | undefined;
+  user: User | undefined;
 }
 
 export const USER_PACKAGE_NAME = 'user';

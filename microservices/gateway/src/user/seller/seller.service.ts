@@ -36,9 +36,13 @@ export class SellerService {
       updatedAt: convertGrpcTimestampToPrisma(seller.updatedAt),
     };
   }
-  async createSeller(createSellerDto: CreateSellerDto) {
+  async createSeller(createSellerDto: CreateSellerDto, userId: number) {
+    const sellerPayload = {
+      ...createSellerDto,
+      userId,
+    };
     const seller = await firstValueFrom(
-      this.userService.createSeller(createSellerDto).pipe(
+      this.userService.createSeller(sellerPayload).pipe(
         catchError((error) =>
           throwError(
             () =>

@@ -9,7 +9,12 @@ service UserService {
     rpc UpdateSeller(CreateSellerRequest) returns (CreateSellerResponse);
     rpc GetSellerById(GetUserSellerByIdRequest) returns (CreateSellerResponse);
 }
-
+message User {
+  string username = 1;
+  string email = 2;
+  string profilePublicId = 3;
+  string country = 4;
+}
 message GetUserBuyerWithEmailRequest {
   string email = 1;
 }
@@ -24,38 +29,49 @@ message GetUserSellerByIdRequest {
 
 message BuyerData {
   string id = 1;
-  string username = 2;
-  string email = 3;
-  string profile_public_id = 4;
-  string country = 5;
-  bool is_seller = 6;
-  repeated string purchased_gigs = 7;
-  google.protobuf.Timestamp created_at = 8;
-  google.protobuf.Timestamp updated_at = 9;
+  bool is_seller = 2;
+  repeated string purchased_gigs = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+  User user = 6;
 }
 
 
 message CreateSellerRequest {
-  string profilePublicId = 1;
-  string fullName = 2;
-  string email = 3;
-  string profilePicture = 4;
-  string description = 5;
-  string oneliner = 6;
-  string country = 7;
-  repeated string skills = 8;
-  repeated Language languages = 9;
-  int32 responseTime = 10;
-  repeated Experience experience = 11;
-  repeated Education education = 12;
-  repeated string socialLinks = 13;
-  repeated Certificate certificates = 14;
-  string username = 15;
+  string fullName = 1;
+  string description = 2;
+  string oneliner = 3;
+  repeated string skills = 4;
+  repeated Language languages = 5;
+  int32 responseTime = 6;
+  repeated Experience experience = 7;
+  repeated Education education = 8;
+  repeated string socialLinks = 9;
+  repeated Certificate certificates = 10;
+  int32 userId = 11;
 }
 
+message UpdateSellerRequest {
+  string id = 1;
+  string fullName = 2;
+  string description = 3;
+  string oneliner = 4;
+  repeated string skills = 5;
+  repeated Language languages = 6;
+  int32 responseTime = 7;
+  repeated Experience experience = 8;
+  repeated Education education = 9;
+  repeated string socialLinks = 10;
+  repeated Certificate certificates = 11;
+  int32 userId = 12;
+}
+
+
+
+
 message Language {
-  string language = 2;
-  string level = 3;
+  string language = 1;
+  string level = 2;
 }
 
 message Experience {
@@ -93,30 +109,27 @@ message RatingCategories {
   RatingCategory one = 5;
 }
 message CreateSellerResponse {
-  string _id = 1;
-  string profilePublicId = 2;
-  string fullName = 3;
-  string username = 4;
-  string email = 5;
-  string description = 6;
-  string country = 7;
-  string oneliner = 8;
-  repeated string skills = 9;
-  int32 ratingsCount = 10;
-  double ratingSum = 11;
-  RatingCategories ratingCategories = 12;
-  repeated Language languages = 13;
-  int32 responseTime = 14;
-  google.protobuf.Timestamp recentDelivery = 15;
-  repeated Experience experience = 16;
-  repeated Education education = 17;
-  repeated string socialLinks = 18;
-  repeated Certificate certificates = 19;
-  int32 ongoingJobs = 20;
-  int32 completedJobs = 21;
-  int32 cancelledJobs = 22;
-  double totalEarnings = 23;
-  int32 totalGigs = 24;
-  google.protobuf.Timestamp createdAt = 25;
-  google.protobuf.Timestamp updatedAt = 26;
+  string id = 1;
+  string fullName = 2;
+  string description = 3;
+  string oneliner = 4;
+  repeated string skills = 5;
+  int32 ratingsCount = 6;
+  double ratingSum = 7;
+  RatingCategories ratingCategories = 8;
+  repeated Language languages = 9;
+  int32 responseTime = 10;
+  google.protobuf.Timestamp recentDelivery = 11;
+  repeated Experience experience = 12;
+  repeated Education education = 13;
+  repeated string socialLinks = 14;
+  repeated Certificate certificates = 15;
+  int32 ongoingJobs = 16;
+  int32 completedJobs = 17;
+  int32 cancelledJobs = 18;
+  double totalEarnings = 19;
+  int32 totalGigs = 20;
+  google.protobuf.Timestamp createdAt = 21;
+  google.protobuf.Timestamp updatedAt = 22;
+  User user = 23;
 }

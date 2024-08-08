@@ -1,8 +1,17 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { SellerService } from './seller.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@gateway/common/guards/jwt-auth.guard';
 import { CreateSellerDto } from '@freedome/common/dtos/seller.dto';
+import { IAuthorizedRequest } from '@freedome/common';
 
 @ApiBearerAuth('authorization')
 @ApiTags('seller')
@@ -17,7 +26,11 @@ export class SellerControler {
   }
   @Post()
   @UseGuards(JwtAuthGuard)
-  public async createSeller(@Body() createSellerDto: CreateSellerDto) {
-    return this.sellerService.createSeller(createSellerDto);
+  public async createSeller(
+    @Body() createSellerDto: CreateSellerDto,
+    @Req() request: IAuthorizedRequest,
+  ) {
+    const user = request.user;
+    return this.sellerService.createSeller(createSellerDto, user.id);
   }
 }
