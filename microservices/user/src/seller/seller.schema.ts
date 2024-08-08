@@ -12,23 +12,11 @@ export class Seller {
   @Prop({ required: true })
   fullName: string;
 
-  @Prop({ required: true, index: true })
-  username: string;
-
-  @Prop({ required: true, index: true })
-  email: string;
-
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: true })
-  profilePublicId: string;
-
   @Prop({ default: '' })
   oneliner: string;
-
-  @Prop({ required: true })
-  country: string;
 
   @Prop([
     {

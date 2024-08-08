@@ -2,7 +2,6 @@ import { Controller } from '@nestjs/common';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { BuyerService } from './buyer.service';
 import {
-  BuyerData,
   GetUserBuyerWithEmailRequest,
   GetUserBuyerWithUsernameRequest,
   USER_SERVICE_NAME,
@@ -14,36 +13,13 @@ export class BuyerController {
   constructor(private readonly buyerService: BuyerService) {}
 
   @GrpcMethod(USER_SERVICE_NAME, 'getUserBuyerWithEmail')
-  async getUserBuyerWithEmail(
-    data: GetUserBuyerWithEmailRequest,
-  ): Promise<BuyerData> {
+  async getUserBuyerWithEmail(data: GetUserBuyerWithEmailRequest) {
     const buyer = await this.buyerService.getUserBuyerWithEmail(data.email);
-
-    if (!buyer) {
-      throw new RpcException({
-        code: grpc.status.NOT_FOUND,
-        message: 'user_not_found',
-      });
-    }
-    const buyerData: BuyerData = {
-      id: buyer._id.toString(),
-      username: buyer.username,
-      email: buyer.email,
-      profilePublicId: buyer.profilePublicId,
-      country: buyer.country,
-      isSeller: buyer.isSeller,
-      purchasedGigs: buyer.purchasedGigs.map((el) => el.toString()),
-      createdAt: dateToTimestamp(buyer.createdAt),
-      updatedAt: dateToTimestamp(buyer.updatedAt),
-    };
-
-    return buyerData;
+    return buyer;
   }
 
   @GrpcMethod(USER_SERVICE_NAME, 'getUserBuyerWithUsername')
-  async getUserBuyerWithUsername(
-    data: GetUserBuyerWithUsernameRequest,
-  ): Promise<BuyerData> {
+  async getUserBuyerWithUsername(data: GetUserBuyerWithUsernameRequest) {
     const buyer = await this.buyerService.getUserBuyerWithUsername(
       data.username,
     );
@@ -53,19 +29,11 @@ export class BuyerController {
         message: 'user_not_found',
       });
     }
-
-    const buyerData: BuyerData = {
-      id: buyer._id.toString(),
-      username: buyer.username,
-      email: buyer.email,
-      profilePublicId: buyer.profilePublicId,
-      country: buyer.country,
-      isSeller: buyer.isSeller,
-      purchasedGigs: buyer.purchasedGigs.map((el) => el.toString()),
+    const buyerData = {
+      ...buyer,
       createdAt: dateToTimestamp(buyer.createdAt),
       updatedAt: dateToTimestamp(buyer.updatedAt),
     };
-
     return buyerData;
   }
 }

@@ -8,3 +8,4 @@ export * from './search.interface';
 export * from './seller.interface';
 export * from './email.interface';
 export * from './r2.interface';
+export * from './user.interface';

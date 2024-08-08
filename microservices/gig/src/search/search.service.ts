@@ -15,6 +15,8 @@ import {
   SearchResponse,
 } from '@elastic/elasticsearch/lib/api/types';
 import { AppConfigService } from '@gig/config/app/config.service';
+import { UserDocument } from '../user/user.schema';
+import { GigDocument } from '../gig.schema';
 
 @Injectable()
 export class SearchService {
@@ -55,15 +57,22 @@ export class SearchService {
     }
   }
   async updateIndexedData(
-    index: string,
     itemId: string,
-    gigDocument: unknown,
+    gigDocument: GigDocument,
+    user: UserDocument,
   ): Promise<void> {
     try {
+      const doc = {
+        ...gigDocument,
+        user: {
+          username: user.username,
+          email: user.email,
+        },
+      };
       await this.esService.update({
-        index,
+        index: this.gigIndex,
         id: itemId,
-        doc: gigDocument,
+        doc,
       });
     } catch (error) {
       this.logger.error(
@@ -85,14 +94,14 @@ export class SearchService {
       );
     }
   }
-  async gigsSearchBySellerId(
+  async getGigsByUserId(
     searchQuery: string,
     active: boolean,
   ): Promise<ISearchResult> {
     const queryList: IQueryList[] = [
       {
         query_string: {
-          fields: ['sellerId'],
+          fields: ['userId'],
           query: `*${searchQuery}*`,
         },
       },
@@ -131,7 +140,8 @@ export class SearchService {
       {
         query_string: {
           fields: [
-            'username',
+            'user.username',
+            'user.email',
             'title',
             'description',
             'basicDescription',
@@ -171,7 +181,7 @@ export class SearchService {
     }
 
     const result: SearchResponse = await this.esService.search({
-      index: 'gigs',
+      index: this.gigIndex,
       size,
       query: {
         bool: {
@@ -224,5 +234,24 @@ export class SearchService {
       );
       return 0;
     }
+  }
+  async bulkUpdate(updates: Array<{ id: string; doc: any }>) {
+    const body = updates.flatMap(({ id, doc }) => [
+      { update: { _index: this.gigIndex, _id: id } },
+      { doc: { doc } },
+    ]);
+    const bulkResponse = await this.esService.bulk({
+      refresh: true,
+      body,
+    });
+    if (bulkResponse.errors) {
+      const erroredDocuments = bulkResponse.items.filter(
+        (item: any) => item.update && item.update.error,
+      );
+      console.error('Bulk update errors:', erroredDocuments);
+      throw new Error('Bulk update failed');
+    }
+
+    return bulkResponse;
   }
 }

@@ -28,8 +28,7 @@ export class GigService {
   createGig(data: CreateGigDto, user: IAuthDocument) {
     const gigData: CreateGigRequest = {
       ...data,
-      username: user.username,
-      email: user.email,
+      userId: user.id,
     };
     return this.gigService.createGig(gigData).pipe(
       switchMap((response) => {
@@ -51,10 +50,11 @@ export class GigService {
     );
   }
 
-  updateGig(data: UpdateGigDto, gigId: string) {
+  updateGig(data: UpdateGigDto, gigId: string, userId: number) {
     const gigData: UpdateGigRequest = {
       ...data,
       id: gigId,
+      userId,
     };
     return this.gigService.updateGig(gigData).pipe(
       switchMap((response) => {

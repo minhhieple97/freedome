@@ -1,7 +1,7 @@
 export interface IReviewMessageDetails {
+  sellerId: string;
   gigId?: string;
   reviewerId?: string;
-  sellerId?: string;
   review?: string;
   rating?: number;
   orderId?: string;

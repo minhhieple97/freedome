@@ -1,4 +1,5 @@
 import { IRatingCategories } from './review.interface';
+import { UserTemporary } from './user.interface';
 
 export type SellerType =
   | string
@@ -18,15 +19,11 @@ export type SellerType =
   | undefined;
 
 export interface ILanguage {
-  [key: string]: string | number | undefined;
-  _id?: string;
   language: string;
   level: string;
 }
 
 export interface IExperience {
-  [key: string]: string | number | boolean | undefined;
-  _id?: string;
   company: string;
   title: string;
   startDate: string;
@@ -36,8 +33,6 @@ export interface IExperience {
 }
 
 export interface IEducation {
-  [key: string]: string | number | undefined;
-  _id?: string;
   country: string;
   university: string;
   title: string;
@@ -54,12 +49,9 @@ export interface ICertificate {
 
 export interface ISellerDocument extends Record<string, SellerType> {
   _id?: string;
-  profilePublicId?: string;
+  user: UserTemporary;
   fullName: string;
-  username: string;
-  email?: string;
   description: string;
-  country: string;
   oneliner: string;
   skills: string[];
   ratingsCount?: number;

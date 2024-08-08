@@ -21,11 +21,8 @@ export interface ICreateGig extends Record<string, GigType> {
 
 export interface ISellerGig {
   id: string;
-  sellerId: string;
+  userId: string;
   title: string;
-  username?: string;
-  profilePicture?: string;
-  email?: string;
   description: string;
   active?: boolean;
   categories: string;

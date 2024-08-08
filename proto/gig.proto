@@ -5,6 +5,9 @@ import "google/protobuf/timestamp.proto";
 service GigService {
   rpc CreateGig(CreateGigRequest) returns (CreateGigResponse);
   rpc UpdateGig(UpdateGigRequest) returns (CreateGigResponse);
+  rpc DeleteGig(DeleteGigRequest) returns (DeleteGigResponse);
+
+  rpc UpdateActiveGigProp(UpdateActiveGigPropRequest) returns (CreateGigResponse);
 }
 
 
@@ -24,24 +27,21 @@ message RatingCategories {
 
 message CreateGigRequest {
   string title = 1;
-  string username = 2;
-  string profilePicture = 3;
-  string email = 4;
-  string description = 5;
-  string categories = 6;
-  repeated string subCategories = 7;
-  repeated string tags = 8;
-  string expectedDelivery = 9;
-  string basicTitle = 10;
-  string basicDescription = 11;
-  double price = 12;
-  string coverImage = 13;
-  string sellerId = 14;
+  string description = 2;
+  string categories = 3;
+  repeated string subCategories = 4;
+  repeated string tags = 5;
+  string expectedDelivery = 6;
+  string basicTitle = 7;
+  string basicDescription = 8;
+  double price = 9;
+  string coverImage = 10;
+  int32 userId = 11;
 }
 
 message CreateGigResponse {
   string id = 1;
-  string sellerId = 2;
+  string userId = 2;
   string title = 3;
   string username = 4;
   string profilePicture = 5;
@@ -76,4 +76,20 @@ message UpdateGigRequest {
   string basicTitle = 9;
   string basicDescription = 10;
   string id = 11;
+  int32 userId = 12;
+}
+
+message DeleteGigRequest {
+  string id = 1;
+  int32 userId = 2;
+}
+
+message DeleteGigResponse {
+  bool success = 1;
+}
+
+message UpdateActiveGigPropRequest {
+  string id = 1;
+  bool active = 2;
+  int32 userId = 3;
 }

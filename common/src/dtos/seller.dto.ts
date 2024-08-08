@@ -3,7 +3,6 @@ import {
   IsOptional,
   IsArray,
   ValidateNested,
-  IsEmail,
   IsNumber,
   IsBoolean,
   ArrayMinSize,
@@ -110,25 +109,8 @@ export class CreateSellerDto {
   fullName: string;
 
   @IsString()
-  username: string;
-
-  @IsString()
-  profilePublicId: string;
-
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty({ message: 'Profile picture is required' })
-  profilePicture: string;
-
-  @IsString()
   @IsNotEmpty({ message: 'Seller description is required' })
   description: string;
-
-  @IsString()
-  @IsNotEmpty({ message: 'Country field is required' })
-  country: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Oneliner field is required' })

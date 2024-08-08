@@ -4,6 +4,7 @@ import { AppConfigModule } from '@user/config/app/config.module';
 import { AppConfigService } from '@user/config/app/config.service';
 import { Seller, SellerSchema } from '../seller/seller.schema';
 import { Buyer, BuyerSchema } from '../buyer/buyer.schema';
+import { User, UserSchema } from '../user/user.schema';
 
 @Module({})
 export class MongoDBModule {
@@ -24,6 +25,7 @@ export class MongoDBModule {
         MongooseModule.forFeature([
           { name: Seller.name, schema: SellerSchema },
           { name: Buyer.name, schema: BuyerSchema },
+          { name: User.name, schema: UserSchema },
         ]),
       ],
       exports: [MongooseModule],

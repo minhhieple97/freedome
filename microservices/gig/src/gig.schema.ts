@@ -14,17 +14,8 @@ export type GigDocument = Gig & Document;
   },
 })
 export class Gig {
-  @Prop({ type: Types.ObjectId, index: true })
-  sellerId: Types.ObjectId;
-
-  @Prop({ required: true })
-  username: string;
-
-  @Prop({ required: true })
-  profilePicture: string;
-
-  @Prop({ required: true })
-  email: string;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  user: Types.ObjectId;
 
   @Prop({ required: true })
   title: string;

@@ -26,9 +26,6 @@ export interface RatingCategories {
 
 export interface CreateGigRequest {
   title: string;
-  username: string;
-  profilePicture: string;
-  email: string;
   description: string;
   categories: string;
   subCategories: string[];
@@ -38,12 +35,12 @@ export interface CreateGigRequest {
   basicDescription: string;
   price: number;
   coverImage: string;
-  sellerId: string;
+  userId: number;
 }
 
 export interface CreateGigResponse {
   id: string;
-  sellerId: string;
+  userId: string;
   title: string;
   username: string;
   profilePicture: string;
@@ -78,6 +75,22 @@ export interface UpdateGigRequest {
   basicTitle: string;
   basicDescription: string;
   id: string;
+  userId: number;
+}
+
+export interface DeleteGigRequest {
+  id: string;
+  userId: number;
+}
+
+export interface DeleteGigResponse {
+  success: boolean;
+}
+
+export interface UpdateActiveGigPropRequest {
+  id: string;
+  active: boolean;
+  userId: number;
 }
 
 export const GIG_PACKAGE_NAME = 'gig';
@@ -86,6 +99,12 @@ export interface GigServiceClient {
   createGig(request: CreateGigRequest): Observable<CreateGigResponse>;
 
   updateGig(request: UpdateGigRequest): Observable<CreateGigResponse>;
+
+  deleteGig(request: DeleteGigRequest): Observable<DeleteGigResponse>;
+
+  updateActiveGigProp(
+    request: UpdateActiveGigPropRequest,
+  ): Observable<CreateGigResponse>;
 }
 
 export interface GigServiceController {
@@ -102,11 +121,30 @@ export interface GigServiceController {
     | Promise<CreateGigResponse>
     | Observable<CreateGigResponse>
     | CreateGigResponse;
+
+  deleteGig(
+    request: DeleteGigRequest,
+  ):
+    | Promise<DeleteGigResponse>
+    | Observable<DeleteGigResponse>
+    | DeleteGigResponse;
+
+  updateActiveGigProp(
+    request: UpdateActiveGigPropRequest,
+  ):
+    | Promise<CreateGigResponse>
+    | Observable<CreateGigResponse>
+    | CreateGigResponse;
 }
 
 export function GigServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['createGig', 'updateGig'];
+    const grpcMethods: string[] = [
+      'createGig',
+      'updateGig',
+      'deleteGig',
+      'updateActiveGigProp',
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(
         constructor.prototype,

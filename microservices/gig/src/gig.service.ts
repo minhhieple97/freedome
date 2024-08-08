@@ -20,9 +20,15 @@ import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { RedisCacheService } from '@freedome/common/module';
 import { UploadService } from '@freedome/common/upload';
 import { BUCKET_S3_FOLDER_NAME } from '@auth/common/constants';
-import { CreateGigRequest, UpdateGigRequest } from 'proto/types/gig';
+import {
+  CreateGigRequest,
+  DeleteGigRequest,
+  UpdateActiveGigPropRequest,
+  UpdateGigRequest,
+} from 'proto/types/gig';
 import { RpcException } from '@nestjs/microservices';
 import * as grpc from '@grpc/grpc-js';
+import { User, UserDocument } from './user/user.schema';
 
 @Injectable()
 export class GigService {
@@ -31,6 +37,8 @@ export class GigService {
     private readonly appConfigService: AppConfigService,
     @InjectModel(Gig.name)
     private readonly gigModel: Model<GigDocument>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
     private readonly amqpConnection: AmqpConnection,
     private readonly redisCacheService: RedisCacheService,
     private readonly uploadService: UploadService,
@@ -45,18 +53,32 @@ export class GigService {
     );
     return gig;
   }
-  async getSellerGigs(sellerId: string): Promise<ISellerGig[]> {
+  async getGigsByUserId(userId: number): Promise<ISellerGig[]> {
     const resultsHits: ISellerGig[] = [];
-    const gigs = await this.searchService.gigsSearchBySellerId(sellerId, true);
+    const user = (await this.userModel.findOne({ userId })).toObject();
+    if (!user) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'User not found',
+      });
+    }
+    const gigs = await this.searchService.getGigsByUserId(user._id, true);
     for (const item of gigs.hits) {
       resultsHits.push(item._source as ISellerGig);
     }
     return resultsHits;
   }
 
-  async getSellerPausedGigs(sellerId: string): Promise<ISellerGig[]> {
+  async getSellerPausedGigs(userId: number): Promise<ISellerGig[]> {
+    const user = (await this.userModel.findOne({ userId })).toObject();
+    if (!user) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'User not found',
+      });
+    }
     const resultsHits: ISellerGig[] = [];
-    const gigs = await this.searchService.gigsSearchBySellerId(sellerId, false);
+    const gigs = await this.searchService.getGigsByUserId(user._id, false);
     for (const item of gigs.hits) {
       resultsHits.push(item._source as ISellerGig);
     }
@@ -66,10 +88,7 @@ export class GigService {
   async createGig(gig: CreateGigRequest) {
     const coverImageId = await this.uploadGigCover(gig.coverImage);
     const {
-      sellerId,
-      username,
-      email,
-      profilePicture,
+      userId,
       title,
       description,
       categories,
@@ -80,14 +99,18 @@ export class GigService {
       basicTitle,
       basicDescription,
     } = gig;
-    const count: number = await this.searchService.getDocumentCount(
-      this.gigIndex,
-    );
+    const [count, userObject] = await Promise.all([
+      this.searchService.getDocumentCount(this.gigIndex),
+      (await this.userModel.findOne({ userId })).toObject(),
+    ]);
+    if (!userObject) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'User not found',
+      });
+    }
     const record = {
-      sellerId: sellerId,
-      username: username,
-      email: email,
-      profilePicture: profilePicture,
+      userId: userObject._id,
       title: title,
       description: description,
       categories: categories,
@@ -107,7 +130,7 @@ export class GigService {
         EXCHANGE_NAME.USER_SELLER,
         ROUTING_KEY.UPDATE_GIG_COUNT,
         {
-          gigSellerId: `${createdGig.sellerId}`,
+          userId,
           count,
         },
       );
@@ -124,22 +147,55 @@ export class GigService {
     };
     return result;
   }
-  async deleteGig(gigId: string, sellerId: string): Promise<void> {
-    await this.gigModel.deleteOne({ _id: gigId }).exec();
+  async deleteGig(deleteGigRequest: DeleteGigRequest): Promise<void> {
+    const { id, userId } = deleteGigRequest;
+    const user = (await this.userModel.findOne({ userId })).toObject();
+    if (!user) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'User not found',
+      });
+    }
+    const gig = (
+      await this.gigModel.findOne({
+        userId: user._id,
+        _id: id,
+      })
+    ).toObject();
+    if (!gig) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'Gig not found',
+      });
+    }
+    await this.gigModel.deleteOne({ _id: id }).exec();
     const count = -1;
     this.amqpConnection.publish(
       EXCHANGE_NAME.USER_SELLER,
       ROUTING_KEY.UPDATE_GIG_COUNT,
       {
-        gigSellerId: sellerId,
+        userId,
         count,
       },
     );
-    await this.searchService.deleteIndexedData(this.gigIndex, `${gigId}`);
+    await this.searchService.deleteIndexedData(this.gigIndex, id);
   }
   async updateGig(gigData: UpdateGigRequest): Promise<GigDocument> {
-    const seller = (await this.gigModel.findById(gigData.id)).toObject();
-    if (!seller) {
+    const userId = gigData.userId;
+    const user = (await this.userModel.findOne({ userId })).toObject();
+    if (!user) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'User not found',
+      });
+    }
+    const gig = (
+      await this.gigModel.findOne({
+        userId: user._id,
+        _id: gigData.id,
+      })
+    ).toObject();
+    if (!gig) {
       throw new RpcException({
         code: grpc.status.NOT_FOUND,
         message: 'Gig not found',
@@ -185,25 +241,40 @@ export class GigService {
         .exec()
     ).toObject();
     if (document) {
-      await this.searchService.updateIndexedData(
-        this.gigIndex,
-        document.id,
-        document,
-      );
+      await this.searchService.updateIndexedData(document.id, document, user);
     }
     return document;
   }
   async updateActiveGigProp(
-    gigId: string,
-    gigActive: boolean,
+    updateActiveGig: UpdateActiveGigPropRequest,
   ): Promise<GigDocument> {
+    const { userId, id, active } = updateActiveGig;
+    const user = (await this.userModel.findOne({ userId })).toObject();
+    if (!user) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'User not found',
+      });
+    }
+    const gig = (
+      await this.gigModel.findOne({
+        userId: user._id,
+        _id: id,
+      })
+    ).toObject();
+    if (!gig) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'Gig not found',
+      });
+    }
     const document: GigDocument = (
       await this.gigModel
         .findOneAndUpdate(
-          { _id: gigId },
+          { _id: id },
           {
             $set: {
-              active: gigActive,
+              active,
             },
           },
           { new: true },
@@ -212,14 +283,22 @@ export class GigService {
     ).toObject();
     if (document) {
       await this.searchService.updateIndexedData(
-        'gigs',
         String(document.id),
         document,
+        user,
       );
     }
     return document;
   }
   async updateGigReview(data: IReviewMessageDetails): Promise<void> {
+    const gig = (await this.gigModel.findById(data.gigId)).toObject();
+    if (!gig) {
+      throw new RpcException({
+        code: grpc.status.NOT_FOUND,
+        message: 'Gig not found',
+      });
+    }
+    const user = (await this.userModel.findById(gig.user)).toObject();
     const ratingTypes: IRatingTypes = {
       '1': 'one',
       '2': 'two',
@@ -228,7 +307,7 @@ export class GigService {
       '5': 'five',
     };
     const ratingKey: string = ratingTypes[`${data.rating}`];
-    const gig = await this.gigModel
+    const updatedGig = await this.gigModel
       .findOneAndUpdate(
         { _id: data.gigId },
         {
@@ -242,12 +321,12 @@ export class GigService {
         { new: true, upsert: true },
       )
       .exec();
-    if (gig) {
-      const data: ISellerGig = gig.toJSON?.() as ISellerGig;
+    if (updatedGig) {
+      const data = updatedGig.toObject();
       await this.searchService.updateIndexedData(
-        this.gigIndex,
-        String(gig._id),
+        String(updatedGig._id),
         data,
+        user,
       );
     }
   }
