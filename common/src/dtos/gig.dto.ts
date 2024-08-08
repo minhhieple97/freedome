@@ -5,6 +5,7 @@ import {
   ArrayMinSize,
   IsNumber,
   Min,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateGigDto {
@@ -93,4 +94,10 @@ export class UpdateGigDto {
   @IsString({ message: 'Please add basic description' })
   @IsNotEmpty({ message: 'Gig basic description is required' })
   basicDescription: string;
+}
+
+export class UpdateGigStatusDto {
+  @IsBoolean({ message: 'Please add gig status' })
+  @IsNotEmpty({ message: 'Gig stauts is required' })
+  active: boolean;
 }

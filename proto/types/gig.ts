@@ -93,6 +93,44 @@ export interface UpdateActiveGigPropRequest {
   userId: number;
 }
 
+export interface GetGigByIdResponse {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  active: boolean;
+  categories: string;
+  subCategories: string[];
+  tags: string[];
+  ratingsCount: number;
+  ratingSum: number;
+  ratingCategories: RatingCategories | undefined;
+  expectedDelivery: string;
+  basicTitle: string;
+  basicDescription: string;
+  price: number;
+  coverImage: string;
+  createdAt: Timestamp | undefined;
+  updatedAt: Timestamp | undefined;
+  sortId: number;
+}
+
+export interface GetGigByIdRequest {
+  id: string;
+}
+
+export interface GetActiveGigByUserIdRequest {
+  userId: number;
+}
+
+export interface GetInactiveGigByUserIdRequest {
+  userId: number;
+}
+
+export interface ListGigsResponse {
+  gigs: CreateGigResponse[];
+}
+
 export const GIG_PACKAGE_NAME = 'gig';
 
 export interface GigServiceClient {
@@ -105,6 +143,16 @@ export interface GigServiceClient {
   updateActiveGigProp(
     request: UpdateActiveGigPropRequest,
   ): Observable<CreateGigResponse>;
+
+  getGigById(request: GetGigByIdRequest): Observable<GetGigByIdResponse>;
+
+  getActiveGigByUserId(
+    request: GetActiveGigByUserIdRequest,
+  ): Observable<ListGigsResponse>;
+
+  getInactiveGigByUserId(
+    request: GetInactiveGigByUserIdRequest,
+  ): Observable<ListGigsResponse>;
 }
 
 export interface GigServiceController {
@@ -135,6 +183,27 @@ export interface GigServiceController {
     | Promise<CreateGigResponse>
     | Observable<CreateGigResponse>
     | CreateGigResponse;
+
+  getGigById(
+    request: GetGigByIdRequest,
+  ):
+    | Promise<GetGigByIdResponse>
+    | Observable<GetGigByIdResponse>
+    | GetGigByIdResponse;
+
+  getActiveGigByUserId(
+    request: GetActiveGigByUserIdRequest,
+  ):
+    | Promise<ListGigsResponse>
+    | Observable<ListGigsResponse>
+    | ListGigsResponse;
+
+  getInactiveGigByUserId(
+    request: GetInactiveGigByUserIdRequest,
+  ):
+    | Promise<ListGigsResponse>
+    | Observable<ListGigsResponse>
+    | ListGigsResponse;
 }
 
 export function GigServiceControllerMethods() {
@@ -144,6 +213,9 @@ export function GigServiceControllerMethods() {
       'updateGig',
       'deleteGig',
       'updateActiveGigProp',
+      'getGigById',
+      'getActiveGigByUserId',
+      'getInactiveGigByUserId',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(

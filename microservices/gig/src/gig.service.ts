@@ -23,6 +23,8 @@ import { BUCKET_S3_FOLDER_NAME } from '@auth/common/constants';
 import {
   CreateGigRequest,
   DeleteGigRequest,
+  GetActiveGigByUserIdRequest,
+  GetInactiveGigByUserIdRequest,
   UpdateActiveGigPropRequest,
   UpdateGigRequest,
 } from 'proto/types/gig';
@@ -53,9 +55,13 @@ export class GigService {
     );
     return gig;
   }
-  async getGigsByUserId(userId: number): Promise<ISellerGig[]> {
+  async getActiveGigByUserId(
+    data: GetActiveGigByUserIdRequest,
+  ): Promise<ISellerGig[]> {
     const resultsHits: ISellerGig[] = [];
-    const user = (await this.userModel.findOne({ userId })).toObject();
+    const user = (
+      await this.userModel.findOne({ userId: data.userId })
+    ).toObject();
     if (!user) {
       throw new RpcException({
         code: grpc.status.NOT_FOUND,
@@ -69,8 +75,12 @@ export class GigService {
     return resultsHits;
   }
 
-  async getSellerPausedGigs(userId: number): Promise<ISellerGig[]> {
-    const user = (await this.userModel.findOne({ userId })).toObject();
+  async getInactiveGigByUserId(
+    data: GetInactiveGigByUserIdRequest,
+  ): Promise<ISellerGig[]> {
+    const user = (
+      await this.userModel.findOne({ userId: data.userId })
+    ).toObject();
     if (!user) {
       throw new RpcException({
         code: grpc.status.NOT_FOUND,
@@ -170,7 +180,7 @@ export class GigService {
     }
     await this.gigModel.deleteOne({ _id: id }).exec();
     const count = -1;
-    this.amqpConnection.publish(
+    await this.amqpConnection.publish(
       EXCHANGE_NAME.USER_SELLER,
       ROUTING_KEY.UPDATE_GIG_COUNT,
       {
