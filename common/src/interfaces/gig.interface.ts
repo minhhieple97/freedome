@@ -83,3 +83,8 @@ export interface IGigTopProps {
   width: string;
   type: string;
 }
+
+export type SearchQueryGigs =
+  | { query_string: { fields: string[]; query: string } }
+  | { term: { [key: string]: boolean } }
+  | { range: { [key: string]: { gte?: number; lte?: number } } };
