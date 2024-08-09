@@ -5,11 +5,18 @@ import {
 } from './../../../../common/src/dtos/gig.dto';
 import {
   convertGrpcTimestampToPrisma,
+  EVENTS_HTTP,
   IAuthDocument,
+  SearchGigsParamDto,
   SERVICE_NAME,
 } from '@freedome/common';
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientGrpc, RpcException } from '@nestjs/microservices';
+import {
+  BadRequestException,
+  HttpException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
+import { ClientGrpc, ClientProxy, RpcException } from '@nestjs/microservices';
 import {
   CreateGigRequest,
   DeleteGigRequest,
@@ -23,7 +30,10 @@ import { catchError, of, switchMap, throwError } from 'rxjs';
 @Injectable()
 export class GigService {
   private gigService: GigServiceClient;
-  constructor(@Inject(SERVICE_NAME.GIG) private clientGrpc: ClientGrpc) {}
+  constructor(
+    @Inject(SERVICE_NAME.GIG) private clientGrpc: ClientGrpc,
+    @Inject(SERVICE_NAME.GIG) private readonly gigClientHttp: ClientProxy,
+  ) {}
   onModuleInit() {
     this.gigService =
       this.clientGrpc.getService<GigServiceClient>(GIG_SERVICE_NAME);
@@ -191,5 +201,22 @@ export class GigService {
         ),
       ),
     );
+  }
+  searchGigs(searchGigsParam: SearchGigsParamDto) {
+    return this.gigClientHttp
+      .send(EVENTS_HTTP.SEARCH_GIGS, {
+        searchGigsParam,
+      })
+      .pipe(
+        switchMap((res) => {
+          return of(res);
+        }),
+        catchError((err) => {
+          if (err instanceof HttpException) {
+            throw err;
+          }
+          throw new BadRequestException();
+        }),
+      );
   }
 }

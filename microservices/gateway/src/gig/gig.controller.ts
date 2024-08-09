@@ -9,6 +9,7 @@ import {
   Put,
   Delete,
   Get,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,6 +22,7 @@ import { JwtAuthGuard } from '@gateway/common/guards/jwt-auth.guard';
 import {
   CreateGigDto,
   IAuthorizedRequest,
+  SearchGigsParamDto,
   UpdateGigDto,
   UpdateGigStatusDto,
 } from '@freedome/common';
@@ -121,5 +123,11 @@ export class GigController {
     @Req() request: IAuthorizedRequest,
   ) {
     return this.gigService.getInactiveGigByUserId(request.user.id);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Search gig' })
+  async searchGigs(@Query() searchGigsParam: SearchGigsParamDto) {
+    return this.gigService.searchGigs(searchGigsParam);
   }
 }

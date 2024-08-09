@@ -5,10 +5,12 @@ import {
   GIG_QUEUE_NAME,
   IRatingTypes,
   IReviewMessageDetails,
+  ISearchResult,
   ISellerGig,
   isValidBase64,
   LoggerService,
   ROUTING_KEY,
+  SearchGigsParamDto,
 } from '@freedome/common';
 import { v4 as uuidV4 } from 'uuid';
 import { SearchService } from './search/search.service';
@@ -31,6 +33,8 @@ import {
 import { RpcException } from '@nestjs/microservices';
 import * as grpc from '@grpc/grpc-js';
 import { User, UserDocument } from './user/user.schema';
+import { sortBy } from 'lodash';
+import { GigType } from '@freedome/common/enums';
 
 @Injectable()
 export class GigService {
@@ -372,5 +376,18 @@ export class GigService {
       ContentType: 'image/jpeg',
     });
     return coverImageId;
+  }
+  processSearchResults(gigs: ISearchResult, type: GigType): ISellerGig[] {
+    let resultHits = gigs.hits.map((item) => item._source as ISellerGig);
+    if (type === GigType.BACKWARD) {
+      resultHits = sortBy(resultHits, ['sortId']);
+    }
+    return resultHits;
+  }
+  async searchGigs(searchGigsParam: SearchGigsParamDto) {
+    const { type } = searchGigsParam;
+    const gigs = await this.searchService.searchGigs(searchGigsParam);
+    const processedGigs = this.processSearchResults(gigs, type);
+    return { total: gigs.total, hits: processedGigs };
   }
 }

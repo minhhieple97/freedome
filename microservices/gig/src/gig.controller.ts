@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
+import { GrpcMethod, MessagePattern } from '@nestjs/microservices';
 import { GigService } from './gig.service';
 import {
   CreateGigRequest,
@@ -9,6 +9,7 @@ import {
   UpdateActiveGigPropRequest,
   UpdateGigRequest,
 } from 'proto/types/gig';
+import { EVENTS_HTTP, SearchGigsParamDto } from '@freedome/common';
 
 @Controller()
 export class GigController {
@@ -66,4 +67,9 @@ export class GigController {
   //   const category = await this.gigService.getUserSelectedGigCategory(data.key);
   //   return { category };
   // }
+
+  @MessagePattern(EVENTS_HTTP.SEARCH_GIGS)
+  public async searchGigs(searchGigsParam: SearchGigsParamDto) {
+    return this.gigService.searchGigs(searchGigsParam);
+  }
 }
