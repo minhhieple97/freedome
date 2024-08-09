@@ -34,7 +34,9 @@ export const PROTOBUF_PACKAGE = {
   SELLER: 'seller',
   SEARCH: 'search',
 };
-
 export const EMPTY_NUMBER = -1;
 export const EMPTY_STRING = '';
 export const DEFAULT_SIZE = 10;
+export const EVENTS_HTTP = {
+  SEARCH_GIGS: 'search-gigs',
+};
