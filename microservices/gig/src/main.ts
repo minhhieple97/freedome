@@ -24,5 +24,11 @@ async function bootstrap() {
       },
     })
     .listen();
+  app
+    .connectMicroservice({
+      transport: Transport.TCP,
+      options: { host: '0.0.0.0', port: appConfig.tcpPort },
+    })
+    .listen();
 }
 bootstrap();

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppConfigModule } from './config/app/config.module';
-import { Transport } from '@nestjs/microservices';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppConfigService } from './config/app/config.service';
 import { SERVICE_NAME } from '@freedome/common';
 import HealthModule from './api/health/health.module';
@@ -42,6 +42,20 @@ import { GrpcClientModule } from '@freedome/common/module/grpc-client/grpc-clien
             package: SERVICE_NAME.AUTH,
             protoPath: join(__dirname, '../../../../proto/auth.proto'),
             url: appConfig.authGrpcUrl,
+          },
+        }),
+        inject: [AppConfigService],
+      },
+    ]),
+    ClientsModule.registerAsync([
+      {
+        imports: [AppConfigModule],
+        name: SERVICE_NAME.GIG,
+        useFactory: (appConfig: AppConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: appConfig.gigHost,
+            port: appConfig.gigPort,
           },
         }),
         inject: [AppConfigService],
