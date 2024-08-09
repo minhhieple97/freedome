@@ -5,8 +5,10 @@ import {
   Min,
   Max,
   IsNumber,
+  IsEnum,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { GigType } from '../enums';
 export class PaginateDtoParam {
   @IsString()
   @IsOptional()
@@ -22,7 +24,7 @@ export class PaginateDtoParam {
   type: string;
 }
 
-export class SearchGigsDtoParam {
+export class SearchGigsParamDto {
   @IsString()
   @IsOptional()
   searchQuery: string;
@@ -52,9 +54,9 @@ export class SearchGigsDtoParam {
   @Transform(({ value }) => Number(value))
   size: number;
 
-  @IsString()
+  @IsEnum(GigType)
   @IsOptional()
-  type: string;
+  type: GigType;
 }
 
 export class SeedUserDtoParams {
