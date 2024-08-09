@@ -6,7 +6,6 @@ import {
   EXCHANGE_NAME,
   ICreateUser,
   IUpdateUser,
-  USER_QUEUE_NAME,
 } from '@freedome/common';
 import { User, UserDocument } from './user.schema';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
@@ -34,7 +33,6 @@ export class UserService {
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.UPDATE_USER,
     routingKey: ACCEPT_ALL_MESSAGE_FROM_TOPIC,
-    queue: USER_QUEUE_NAME,
   })
   async update(userId: number, updateUserData: IUpdateUser): Promise<User> {
     const updatedUser = await this.userModel
