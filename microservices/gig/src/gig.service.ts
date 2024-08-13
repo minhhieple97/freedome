@@ -35,7 +35,8 @@ import * as grpc from '@grpc/grpc-js';
 import { User, UserDocument } from './user/user.schema';
 import { sortBy } from 'lodash';
 import { GigType } from '@freedome/common/enums';
-
+import { faker } from '@faker-js/faker';
+import { sample } from 'lodash';
 @Injectable()
 export class GigService {
   constructor(
@@ -51,6 +52,32 @@ export class GigService {
   ) {}
   private readonly gigIndex = this.appConfigService.gigElasticSearchIndex;
   private readonly logger = new LoggerService(GigService.name);
+  private categories: string[] = [
+    'Graphics & Design',
+    'Digital Marketing',
+    'Writing & Translation',
+    'Video & Animation',
+    'Music & Audio',
+    'Programming & Tech',
+    'Data',
+    'Business',
+  ];
+
+  private expectedDelivery: string[] = [
+    '1 Day Delivery',
+    '2 Days Delivery',
+    '3 Days Delivery',
+    '4 Days Delivery',
+    '5 Days Delivery',
+  ];
+
+  private randomRatings = [
+    { sum: 20, count: 4 },
+    { sum: 10, count: 2 },
+    { sum: 20, count: 4 },
+    { sum: 15, count: 3 },
+    { sum: 5, count: 1 },
+  ];
   async getGigById(gigId: string): Promise<ISellerGig> {
     const gigIndex = this.appConfigService.gigElasticSearchIndex;
     const gig: ISellerGig = await this.searchService.getIndexedData(
@@ -115,7 +142,7 @@ export class GigService {
     } = gig;
     const [count, userObject] = await Promise.all([
       this.searchService.getDocumentCount(this.gigIndex),
-      (await this.userModel.findOne({ userId })).toObject(),
+      (await this.userModel.findOne({ userId })).toJSON(),
     ]);
     if (!userObject) {
       throw new RpcException({
@@ -123,8 +150,9 @@ export class GigService {
         message: 'User not found',
       });
     }
+    console.log({ userObject, count });
     const record = {
-      userId: userObject._id,
+      user: userObject._id,
       title: title,
       description: description,
       categories: categories,
@@ -137,6 +165,7 @@ export class GigService {
       coverImage: coverImageId,
       sortId: count + 1,
     };
+    console.log({ record });
     const createdGig = (await this.gigModel.create(record)).toObject();
     if (createdGig) {
       const count = 1;
@@ -389,5 +418,49 @@ export class GigService {
     const gigs = await this.searchService.searchGigs(searchGigsParam);
     const processedGigs = this.processSearchResults(gigs, type);
     return { total: gigs.total, hits: processedGigs };
+  }
+  moreLikeThis({ gigId }): Promise<ISearchResult> {
+    return this.searchService.getMoreGigsLikeThis(gigId);
+  }
+  async seedData(count: string): Promise<void> {
+    console.log({ count });
+    for (let i = 0; i < 1; i++) {
+      const title = `I will ${faker.word.words(5)}`;
+      const basicTitle = faker.commerce.productName();
+      const basicDescription = faker.commerce.productDescription();
+      const rating = sample(this.randomRatings);
+      const gig: CreateGigRequest = {
+        userId: 1,
+        title: title.length <= 80 ? title : title.slice(0, 80),
+        basicTitle:
+          basicTitle.length <= 40 ? basicTitle : basicTitle.slice(0, 40),
+        basicDescription:
+          basicDescription.length <= 100
+            ? basicDescription
+            : basicDescription.slice(0, 100),
+        categories: `${sample(this.categories)}`,
+        subCategories: [
+          faker.commerce.department(),
+          faker.commerce.department(),
+          faker.commerce.department(),
+        ],
+        description: faker.lorem.sentences({ min: 2, max: 4 }),
+        tags: [
+          faker.commerce.product(),
+          faker.commerce.product(),
+          faker.commerce.product(),
+          faker.commerce.product(),
+        ],
+        price: parseInt(faker.commerce.price({ min: 20, max: 30, dec: 0 })),
+        coverImage: faker.image.urlPicsumPhotos(),
+        expectedDelivery: `${sample(this.expectedDelivery)}`,
+        // sortId: parseInt(count, 10) + i + 1,
+        // ratingsCount: (i + 1) % 4 === 0 ? rating?.['count'] : 0,
+        // ratingSum: (i + 1) % 4 === 0 ? rating?.['sum'] : 0,
+      };
+      console.log(`***SEEDING GIG*** - ${i + 1} of ${count}`);
+      console.log(gig);
+      await this.createGig(gig);
+    }
   }
 }

@@ -27,17 +27,10 @@ import {
   UpdateGigStatusDto,
 } from '@freedome/common';
 
-@ApiTags('Gigs')
-@Controller('gigs')
+@ApiTags('Gig')
+@Controller('gig')
 export class GigController {
   constructor(private readonly gigService: GigService) {}
-
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get gig by id' })
-  async getGigById(@Param('id') id: string) {
-    return this.gigService.getGigById(id);
-  }
 
   @Post()
   @ApiBearerAuth()
@@ -118,10 +111,7 @@ export class GigController {
   @Get('/inactive')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get gig by id' })
-  async getInactiveGigByUserId(
-    @Param('id') id: string,
-    @Req() request: IAuthorizedRequest,
-  ) {
+  async getInactiveGigByUserId(@Req() request: IAuthorizedRequest) {
     return this.gigService.getInactiveGigByUserId(request.user.id);
   }
 
@@ -129,5 +119,23 @@ export class GigController {
   @ApiOperation({ summary: 'Search gig' })
   async searchGigs(@Query() searchGigsParam: SearchGigsParamDto) {
     return this.gigService.searchGigs(searchGigsParam);
+  }
+
+  @Get(':gigId/similar')
+  async moreLikeThis(@Param('gigId') gigId: string) {
+    return this.gigService.moreLikeThis(gigId);
+  }
+
+  @Get('/seed')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Seed gig' })
+  async seedGig() {
+    return this.gigService.seedGig();
+  }
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get gig by id' })
+  async getGigById(@Param('id') id: string) {
+    return this.gigService.getGigById(id);
   }
 }

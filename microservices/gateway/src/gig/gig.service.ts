@@ -34,10 +34,10 @@ export class GigService {
     @Inject(SERVICE_NAME.GIG) private clientGrpc: ClientGrpc,
     @Inject(SERVICE_NAME.GIG) private readonly gigClientHttp: ClientProxy,
   ) {}
-  onModuleInit() {
-    this.gigService =
-      this.clientGrpc.getService<GigServiceClient>(GIG_SERVICE_NAME);
-  }
+  // onModuleInit() {
+  //   this.gigService =
+  //     this.clientGrpc.getService<GigServiceClient>(GIG_SERVICE_NAME);
+  // }
   createGig(data: CreateGigDto, user: IAuthDocument) {
     const gigData: CreateGigRequest = {
       ...data,
@@ -218,5 +218,35 @@ export class GigService {
           throw new BadRequestException();
         }),
       );
+  }
+  moreLikeThis(gigId: string) {
+    return this.gigClientHttp
+      .send(EVENTS_HTTP.MORE_LIKE_THIS, {
+        gigId,
+      })
+      .pipe(
+        switchMap((res) => {
+          return of(res);
+        }),
+        catchError((err) => {
+          if (err instanceof HttpException) {
+            throw err;
+          }
+          throw new BadRequestException();
+        }),
+      );
+  }
+  seedGig() {
+    return this.gigClientHttp.send(EVENTS_HTTP.SEED_GIG, { abc: 12 }).pipe(
+      switchMap((res) => {
+        return of(res);
+      }),
+      catchError((err) => {
+        if (err instanceof HttpException) {
+          throw err;
+        }
+        throw new BadRequestException();
+      }),
+    );
   }
 }

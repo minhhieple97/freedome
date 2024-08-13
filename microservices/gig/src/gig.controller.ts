@@ -9,7 +9,11 @@ import {
   UpdateActiveGigPropRequest,
   UpdateGigRequest,
 } from 'proto/types/gig';
-import { EVENTS_HTTP, SearchGigsParamDto } from '@freedome/common';
+import {
+  EVENTS_HTTP,
+  ISearchResult,
+  SearchGigsParamDto,
+} from '@freedome/common';
 
 @Controller()
 export class GigController {
@@ -71,5 +75,14 @@ export class GigController {
   @MessagePattern(EVENTS_HTTP.SEARCH_GIGS)
   public async searchGigs(searchGigsParam: SearchGigsParamDto) {
     return this.gigService.searchGigs(searchGigsParam);
+  }
+  @MessagePattern(EVENTS_HTTP.SEARCH_GIGS)
+  public async moreLikeThis({ gigId }): Promise<ISearchResult> {
+    return this.gigService.moreLikeThis({ gigId });
+  }
+  @MessagePattern(EVENTS_HTTP.SEED_GIG)
+  public async seedGig(data) {
+    console.log({ data });
+    return this.gigService.seedData('4');
   }
 }
