@@ -39,4 +39,6 @@ export const EMPTY_STRING = '';
 export const DEFAULT_SIZE = 10;
 export const EVENTS_HTTP = {
   SEARCH_GIGS: 'search-gigs',
+  MORE_LIKE_THIS: 'more-like-this',
+  SEED_GIG: 'seed-gig',
 };

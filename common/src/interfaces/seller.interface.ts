@@ -69,16 +69,16 @@ export interface ISellerDocument extends Record<string, SellerType> {
   cancelledJobs?: number;
   totalEarnings?: number;
   totalGigs?: number;
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ICreateOrderForSeller {
-  sellerId: string;
+  userId: number;
   ongoingJobs: number;
 }
 
 export interface IUpdateTotalGigsCount {
-  sellerId: string;
+  userId: number;
   count: number;
 }

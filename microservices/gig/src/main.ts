@@ -14,7 +14,7 @@ async function bootstrap() {
   const appConfig: AppConfigService = app.get(AppConfigService);
   app.init();
   await app.startAllMicroservices();
-  app
+  await app
     .connectMicroservice({
       transport: Transport.GRPC,
       options: {
@@ -24,7 +24,7 @@ async function bootstrap() {
       },
     })
     .listen();
-  app
+  await app
     .connectMicroservice({
       transport: Transport.TCP,
       options: { host: '0.0.0.0', port: appConfig.tcpPort },

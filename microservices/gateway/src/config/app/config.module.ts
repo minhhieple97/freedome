@@ -37,6 +37,7 @@ import { DEFAULT_PORT } from '../../common/constants';
         SECRET_KEY_TWO: Joi.string().required(),
         AUTH_GRPC_URL: Joi.string().required(),
         USER_GRPC_URL: Joi.string().required(),
+        GIG_GRPC_URL: Joi.string().required(),
       }),
     }),
   ],

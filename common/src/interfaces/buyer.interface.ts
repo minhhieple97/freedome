@@ -1,12 +1,12 @@
-import { ObjectId } from 'mongoose';
+import { UserTemporary } from './user.interface';
 
 export interface IBuyerDocument {
-  _id?: string | ObjectId;
-  userId: string;
-  isSeller?: boolean;
+  _id: string;
+  user: UserTemporary;
+  isSeller: boolean;
   purchasedGigs: string[];
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IReduxBuyer {

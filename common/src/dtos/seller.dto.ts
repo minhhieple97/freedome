@@ -150,41 +150,4 @@ export class CreateSellerDto {
   @ValidateNested({ each: true })
   @Type(() => Certificate)
   certificates: Certificate[];
-
-  @IsOptional()
-  @IsNumber()
-  ratingsCount?: number;
-
-  @ValidateNested()
-  @Type(() => RatingCategories)
-  ratingCategories?: RatingCategories;
-
-  @IsOptional()
-  @IsNumber()
-  ratingSum?: number;
-
-  @IsOptional()
-  @IsString()
-  @Allow(null)
-  recentDelivery?: string;
-
-  @IsOptional()
-  @IsNumber()
-  ongoingJobs?: number;
-
-  @IsOptional()
-  @IsNumber()
-  completedJobs?: number;
-
-  @IsOptional()
-  @IsNumber()
-  cancelledJobs?: number;
-
-  @IsOptional()
-  @IsNumber()
-  totalEarnings?: number;
-
-  @IsOptional()
-  @IsNumber()
-  totalGigs?: number;
 }
