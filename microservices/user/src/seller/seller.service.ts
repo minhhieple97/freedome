@@ -9,8 +9,6 @@ import {
   IUpdateTotalGigsCount,
   EXCHANGE_NAME,
   ROUTING_KEY,
-  USER_SELLER_QUEUE_NAME,
-  SELLER_REVIEW_QUEUE_NAME,
   IRatingTypes,
   dateToTimestamp,
 } from '@freedome/common';
@@ -124,7 +122,6 @@ export class SellerService {
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.UPDATE_GIG_COUNT,
-    queue: USER_SELLER_QUEUE_NAME,
   })
   async updateTotalGigsCount({
     userId,
@@ -136,7 +133,6 @@ export class SellerService {
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.CREATE_ORDER,
-    queue: USER_SELLER_QUEUE_NAME,
   })
   async updateSellerOngoingJobsProp({
     userId,
@@ -148,7 +144,6 @@ export class SellerService {
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.CANCEL_ORDER,
-    queue: USER_SELLER_QUEUE_NAME,
   })
   async updateSellerCancelledJobsProp(userId: number): Promise<void> {
     await this.sellerRepository.updateCancelledJobs(userId);
@@ -157,7 +152,6 @@ export class SellerService {
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.APPROVE_ORDER,
-    queue: USER_SELLER_QUEUE_NAME,
   })
   updateSellerCompletedJobsProp = async (
     data: IOrderMessage,
@@ -180,7 +174,6 @@ export class SellerService {
 
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.SELLER_REVIEW,
-    queue: SELLER_REVIEW_QUEUE_NAME,
     routingKey: ROUTING_KEY.BUYER_REVIEW,
   })
   async updateSellerWhenBuyerReview(
