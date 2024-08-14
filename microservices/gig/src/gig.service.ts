@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import {
   dateToTimestamp,
   EXCHANGE_NAME,
-  GIG_QUEUE_NAME,
   IRatingTypes,
   IReviewMessageDetails,
   ISearchResult,
@@ -22,6 +21,7 @@ import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { RedisCacheService } from '@freedome/common/module';
 import { UploadService } from '@freedome/common/upload';
 import { BUCKET_S3_FOLDER_NAME } from '@auth/common/constants';
+import * as _ from 'lodash';
 import {
   CreateGigRequest,
   DeleteGigRequest,
@@ -71,13 +71,13 @@ export class GigService {
     '5 Days Delivery',
   ];
 
-  private randomRatings = [
-    { sum: 20, count: 4 },
-    { sum: 10, count: 2 },
-    { sum: 20, count: 4 },
-    { sum: 15, count: 3 },
-    { sum: 5, count: 1 },
-  ];
+  // private randomRatings = [
+  //   { sum: 20, count: 4 },
+  //   { sum: 10, count: 2 },
+  //   { sum: 20, count: 4 },
+  //   { sum: 15, count: 3 },
+  //   { sum: 5, count: 1 },
+  // ];
   async getGigById(gigId: string): Promise<ISellerGig> {
     const gigIndex = this.appConfigService.gigElasticSearchIndex;
     const gig: ISellerGig = await this.searchService.getIndexedData(
@@ -167,9 +167,20 @@ export class GigService {
     };
     console.log({ record });
     const createdGig = (await this.gigModel.create(record)).toObject();
+    console.log({ createdGig });
     if (createdGig) {
+      const gigDataEs = _.omit(
+        {
+          ...createdGig,
+          user: {
+            email: userObject.email,
+            username: userObject.username,
+          },
+        },
+        ['_id'],
+      );
       const count = 1;
-      this.amqpConnection.publish(
+      await this.amqpConnection.publish(
         EXCHANGE_NAME.USER_SELLER,
         ROUTING_KEY.UPDATE_GIG_COUNT,
         {
@@ -179,8 +190,8 @@ export class GigService {
       );
       await this.searchService.addDataToIndex(
         this.gigIndex,
-        `${createdGig.id}`,
-        createdGig,
+        `${createdGig._id.toString()}`,
+        gigDataEs,
       );
     }
     const result = {
@@ -376,7 +387,6 @@ export class GigService {
 
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.UPDATE_GIG,
-    queue: GIG_QUEUE_NAME,
     routingKey: ROUTING_KEY.UPDATE_GIG_FROM_BUYER_REVIEW,
   })
   async updateGigWhenBuyerReview(data: IReviewMessageDetails): Promise<void> {
@@ -392,6 +402,7 @@ export class GigService {
     }
   }
   async uploadGigCover(coverImage: string): Promise<string | null> {
+    if (!coverImage) return null;
     const coverImageId = uuidV4();
     const buf = Buffer.from(
       coverImage.replace(/^data:image\/\w+;base64,/, ''),
@@ -419,16 +430,16 @@ export class GigService {
     const processedGigs = this.processSearchResults(gigs, type);
     return { total: gigs.total, hits: processedGigs };
   }
-  moreLikeThis({ gigId }): Promise<ISearchResult> {
+  moreLikeThis({ gigId }) {
     return this.searchService.getMoreGigsLikeThis(gigId);
   }
-  async seedData(count: string): Promise<void> {
+  async seedData(count: string) {
     console.log({ count });
     for (let i = 0; i < 1; i++) {
       const title = `I will ${faker.word.words(5)}`;
       const basicTitle = faker.commerce.productName();
       const basicDescription = faker.commerce.productDescription();
-      const rating = sample(this.randomRatings);
+      // const rating = sample(this.randomRatings);
       const gig: CreateGigRequest = {
         userId: 1,
         title: title.length <= 80 ? title : title.slice(0, 80),
@@ -462,5 +473,6 @@ export class GigService {
       console.log(gig);
       await this.createGig(gig);
     }
+    return { message: 'success' };
   }
 }

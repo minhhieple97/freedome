@@ -16,11 +16,10 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { ClientGrpc, ClientProxy, RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
   CreateGigRequest,
   DeleteGigRequest,
-  GIG_SERVICE_NAME,
   GigServiceClient,
   UpdateActiveGigPropRequest,
   UpdateGigRequest,
@@ -31,13 +30,9 @@ import { catchError, of, switchMap, throwError } from 'rxjs';
 export class GigService {
   private gigService: GigServiceClient;
   constructor(
-    @Inject(SERVICE_NAME.GIG) private clientGrpc: ClientGrpc,
     @Inject(SERVICE_NAME.GIG) private readonly gigClientHttp: ClientProxy,
   ) {}
-  // onModuleInit() {
-  //   this.gigService =
-  //     this.clientGrpc.getService<GigServiceClient>(GIG_SERVICE_NAME);
-  // }
+
   createGig(data: CreateGigDto, user: IAuthDocument) {
     const gigData: CreateGigRequest = {
       ...data,
@@ -237,16 +232,6 @@ export class GigService {
       );
   }
   seedGig() {
-    return this.gigClientHttp.send(EVENTS_HTTP.SEED_GIG, { abc: 12 }).pipe(
-      switchMap((res) => {
-        return of(res);
-      }),
-      catchError((err) => {
-        if (err instanceof HttpException) {
-          throw err;
-        }
-        throw new BadRequestException();
-      }),
-    );
+    return this.gigClientHttp.send(EVENTS_HTTP.SEED_GIG, {});
   }
 }

@@ -81,8 +81,7 @@ export class GigController {
     return this.gigService.moreLikeThis({ gigId });
   }
   @MessagePattern(EVENTS_HTTP.SEED_GIG)
-  public async seedGig(data) {
-    console.log({ data });
+  public async seedGig() {
     return this.gigService.seedData('4');
   }
 }
