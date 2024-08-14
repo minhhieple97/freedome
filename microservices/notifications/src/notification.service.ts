@@ -1,7 +1,6 @@
 import { AppConfigService } from '@notifications/config/app/config.service';
 import {
   APP_ICON,
-  AUTH_EMAIL_QUEUE_NAME,
   EXCHANGE_NAME,
   IEmailLocals,
   IEmailMessageDetails,
@@ -19,7 +18,6 @@ export class NotificationService {
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.EMAIL_NOTIFICATIONS,
     routingKey: ROUTING_KEY.AUTH_EMAIL,
-    queue: AUTH_EMAIL_QUEUE_NAME,
   })
   async handleCreateAuthEmail(data: IEmailMessageDetails) {
     const { receiverEmail, username, verifyLink, resetLink, template } = data;
