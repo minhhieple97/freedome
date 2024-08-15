@@ -1,6 +1,5 @@
 import {
   IsString,
-  IsOptional,
   IsArray,
   ValidateNested,
   IsNumber,
@@ -8,7 +7,6 @@ import {
   ArrayMinSize,
   IsNotEmpty,
   IsPositive,
-  Allow,
   IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -71,36 +69,6 @@ class Certificate {
 
   @IsNumber()
   year: number;
-}
-
-class RatingCategory {
-  @IsNumber()
-  value: number;
-
-  @IsNumber()
-  count: number;
-}
-
-class RatingCategories {
-  @ValidateNested()
-  @Type(() => RatingCategory)
-  five: RatingCategory;
-
-  @ValidateNested()
-  @Type(() => RatingCategory)
-  four: RatingCategory;
-
-  @ValidateNested()
-  @Type(() => RatingCategory)
-  three: RatingCategory;
-
-  @ValidateNested()
-  @Type(() => RatingCategory)
-  two: RatingCategory;
-
-  @ValidateNested()
-  @Type(() => RatingCategory)
-  one: RatingCategory;
 }
 
 export class CreateSellerDto {

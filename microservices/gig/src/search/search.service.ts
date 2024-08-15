@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import {
+  IGigElasticSearchDocument,
   IHitsTotal,
   IQueryList,
   ISearchResult,
@@ -19,7 +20,7 @@ import { AppConfigService } from '@gig/config/app/config.service';
 import { UserDocument } from '../user/user.schema';
 import { GigDocument } from '../gig.schema';
 import { DEFAULT_PAGE_SIZE } from '@gig/common/constants';
-
+import * as _ from 'lodash';
 @Injectable()
 export class SearchService {
   private readonly logger = new LoggerService(SearchService.name);
@@ -60,17 +61,9 @@ export class SearchService {
   }
   async updateIndexedData(
     itemId: string,
-    gigDocument: GigDocument,
-    user: UserDocument,
+    doc: IGigElasticSearchDocument,
   ): Promise<void> {
     try {
-      const doc = {
-        ...gigDocument,
-        user: {
-          username: user.username,
-          email: user.email,
-        },
-      };
       await this.esService.update({
         index: this.gigIndex,
         id: itemId,
@@ -365,5 +358,21 @@ export class SearchService {
         ],
       },
     };
+  }
+  buildGigElasticSearchDocument(
+    gig: GigDocument,
+    user: UserDocument,
+  ): IGigElasticSearchDocument {
+    const gigDataEs = _.omit(
+      {
+        ...gig,
+        user: {
+          email: user.email,
+          username: user.username,
+        },
+      },
+      ['_id'],
+    ) as IGigElasticSearchDocument;
+    return gigDataEs;
   }
 }

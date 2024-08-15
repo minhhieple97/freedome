@@ -1,18 +1,16 @@
 import { Controller } from '@nestjs/common';
-import { GrpcMethod, MessagePattern } from '@nestjs/microservices';
+import { MessagePattern } from '@nestjs/microservices';
 import { GigService } from './gig.service';
 import {
   CreateGigRequest,
   DeleteGigRequest,
-  GetInactiveGigByUserIdRequest,
-  GIG_SERVICE_NAME,
-  UpdateActiveGigPropRequest,
-  UpdateGigRequest,
-} from 'proto/types/gig';
-import {
   EVENTS_HTTP,
+  GetActiveGigByUserIdRequest,
+  GetInactiveGigByUserIdRequest,
   ISearchResult,
   SearchGigsParamDto,
+  UpdateGigRequest,
+  UpdateGigStatusRequest,
 } from '@freedome/common';
 
 @Controller()
@@ -32,45 +30,37 @@ export class GigController {
   //   return { gigs };
   // }
 
-  @GrpcMethod('GigService', 'GetInactiveGigByUserId')
+  @MessagePattern(EVENTS_HTTP.GET_INACTIVE_GIG_BY_USER_ID)
   async getInactiveGigByUserId(data: GetInactiveGigByUserIdRequest) {
     const gigs = await this.gigService.getInactiveGigByUserId(data);
     return { gigs };
   }
 
-  @GrpcMethod('GigService', 'GetActiveGigByUserId')
-  async getActiveGigByUserId(data: GetInactiveGigByUserIdRequest) {
+  @MessagePattern(EVENTS_HTTP.GET_ACTIVE_GIG_BY_USER_ID)
+  async getActiveGigByUserId(data: GetActiveGigByUserIdRequest) {
     const gigs = await this.gigService.getActiveGigByUserId(data);
     return { gigs };
   }
 
-  @GrpcMethod(GIG_SERVICE_NAME, 'createGig')
+  @MessagePattern(EVENTS_HTTP.CREATE_GIG)
   async createGig(data: CreateGigRequest) {
     return this.gigService.createGig(data);
   }
 
-  @GrpcMethod('GigService', 'deleteGig')
+  @MessagePattern(EVENTS_HTTP.DELETE_GIG)
   async deleteGig(data: DeleteGigRequest) {
     await this.gigService.deleteGig(data);
   }
 
-  @GrpcMethod(GIG_SERVICE_NAME, 'updateGig')
+  @MessagePattern(EVENTS_HTTP.UPDATE_GIG)
   async updateGig(data: UpdateGigRequest) {
     return this.gigService.updateGig(data);
   }
 
-  @GrpcMethod('GigService', 'updateActiveGigProp')
-  async updateActiveGigProp(data: UpdateActiveGigPropRequest) {
+  @MessagePattern(EVENTS_HTTP.UPDATE_GIG_STATUS)
+  async updateActiveGigProp(data: UpdateGigStatusRequest) {
     return this.gigService.updateActiveGigProp(data);
   }
-
-  // @GrpcMethod('GigService', 'getUserSelectedGigCategory')
-  // async getUserSelectedGigCategory(data: {
-  //   key: string;
-  // }): Promise<{ category: string }> {
-  //   const category = await this.gigService.getUserSelectedGigCategory(data.key);
-  //   return { category };
-  // }
 
   @MessagePattern(EVENTS_HTTP.SEARCH_GIGS)
   public async searchGigs(searchGigsParam: SearchGigsParamDto) {

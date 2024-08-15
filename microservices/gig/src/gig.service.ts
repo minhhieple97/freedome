@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import {
-  dateToTimestamp,
   EXCHANGE_NAME,
   IRatingTypes,
   IReviewMessageDetails,
-  ISearchResult,
   ISellerGig,
   isValidBase64,
   LoggerService,
   ROUTING_KEY,
-  SearchGigsParamDto,
 } from '@freedome/common';
 import { v4 as uuidV4 } from 'uuid';
 import { SearchService } from './search/search.service';
@@ -21,15 +18,6 @@ import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { RedisCacheService } from '@freedome/common/module';
 import { UploadService } from '@freedome/common/upload';
 import { BUCKET_S3_FOLDER_NAME } from '@auth/common/constants';
-import * as _ from 'lodash';
-import {
-  CreateGigRequest,
-  DeleteGigRequest,
-  GetActiveGigByUserIdRequest,
-  GetInactiveGigByUserIdRequest,
-  UpdateActiveGigPropRequest,
-  UpdateGigRequest,
-} from 'proto/types/gig';
 import { RpcException } from '@nestjs/microservices';
 import * as grpc from '@grpc/grpc-js';
 import { User, UserDocument } from './user/user.schema';
@@ -37,6 +25,16 @@ import { sortBy } from 'lodash';
 import { GigType } from '@freedome/common/enums';
 import { faker } from '@faker-js/faker';
 import { sample } from 'lodash';
+import {
+  CreateGigRequest,
+  DeleteGigRequest,
+  GetActiveGigByUserIdRequest,
+  GetInactiveGigByUserIdRequest,
+  ISearchResult,
+  SearchGigsParamDto,
+  UpdateGigRequest,
+  UpdateGigStatusRequest,
+} from '@freedome/common';
 @Injectable()
 export class GigService {
   constructor(
@@ -150,7 +148,6 @@ export class GigService {
         message: 'User not found',
       });
     }
-    console.log({ userObject, count });
     const record = {
       user: userObject._id,
       title: title,
@@ -165,19 +162,11 @@ export class GigService {
       coverImage: coverImageId,
       sortId: count + 1,
     };
-    console.log({ record });
     const createdGig = (await this.gigModel.create(record)).toObject();
-    console.log({ createdGig });
     if (createdGig) {
-      const gigDataEs = _.omit(
-        {
-          ...createdGig,
-          user: {
-            email: userObject.email,
-            username: userObject.username,
-          },
-        },
-        ['_id'],
+      const gigDataEs = this.searchService.buildGigElasticSearchDocument(
+        createdGig,
+        userObject,
       );
       const count = 1;
       await this.amqpConnection.publish(
@@ -194,12 +183,7 @@ export class GigService {
         gigDataEs,
       );
     }
-    const result = {
-      ...createdGig,
-      createdAt: dateToTimestamp(createdGig.createdAt),
-      updatedAt: dateToTimestamp(createdGig.updatedAt),
-    };
-    return result;
+    return createdGig;
   }
   async deleteGig(deleteGigRequest: DeleteGigRequest): Promise<void> {
     const { id, userId } = deleteGigRequest;
@@ -295,12 +279,15 @@ export class GigService {
         .exec()
     ).toObject();
     if (document) {
-      await this.searchService.updateIndexedData(document.id, document, user);
+      await this.searchService.updateIndexedData(
+        document.id.toString(),
+        this.searchService.buildGigElasticSearchDocument(document, user),
+      );
     }
     return document;
   }
   async updateActiveGigProp(
-    updateActiveGig: UpdateActiveGigPropRequest,
+    updateActiveGig: UpdateGigStatusRequest,
   ): Promise<GigDocument> {
     const { userId, id, active } = updateActiveGig;
     const user = (await this.userModel.findOne({ userId })).toObject();
@@ -338,8 +325,7 @@ export class GigService {
     if (document) {
       await this.searchService.updateIndexedData(
         String(document.id),
-        document,
-        user,
+        this.searchService.buildGigElasticSearchDocument(document, user),
       );
     }
     return document;
@@ -379,8 +365,7 @@ export class GigService {
       const data = updatedGig.toObject();
       await this.searchService.updateIndexedData(
         String(updatedGig._id),
-        data,
-        user,
+        this.searchService.buildGigElasticSearchDocument(data, user),
       );
     }
   }
@@ -465,12 +450,8 @@ export class GigService {
         price: parseInt(faker.commerce.price({ min: 20, max: 30, dec: 0 })),
         coverImage: faker.image.urlPicsumPhotos(),
         expectedDelivery: `${sample(this.expectedDelivery)}`,
-        // sortId: parseInt(count, 10) + i + 1,
-        // ratingsCount: (i + 1) % 4 === 0 ? rating?.['count'] : 0,
-        // ratingSum: (i + 1) % 4 === 0 ? rating?.['sum'] : 0,
       };
       console.log(`***SEEDING GIG*** - ${i + 1} of ${count}`);
-      console.log(gig);
       await this.createGig(gig);
     }
     return { message: 'success' };

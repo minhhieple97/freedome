@@ -1,14 +1,15 @@
 import {
   CreateGigDto,
-  UpdateGigDto,
-  UpdateGigStatusDto,
-} from './../../../../common/src/dtos/gig.dto';
-import {
-  convertGrpcTimestampToPrisma,
+  CreateGigRequest,
+  DeleteGigRequest,
   EVENTS_HTTP,
   IAuthDocument,
   SearchGigsParamDto,
   SERVICE_NAME,
+  UpdateGigDto,
+  UpdateGigRequest,
+  UpdateGigStatusDto,
+  UpdateGigStatusRequest,
 } from '@freedome/common';
 import {
   BadRequestException,
@@ -17,18 +18,10 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import {
-  CreateGigRequest,
-  DeleteGigRequest,
-  GigServiceClient,
-  UpdateActiveGigPropRequest,
-  UpdateGigRequest,
-} from 'proto/types/gig';
 import { catchError, of, switchMap, throwError } from 'rxjs';
 
 @Injectable()
 export class GigService {
-  private gigService: GigServiceClient;
   constructor(
     @Inject(SERVICE_NAME.GIG) private readonly gigClientHttp: ClientProxy,
   ) {}
@@ -38,91 +31,85 @@ export class GigService {
       ...data,
       userId: user.id,
     };
-    return this.gigService.createGig(gigData).pipe(
-      switchMap((response) => {
-        return of({
-          ...response,
-          createdAt: convertGrpcTimestampToPrisma(response.createdAt),
-          updatedAt: convertGrpcTimestampToPrisma(response.updatedAt),
-        });
-      }),
-      catchError((error) =>
-        throwError(
-          () =>
-            new RpcException({
-              code: error.code,
-              message: error.details,
-            }),
+    return this.gigClientHttp
+      .send(EVENTS_HTTP.MORE_LIKE_THIS, {
+        gigData,
+      })
+      .pipe(
+        switchMap((response) => {
+          return of(response);
+        }),
+        catchError((error) =>
+          throwError(
+            () =>
+              new RpcException({
+                code: error.code,
+                message: error.details,
+              }),
+          ),
         ),
-      ),
-    );
+      );
   }
 
   getGigById(gigId: string) {
-    return this.gigService.getGigById({ id: gigId }).pipe(
-      switchMap((response) => {
-        return of({
-          ...response,
-          createdAt: convertGrpcTimestampToPrisma(response.createdAt),
-          updatedAt: convertGrpcTimestampToPrisma(response.updatedAt),
-        });
-      }),
-      catchError((error) =>
-        throwError(
-          () =>
-            new RpcException({
-              code: error.code,
-              message: error.details,
-            }),
+    return this.gigClientHttp
+      .send(EVENTS_HTTP.MORE_LIKE_THIS, { id: gigId })
+      .pipe(
+        switchMap((response) => {
+          return of(response);
+        }),
+        catchError((error) =>
+          throwError(
+            () =>
+              new RpcException({
+                code: error.code,
+                message: error.details,
+              }),
+          ),
         ),
-      ),
-    );
+      );
   }
 
   getActiveGigByUserId(userId: number) {
-    return this.gigService.getActiveGigByUserId({ userId }).pipe(
-      switchMap((response) => {
-        return of(
-          response.gigs.map((gig) => ({
-            ...response,
-            createdAt: convertGrpcTimestampToPrisma(gig.createdAt),
-            updatedAt: convertGrpcTimestampToPrisma(gig.updatedAt),
-          })),
-        );
-      }),
-      catchError((error) =>
-        throwError(
-          () =>
-            new RpcException({
-              code: error.code,
-              message: error.details,
-            }),
+    return this.gigClientHttp
+      .send(EVENTS_HTTP.MORE_LIKE_THIS, {
+        userId,
+      })
+      .pipe(
+        switchMap((response) => {
+          return of(response);
+        }),
+        catchError((error) =>
+          throwError(
+            () =>
+              new RpcException({
+                code: error.code,
+                message: error.details,
+              }),
+          ),
         ),
-      ),
-    );
+      );
   }
 
   getInactiveGigByUserId(userId: number) {
-    return this.gigService.getActiveGigByUserId({ userId }).pipe(
-      switchMap((response) => {
-        return of(
-          response.gigs.map((gig) => ({
-            ...response,
-            createdAt: convertGrpcTimestampToPrisma(gig.createdAt),
-            updatedAt: convertGrpcTimestampToPrisma(gig.updatedAt),
-          })),
-        );
-      }),
-      catchError((error) =>
-        throwError(
-          () =>
-            new RpcException({
-              code: error.code,
-              message: error.details,
-            }),
+    return this.gigClientHttp
+      .send(EVENTS_HTTP.GET_INACTIVE_GIG_BY_USER_ID, {
+        userId,
+      })
+      .pipe(
+        switchMap((response) => {
+          return of(response);
+        }),
+        catchError((error) =>
+          throwError(
+            () =>
+              new RpcException({
+                code: error.code,
+                message: error.details,
+              }),
+          ),
         ),
-      ),
-    );
+      );
   }
 
   updateGig(data: UpdateGigDto, gigId: string, userId: number) {
@@ -131,13 +118,9 @@ export class GigService {
       id: gigId,
       userId,
     };
-    return this.gigService.updateGig(gigData).pipe(
+    return this.gigClientHttp.send(EVENTS_HTTP.UPDATE_GIG, gigData).pipe(
       switchMap((response) => {
-        return of({
-          ...response,
-          createdAt: convertGrpcTimestampToPrisma(response.createdAt),
-          updatedAt: convertGrpcTimestampToPrisma(response.updatedAt),
-        });
+        return of(response);
       }),
       catchError((error) =>
         throwError(
@@ -152,18 +135,14 @@ export class GigService {
   }
 
   updateStatusGig(data: UpdateGigStatusDto, gigId: string, userId: number) {
-    const gigData: UpdateActiveGigPropRequest = {
+    const gigData: UpdateGigStatusRequest = {
       ...data,
       id: gigId,
       userId,
     };
-    return this.gigService.updateActiveGigProp(gigData).pipe(
+    return this.gigClientHttp.send(EVENTS_HTTP.UPDATE_GIG_STATUS, gigData).pipe(
       switchMap((response) => {
-        return of({
-          ...response,
-          createdAt: convertGrpcTimestampToPrisma(response.createdAt),
-          updatedAt: convertGrpcTimestampToPrisma(response.updatedAt),
-        });
+        return of(response);
       }),
       catchError((error) =>
         throwError(
@@ -182,7 +161,7 @@ export class GigService {
       id: gigId,
       userId,
     };
-    return this.gigService.deleteGig(gigData).pipe(
+    return this.gigClientHttp.send(EVENTS_HTTP.DELETE_GIG, gigData).pipe(
       switchMap((response) => {
         return of(response);
       }),
