@@ -11,6 +11,7 @@ import { USER_PACKAGE_NAME } from 'proto/types/user';
 import { join } from 'path';
 import { AUTH_PACKAGE_NAME } from 'proto/types/auth';
 import { GrpcClientModule } from '@freedome/common/module/grpc-client/grpc-client.module';
+import { GigModule } from './gig/gig.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { GrpcClientModule } from '@freedome/common/module/grpc-client/grpc-clien
     HealthModule,
     SearchModule,
     UserModule,
+    GigModule,
     GrpcClientModule.registerAsync([
       {
         name: USER_PACKAGE_NAME,

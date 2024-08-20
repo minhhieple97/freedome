@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
-  dateToTimestamp,
   EXCHANGE_NAME,
-  GIG_QUEUE_NAME,
   IRatingTypes,
   IReviewMessageDetails,
   ISellerGig,
@@ -20,16 +18,23 @@ import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { RedisCacheService } from '@freedome/common/module';
 import { UploadService } from '@freedome/common/upload';
 import { BUCKET_S3_FOLDER_NAME } from '@auth/common/constants';
-import {
-  CreateGigRequest,
-  DeleteGigRequest,
-  UpdateActiveGigPropRequest,
-  UpdateGigRequest,
-} from 'proto/types/gig';
 import { RpcException } from '@nestjs/microservices';
 import * as grpc from '@grpc/grpc-js';
 import { User, UserDocument } from './user/user.schema';
-
+import { sortBy } from 'lodash';
+import { GigType } from '@freedome/common/enums';
+import { faker } from '@faker-js/faker';
+import { sample } from 'lodash';
+import {
+  CreateGigRequest,
+  DeleteGigRequest,
+  GetActiveGigByUserIdRequest,
+  GetInactiveGigByUserIdRequest,
+  ISearchResult,
+  SearchGigsParamDto,
+  UpdateGigRequest,
+  UpdateGigStatusRequest,
+} from '@freedome/common';
 @Injectable()
 export class GigService {
   constructor(
@@ -45,6 +50,32 @@ export class GigService {
   ) {}
   private readonly gigIndex = this.appConfigService.gigElasticSearchIndex;
   private readonly logger = new LoggerService(GigService.name);
+  private categories: string[] = [
+    'Graphics & Design',
+    'Digital Marketing',
+    'Writing & Translation',
+    'Video & Animation',
+    'Music & Audio',
+    'Programming & Tech',
+    'Data',
+    'Business',
+  ];
+
+  private expectedDelivery: string[] = [
+    '1 Day Delivery',
+    '2 Days Delivery',
+    '3 Days Delivery',
+    '4 Days Delivery',
+    '5 Days Delivery',
+  ];
+
+  // private randomRatings = [
+  //   { sum: 20, count: 4 },
+  //   { sum: 10, count: 2 },
+  //   { sum: 20, count: 4 },
+  //   { sum: 15, count: 3 },
+  //   { sum: 5, count: 1 },
+  // ];
   async getGigById(gigId: string): Promise<ISellerGig> {
     const gigIndex = this.appConfigService.gigElasticSearchIndex;
     const gig: ISellerGig = await this.searchService.getIndexedData(
@@ -53,9 +84,13 @@ export class GigService {
     );
     return gig;
   }
-  async getGigsByUserId(userId: number): Promise<ISellerGig[]> {
+  async getActiveGigByUserId(
+    data: GetActiveGigByUserIdRequest,
+  ): Promise<ISellerGig[]> {
     const resultsHits: ISellerGig[] = [];
-    const user = (await this.userModel.findOne({ userId })).toObject();
+    const user = (
+      await this.userModel.findOne({ userId: data.userId })
+    ).toObject();
     if (!user) {
       throw new RpcException({
         code: grpc.status.NOT_FOUND,
@@ -69,8 +104,12 @@ export class GigService {
     return resultsHits;
   }
 
-  async getSellerPausedGigs(userId: number): Promise<ISellerGig[]> {
-    const user = (await this.userModel.findOne({ userId })).toObject();
+  async getInactiveGigByUserId(
+    data: GetInactiveGigByUserIdRequest,
+  ): Promise<ISellerGig[]> {
+    const user = (
+      await this.userModel.findOne({ userId: data.userId })
+    ).toObject();
     if (!user) {
       throw new RpcException({
         code: grpc.status.NOT_FOUND,
@@ -101,7 +140,7 @@ export class GigService {
     } = gig;
     const [count, userObject] = await Promise.all([
       this.searchService.getDocumentCount(this.gigIndex),
-      (await this.userModel.findOne({ userId })).toObject(),
+      (await this.userModel.findOne({ userId })).toJSON(),
     ]);
     if (!userObject) {
       throw new RpcException({
@@ -110,7 +149,7 @@ export class GigService {
       });
     }
     const record = {
-      userId: userObject._id,
+      user: userObject._id,
       title: title,
       description: description,
       categories: categories,
@@ -125,8 +164,12 @@ export class GigService {
     };
     const createdGig = (await this.gigModel.create(record)).toObject();
     if (createdGig) {
+      const gigDataEs = this.searchService.buildGigElasticSearchDocument(
+        createdGig,
+        userObject,
+      );
       const count = 1;
-      this.amqpConnection.publish(
+      await this.amqpConnection.publish(
         EXCHANGE_NAME.USER_SELLER,
         ROUTING_KEY.UPDATE_GIG_COUNT,
         {
@@ -136,16 +179,11 @@ export class GigService {
       );
       await this.searchService.addDataToIndex(
         this.gigIndex,
-        `${createdGig.id}`,
-        createdGig,
+        `${createdGig._id.toString()}`,
+        gigDataEs,
       );
     }
-    const result = {
-      ...createdGig,
-      createdAt: dateToTimestamp(createdGig.createdAt),
-      updatedAt: dateToTimestamp(createdGig.updatedAt),
-    };
-    return result;
+    return createdGig;
   }
   async deleteGig(deleteGigRequest: DeleteGigRequest): Promise<void> {
     const { id, userId } = deleteGigRequest;
@@ -170,7 +208,7 @@ export class GigService {
     }
     await this.gigModel.deleteOne({ _id: id }).exec();
     const count = -1;
-    this.amqpConnection.publish(
+    await this.amqpConnection.publish(
       EXCHANGE_NAME.USER_SELLER,
       ROUTING_KEY.UPDATE_GIG_COUNT,
       {
@@ -241,12 +279,15 @@ export class GigService {
         .exec()
     ).toObject();
     if (document) {
-      await this.searchService.updateIndexedData(document.id, document, user);
+      await this.searchService.updateIndexedData(
+        document.id.toString(),
+        this.searchService.buildGigElasticSearchDocument(document, user),
+      );
     }
     return document;
   }
   async updateActiveGigProp(
-    updateActiveGig: UpdateActiveGigPropRequest,
+    updateActiveGig: UpdateGigStatusRequest,
   ): Promise<GigDocument> {
     const { userId, id, active } = updateActiveGig;
     const user = (await this.userModel.findOne({ userId })).toObject();
@@ -284,8 +325,7 @@ export class GigService {
     if (document) {
       await this.searchService.updateIndexedData(
         String(document.id),
-        document,
-        user,
+        this.searchService.buildGigElasticSearchDocument(document, user),
       );
     }
     return document;
@@ -325,15 +365,13 @@ export class GigService {
       const data = updatedGig.toObject();
       await this.searchService.updateIndexedData(
         String(updatedGig._id),
-        data,
-        user,
+        this.searchService.buildGigElasticSearchDocument(data, user),
       );
     }
   }
 
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.UPDATE_GIG,
-    queue: GIG_QUEUE_NAME,
     routingKey: ROUTING_KEY.UPDATE_GIG_FROM_BUYER_REVIEW,
   })
   async updateGigWhenBuyerReview(data: IReviewMessageDetails): Promise<void> {
@@ -349,6 +387,7 @@ export class GigService {
     }
   }
   async uploadGigCover(coverImage: string): Promise<string | null> {
+    if (!coverImage) return null;
     const coverImageId = uuidV4();
     const buf = Buffer.from(
       coverImage.replace(/^data:image\/\w+;base64,/, ''),
@@ -362,5 +401,59 @@ export class GigService {
       ContentType: 'image/jpeg',
     });
     return coverImageId;
+  }
+  processSearchResults(gigs: ISearchResult, type: GigType): ISellerGig[] {
+    let resultHits = gigs.hits.map((item) => item._source as ISellerGig);
+    if (type === GigType.BACKWARD) {
+      resultHits = sortBy(resultHits, ['sortId']);
+    }
+    return resultHits;
+  }
+  async searchGigs(searchGigsParam: SearchGigsParamDto) {
+    const { type } = searchGigsParam;
+    const gigs = await this.searchService.searchGigs(searchGigsParam);
+    const processedGigs = this.processSearchResults(gigs, type);
+    return { total: gigs.total, hits: processedGigs };
+  }
+  moreLikeThis({ gigId }) {
+    return this.searchService.getMoreGigsLikeThis(gigId);
+  }
+  async seedData(count: string) {
+    console.log({ count });
+    for (let i = 0; i < 1; i++) {
+      const title = `I will ${faker.word.words(5)}`;
+      const basicTitle = faker.commerce.productName();
+      const basicDescription = faker.commerce.productDescription();
+      // const rating = sample(this.randomRatings);
+      const gig: CreateGigRequest = {
+        userId: 1,
+        title: title.length <= 80 ? title : title.slice(0, 80),
+        basicTitle:
+          basicTitle.length <= 40 ? basicTitle : basicTitle.slice(0, 40),
+        basicDescription:
+          basicDescription.length <= 100
+            ? basicDescription
+            : basicDescription.slice(0, 100),
+        categories: `${sample(this.categories)}`,
+        subCategories: [
+          faker.commerce.department(),
+          faker.commerce.department(),
+          faker.commerce.department(),
+        ],
+        description: faker.lorem.sentences({ min: 2, max: 4 }),
+        tags: [
+          faker.commerce.product(),
+          faker.commerce.product(),
+          faker.commerce.product(),
+          faker.commerce.product(),
+        ],
+        price: parseInt(faker.commerce.price({ min: 20, max: 30, dec: 0 })),
+        coverImage: faker.image.urlPicsumPhotos(),
+        expectedDelivery: `${sample(this.expectedDelivery)}`,
+      };
+      console.log(`***SEEDING GIG*** - ${i + 1} of ${count}`);
+      await this.createGig(gig);
+    }
+    return { message: 'success' };
   }
 }

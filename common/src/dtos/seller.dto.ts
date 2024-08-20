@@ -1,6 +1,5 @@
 import {
   IsString,
-  IsOptional,
   IsArray,
   ValidateNested,
   IsNumber,
@@ -8,7 +7,6 @@ import {
   ArrayMinSize,
   IsNotEmpty,
   IsPositive,
-  Allow,
   IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -73,36 +71,6 @@ class Certificate {
   year: number;
 }
 
-class RatingCategory {
-  @IsNumber()
-  value: number;
-
-  @IsNumber()
-  count: number;
-}
-
-class RatingCategories {
-  @ValidateNested()
-  @Type(() => RatingCategory)
-  five: RatingCategory;
-
-  @ValidateNested()
-  @Type(() => RatingCategory)
-  four: RatingCategory;
-
-  @ValidateNested()
-  @Type(() => RatingCategory)
-  three: RatingCategory;
-
-  @ValidateNested()
-  @Type(() => RatingCategory)
-  two: RatingCategory;
-
-  @ValidateNested()
-  @Type(() => RatingCategory)
-  one: RatingCategory;
-}
-
 export class CreateSellerDto {
   @IsString()
   @IsNotEmpty({ message: 'Fullname is required' })
@@ -150,41 +118,4 @@ export class CreateSellerDto {
   @ValidateNested({ each: true })
   @Type(() => Certificate)
   certificates: Certificate[];
-
-  @IsOptional()
-  @IsNumber()
-  ratingsCount?: number;
-
-  @ValidateNested()
-  @Type(() => RatingCategories)
-  ratingCategories?: RatingCategories;
-
-  @IsOptional()
-  @IsNumber()
-  ratingSum?: number;
-
-  @IsOptional()
-  @IsString()
-  @Allow(null)
-  recentDelivery?: string;
-
-  @IsOptional()
-  @IsNumber()
-  ongoingJobs?: number;
-
-  @IsOptional()
-  @IsNumber()
-  completedJobs?: number;
-
-  @IsOptional()
-  @IsNumber()
-  cancelledJobs?: number;
-
-  @IsOptional()
-  @IsNumber()
-  totalEarnings?: number;
-
-  @IsOptional()
-  @IsNumber()
-  totalGigs?: number;
 }

@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import {
+  IGigElasticSearchDocument,
   IHitsTotal,
-  IPaginateProps,
   IQueryList,
   ISearchResult,
   ISellerGig,
   LoggerService,
+  SearchGigsParamDto,
+  SearchQueryGigs,
 } from '@freedome/common';
 import {
   CountResponse,
@@ -17,7 +19,8 @@ import {
 import { AppConfigService } from '@gig/config/app/config.service';
 import { UserDocument } from '../user/user.schema';
 import { GigDocument } from '../gig.schema';
-
+import { DEFAULT_PAGE_SIZE } from '@gig/common/constants';
+import * as _ from 'lodash';
 @Injectable()
 export class SearchService {
   private readonly logger = new LoggerService(SearchService.name);
@@ -58,17 +61,9 @@ export class SearchService {
   }
   async updateIndexedData(
     itemId: string,
-    gigDocument: GigDocument,
-    user: UserDocument,
+    doc: IGigElasticSearchDocument,
   ): Promise<void> {
     try {
-      const doc = {
-        ...gigDocument,
-        user: {
-          username: user.username,
-          email: user.email,
-        },
-      };
       await this.esService.update({
         index: this.gigIndex,
         id: itemId,
@@ -128,80 +123,6 @@ export class SearchService {
     };
   }
 
-  async gigsSearch(
-    searchQuery: string,
-    paginate: IPaginateProps,
-    deliveryTime?: string,
-    min?: number,
-    max?: number,
-  ): Promise<ISearchResult> {
-    const { from, size, type } = paginate;
-    const queryList: IQueryList[] = [
-      {
-        query_string: {
-          fields: [
-            'user.username',
-            'user.email',
-            'title',
-            'description',
-            'basicDescription',
-            'basicTitle',
-            'categories',
-            'subCategories',
-            'tags',
-          ],
-          query: `*${searchQuery}*`,
-        },
-      },
-      {
-        term: {
-          active: true,
-        },
-      },
-    ];
-
-    if (deliveryTime !== 'undefined') {
-      queryList.push({
-        query_string: {
-          fields: ['expectedDelivery'],
-          query: `*${deliveryTime}*`,
-        },
-      });
-    }
-
-    if (!isNaN(parseInt(`${min}`)) && !isNaN(parseInt(`${max}`))) {
-      queryList.push({
-        range: {
-          price: {
-            gte: min,
-            lte: max,
-          },
-        },
-      });
-    }
-
-    const result: SearchResponse = await this.esService.search({
-      index: this.gigIndex,
-      size,
-      query: {
-        bool: {
-          must: [...queryList],
-        },
-      },
-      sort: [
-        {
-          sortId: type === 'forward' ? 'asc' : 'desc',
-        },
-      ],
-      ...(from !== '0' && { search_after: [from] }),
-    });
-
-    const total: IHitsTotal = result.hits.total as IHitsTotal;
-    return {
-      total: total.value,
-      hits: result.hits.hits,
-    };
-  }
   async addDataToIndex(
     index: string,
     itemId: string,
@@ -248,10 +169,210 @@ export class SearchService {
       const erroredDocuments = bulkResponse.items.filter(
         (item: any) => item.update && item.update.error,
       );
-      console.error('Bulk update errors:', erroredDocuments);
+      this.logger.error('Bulk update errors:', erroredDocuments);
       throw new Error('Bulk update failed');
     }
 
     return bulkResponse;
+  }
+
+  async searchGigs(
+    searchGigsParam: SearchGigsParamDto,
+  ): Promise<ISearchResult> {
+    const { from, size, type } = searchGigsParam;
+    const queryList = this.buildQueryList(searchGigsParam);
+
+    const result: SearchResponse = await this.esService.search({
+      index: this.gigIndex,
+      size,
+      query: {
+        bool: {
+          must: queryList,
+        },
+      },
+      sort: [
+        {
+          sortId: type === 'forward' ? 'asc' : 'desc',
+        },
+      ],
+      ...(from !== '0' && { search_after: [from] }),
+    });
+
+    return this.formatSearchResult(result);
+  }
+
+  private buildQueryList(searchGigsParam: SearchGigsParamDto): object[] {
+    const { searchQuery, deliveryTime, max, min } = searchGigsParam;
+    const queryList: SearchQueryGigs[] = [
+      {
+        query_string: {
+          fields: [
+            'user.username',
+            'title',
+            'description',
+            'basicDescription',
+            'basicTitle',
+            'categories',
+            'subCategories',
+            'tags',
+          ],
+          query: `*${searchQuery}*`,
+        },
+      },
+      {
+        term: {
+          active: true,
+        },
+      },
+    ];
+
+    if (deliveryTime) {
+      queryList.push({
+        query_string: {
+          fields: ['expectedDelivery'],
+          query: `*${deliveryTime}*`,
+        },
+      });
+    }
+
+    if (this.isValidPriceRange(min, max)) {
+      queryList.push({
+        range: {
+          price: {
+            gte: min,
+            lte: max,
+          },
+        },
+      });
+    }
+
+    return queryList;
+  }
+
+  private isValidPriceRange(min?: number, max?: number): boolean {
+    return !isNaN(Number(min)) && !isNaN(Number(max));
+  }
+
+  private formatSearchResult(result: SearchResponse): ISearchResult {
+    const total = (result.hits.total as { value: number }).value;
+    return {
+      total,
+      hits: result.hits.hits,
+    };
+  }
+  async searchGigsByCategory(searchQuery: string): Promise<ISearchResult> {
+    const queryList = this.buildCategoryQueryList(searchQuery);
+
+    const result: SearchResponse = await this.esService.search({
+      index: this.gigIndex,
+      size: DEFAULT_PAGE_SIZE,
+      query: {
+        bool: {
+          must: queryList,
+        },
+      },
+    });
+
+    return this.formatSearchResult(result);
+  }
+
+  private buildCategoryQueryList(searchQuery: string): SearchQueryGigs[] {
+    return [
+      {
+        query_string: {
+          fields: ['categories'],
+          query: `*${searchQuery}*`,
+        },
+      },
+      {
+        term: {
+          active: true,
+        },
+      },
+    ];
+  }
+  async getMoreGigsLikeThis(gigId: string): Promise<ISearchResult> {
+    const result: SearchResponse = await this.esService.search({
+      index: this.gigIndex,
+      size: DEFAULT_PAGE_SIZE,
+      query: this.buildMoreLikeThisQuery(gigId),
+    });
+
+    return this.formatSearchResult(result);
+  }
+
+  private buildMoreLikeThisQuery(gigId: string) {
+    return {
+      more_like_this: {
+        fields: [
+          'user.username',
+          'title',
+          'description',
+          'basicDescription',
+          'basicTitle',
+          'categories',
+          'subCategories',
+          'tags',
+        ],
+        like: [
+          {
+            _index: this.gigIndex,
+            _id: gigId,
+          },
+        ],
+      },
+    };
+  }
+  async getTopRatedGigsByCategory(category: string): Promise<ISearchResult> {
+    const result: SearchResponse = await this.esService.search({
+      index: this.gigIndex,
+      size: DEFAULT_PAGE_SIZE,
+      query: this.buildTopRatedGigsByCategoryQuery(category),
+    });
+
+    return this.formatSearchResult(result);
+  }
+
+  private buildTopRatedGigsByCategoryQuery(category: string) {
+    return {
+      bool: {
+        filter: {
+          script: {
+            script: {
+              source:
+                "doc['ratingSum'].value != 0 && (doc['ratingSum'].value / doc['ratingsCount'].value == params.threshold)",
+              lang: 'painless',
+              params: {
+                threshold: 5,
+              },
+            },
+          },
+        },
+        must: [
+          {
+            query_string: {
+              fields: ['categories'],
+              query: `*${category}*`,
+            },
+          },
+        ],
+      },
+    };
+  }
+  buildGigElasticSearchDocument(
+    gig: GigDocument,
+    user: UserDocument,
+  ): IGigElasticSearchDocument {
+    const gigDataEs = _.omit(
+      {
+        ...gig,
+        user: {
+          email: user.email,
+          username: user.username,
+        },
+      },
+      ['_id'],
+    ) as IGigElasticSearchDocument;
+    return gigDataEs;
   }
 }

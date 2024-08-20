@@ -5,7 +5,7 @@ import { Buyer, BuyerDocument } from './buyer.schema';
 import { User, UserDocument } from '../user/user.schema';
 import { RpcException } from '@nestjs/microservices';
 import * as grpc from '@grpc/grpc-js';
-import { dateToTimestamp } from '@freedome/common';
+import { dateToTimestamp, IBuyerDocument } from '@freedome/common';
 @Injectable()
 export class BuyerService {
   constructor(
@@ -30,7 +30,7 @@ export class BuyerService {
           select: 'email username profilePublicId country -_id',
         })
         .exec()
-    ).toObject();
+    ).toJSON() as IBuyerDocument;
     if (!buyer) {
       throw new RpcException({
         code: grpc.status.NOT_FOUND,
@@ -49,7 +49,7 @@ export class BuyerService {
 
   async getUserBuyerWithUsername(
     username: string,
-  ): Promise<BuyerDocument | null> {
+  ): Promise<IBuyerDocument | null> {
     const user = await this.userModel.findOne({ username }).exec();
     if (!user) {
       throw new RpcException({
@@ -60,9 +60,9 @@ export class BuyerService {
     const buyer = (
       await this.buyerModel
         .findOne({ userId: user._id })
-        .populate('userId')
+        .populate('user')
         .exec()
-    ).toObject();
+    ).toObject() as IBuyerDocument;
 
     if (!buyer) {
       throw new RpcException({

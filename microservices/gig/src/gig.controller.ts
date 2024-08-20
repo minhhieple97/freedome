@@ -1,11 +1,17 @@
 import { Controller } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
+import { MessagePattern } from '@nestjs/microservices';
 import { GigService } from './gig.service';
 import {
   CreateGigRequest,
-  GIG_SERVICE_NAME,
+  DeleteGigRequest,
+  EVENTS_HTTP,
+  GetActiveGigByUserIdRequest,
+  GetInactiveGigByUserIdRequest,
+  ISearchResult,
+  SearchGigsParamDto,
   UpdateGigRequest,
-} from 'proto/types/gig';
+  UpdateGigStatusRequest,
+} from '@freedome/common';
 
 @Controller()
 export class GigController {
@@ -24,42 +30,48 @@ export class GigController {
   //   return { gigs };
   // }
 
-  // @GrpcMethod('GigService', 'GetSellerPausedGigs')
-  // async getSellerPausedGigs(data: {
-  //   sellerId: string;
-  // }): Promise<{ gigs: ISellerGig[] }> {
-  //   const gigs = await this.gigService.getSellerPausedGigs(data.sellerId);
-  //   return { gigs };
-  // }
+  @MessagePattern(EVENTS_HTTP.GET_INACTIVE_GIG_BY_USER_ID)
+  async getInactiveGigByUserId(data: GetInactiveGigByUserIdRequest) {
+    const gigs = await this.gigService.getInactiveGigByUserId(data);
+    return { gigs };
+  }
 
-  @GrpcMethod(GIG_SERVICE_NAME, 'createGig')
+  @MessagePattern(EVENTS_HTTP.GET_ACTIVE_GIG_BY_USER_ID)
+  async getActiveGigByUserId(data: GetActiveGigByUserIdRequest) {
+    const gigs = await this.gigService.getActiveGigByUserId(data);
+    return { gigs };
+  }
+
+  @MessagePattern(EVENTS_HTTP.CREATE_GIG)
   async createGig(data: CreateGigRequest) {
     return this.gigService.createGig(data);
   }
 
-  // @GrpcMethod('GigService', 'deleteGig')
-  // async deleteGig(data: { gigId: string; sellerId: string }): Promise<void> {
-  //   await this.gigService.deleteGig(data.gigId, data.sellerId);
-  // }
+  @MessagePattern(EVENTS_HTTP.DELETE_GIG)
+  async deleteGig(data: DeleteGigRequest) {
+    await this.gigService.deleteGig(data);
+  }
 
-  @GrpcMethod(GIG_SERVICE_NAME, 'updateGig')
+  @MessagePattern(EVENTS_HTTP.UPDATE_GIG)
   async updateGig(data: UpdateGigRequest) {
     return this.gigService.updateGig(data);
   }
 
-  // @GrpcMethod('GigService', 'updateActiveGigProp')
-  // async updateActiveGigProp(data: {
-  //   gigId: string;
-  //   active: boolean;
-  // }): Promise<ISellerGig> {
-  //   return this.gigService.updateActiveGigProp(data.gigId, data.active);
-  // }
+  @MessagePattern(EVENTS_HTTP.UPDATE_GIG_STATUS)
+  async updateActiveGigProp(data: UpdateGigStatusRequest) {
+    return this.gigService.updateActiveGigProp(data);
+  }
 
-  // @GrpcMethod('GigService', 'getUserSelectedGigCategory')
-  // async getUserSelectedGigCategory(data: {
-  //   key: string;
-  // }): Promise<{ category: string }> {
-  //   const category = await this.gigService.getUserSelectedGigCategory(data.key);
-  //   return { category };
-  // }
+  @MessagePattern(EVENTS_HTTP.SEARCH_GIGS)
+  public async searchGigs(searchGigsParam: SearchGigsParamDto) {
+    return this.gigService.searchGigs(searchGigsParam);
+  }
+  @MessagePattern(EVENTS_HTTP.SEARCH_GIGS)
+  public async moreLikeThis({ gigId }): Promise<ISearchResult> {
+    return this.gigService.moreLikeThis({ gigId });
+  }
+  @MessagePattern(EVENTS_HTTP.SEED_GIG)
+  public async seedGig() {
+    return this.gigService.seedData('4');
+  }
 }

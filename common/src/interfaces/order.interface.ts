@@ -44,8 +44,8 @@ export interface IOrderReview {
 }
 
 export interface IOrderMessage {
-  sellerId?: string;
-  buyerId?: string;
+  userSellerId: number;
+  userBuyerId: number;
   ongoingJobs?: number;
   completedJobs?: number;
   totalEarnings?: number;

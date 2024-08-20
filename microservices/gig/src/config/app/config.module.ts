@@ -19,6 +19,7 @@ import { AppConfigService } from './config.service';
         AWS_SECRET_ACCESS_KEY: Joi.string().required(),
         AWS_S3_REGION: Joi.string().required(),
         AWS_BUCKET_S3_NAME: Joi.string().required(),
+        TCP_PORT: Joi.number().required(),
       }),
     }),
   ],

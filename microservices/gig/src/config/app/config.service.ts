@@ -30,4 +30,7 @@ export class AppConfigService {
   get awsBucketS3Name(): string {
     return this.configService.get<string>('AWS_BUCKET_S3_NAME');
   }
+  get tcpPort(): number {
+    return Number(this.configService.get<number>('TCP_PORT'));
+  }
 }

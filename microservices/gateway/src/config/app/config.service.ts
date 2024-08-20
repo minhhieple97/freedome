@@ -98,4 +98,8 @@ export class AppConfigService {
   get userGrpcUrl(): string {
     return this.configService.get<string>('USER_GRPC_URL');
   }
+
+  get gigGrpcUrl(): string {
+    return this.configService.get<string>('GIG_GRPC_URL');
+  }
 }

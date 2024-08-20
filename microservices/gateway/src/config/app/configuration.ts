@@ -25,4 +25,5 @@ export default registerAs('app', () => ({
   secretKeyTwo: process.env.SECRET_KEY_TWO,
   authGrpcUrl: process.env.AUTH_GRPC_URL,
   userGrpcUrl: process.env.USER_GRPC_URL,
+  gigGrpcUrl: process.env.GIG_GRPC_URL,
 }));

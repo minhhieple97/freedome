@@ -8,4 +8,5 @@ export default registerAs('app', () => ({
   awsSecretKey: process.env.AWS_SECRET_ACCESS_KEY,
   awsRegion: process.env.AWS_S3_REGION,
   awsBucketS3Name: process.env.AWS_BUCKET_S3_NAME,
+  tcpPort: Number(process.env.TCP_PORT),
 }));

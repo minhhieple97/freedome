@@ -170,6 +170,8 @@ services:
       - elasticsearch
       - redis
       - mongodb
+    expose:
+      - '4000'
   redis:
     image: redis
     ports:

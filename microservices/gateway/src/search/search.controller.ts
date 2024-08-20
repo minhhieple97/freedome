@@ -1,5 +1,5 @@
 import { SearchService } from './search.service';
-import { SearchGigsDtoParam } from '@freedome/common';
+import { SearchGigsParamDto } from '@freedome/common';
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Observable } from 'rxjs';
@@ -12,7 +12,7 @@ export class SearchController {
 
   @Get('gigs')
   searchGigs(
-    @Query() searchGigsParams: SearchGigsDtoParam,
+    @Query() searchGigsParams: SearchGigsParamDto,
   ): Observable<SearchGigsResponse> {
     return this.searchService.searchGigs(searchGigsParams);
   }

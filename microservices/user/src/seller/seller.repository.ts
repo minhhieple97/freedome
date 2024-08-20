@@ -3,16 +3,21 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { Seller, SellerDocument } from './seller.schema';
 import { ISellerDocument } from '@freedome/common';
+import { User, UserDocument } from '../user/user.schema';
 
 @Injectable()
 export class SellerRepository {
   constructor(
     @InjectModel(Seller.name)
     private readonly sellerModel: Model<SellerDocument>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async findById(sellerId: string): Promise<SellerDocument | null> {
-    return this.sellerModel.findById(sellerId).exec();
+  async findById(sellerId: string): Promise<ISellerDocument | null> {
+    return (
+      await this.sellerModel.findById(sellerId).exec()
+    ).toJSON() as ISellerDocument;
   }
 
   async findByUsername(username: string): Promise<SellerDocument | null> {
@@ -27,15 +32,20 @@ export class SellerRepository {
     return this.sellerModel.findOne({ email }).exec();
   }
 
-  async findByUserId(userId: string): Promise<SellerDocument | null> {
-    return this.sellerModel.findOne({ user: userId }).exec();
+  async findByUserId(userId: string): Promise<ISellerDocument | null> {
+    const seller = await this.sellerModel
+      .findOne({ user: userId })
+      .populate('user')
+      .exec();
+    if (seller) return seller.toJSON() as ISellerDocument;
+    return null;
   }
 
   async getRandomSellers(size: number): Promise<SellerDocument[]> {
     return this.sellerModel.aggregate([{ $sample: { size } }]);
   }
 
-  async create(sellerData: ISellerDocument): Promise<SellerDocument> {
+  async create(sellerData: Partial<SellerDocument>): Promise<SellerDocument> {
     return this.sellerModel.create(sellerData);
   }
 
@@ -65,40 +75,43 @@ export class SellerRepository {
       .exec();
   }
 
-  async updateTotalGigsCount(sellerId: string, count: number): Promise<void> {
+  async updateTotalGigsCount(userId: number, count: number): Promise<void> {
+    const user = (await this.userModel.findOne({ userId })).toJSON();
     await this.sellerModel
-      .updateOne({ _id: sellerId }, { $inc: { totalGigs: count } })
+      .updateOne({ user: user._id }, { $inc: { totalGigs: count } })
       .exec();
   }
 
-  async updateOngoingJobs(
-    sellerId: string,
-    ongoingJobs: number,
-  ): Promise<void> {
+  async updateOngoingJobs(userId: number, ongoingJobs: number): Promise<void> {
+    const user = (await this.userModel.findOne({ userId })).toJSON();
     await this.sellerModel
-      .updateOne({ _id: sellerId }, { $inc: { ongoingJobs } })
+      .updateOne({ user: user._id }, { $inc: { ongoingJobs } })
       .exec();
   }
 
-  async updateCancelledJobs(sellerId: string): Promise<void> {
+  async updateCancelledJobs(userId: number): Promise<void> {
+    const user = (await this.userModel.findOne({ userId })).toJSON();
     await this.sellerModel
       .updateOne(
-        { _id: sellerId },
+        { _id: user._id },
         { $inc: { ongoingJobs: -1, cancelledJobs: 1 } },
       )
       .exec();
   }
 
   async updateCompletedJobs(
-    sellerId: string,
+    userSellerId: number,
     ongoingJobs: number,
     completedJobs: number,
     totalEarnings: number,
     recentDelivery: Date,
   ): Promise<void> {
+    const user = (
+      await this.userModel.findOne({ userId: userSellerId })
+    ).toJSON();
     await this.sellerModel
       .updateOne(
-        { _id: sellerId },
+        { user: user._id },
         {
           $inc: {
             ongoingJobs,
@@ -112,13 +125,14 @@ export class SellerRepository {
   }
 
   async updateReview(
-    sellerId: string,
+    userId: string,
     rating: number,
     ratingKey: string,
   ): Promise<void> {
+    const user = (await this.userModel.findOne({ userId })).toJSON();
     await this.sellerModel
       .updateOne(
-        { _id: sellerId },
+        { user: user._id },
         {
           $inc: {
             ratingsCount: 1,

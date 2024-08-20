@@ -6,8 +6,10 @@ service GigService {
   rpc CreateGig(CreateGigRequest) returns (CreateGigResponse);
   rpc UpdateGig(UpdateGigRequest) returns (CreateGigResponse);
   rpc DeleteGig(DeleteGigRequest) returns (DeleteGigResponse);
-
   rpc UpdateActiveGigProp(UpdateActiveGigPropRequest) returns (CreateGigResponse);
+  rpc GetGigById(GetGigByIdRequest) returns (GetGigByIdResponse);
+  rpc GetActiveGigByUserId(GetActiveGigByUserIdRequest) returns (ListGigsResponse);
+  rpc GetInactiveGigByUserId(GetInactiveGigByUserIdRequest) returns (ListGigsResponse);
 }
 
 
@@ -92,4 +94,42 @@ message UpdateActiveGigPropRequest {
   string id = 1;
   bool active = 2;
   int32 userId = 3;
+}
+
+message GetGigByIdResponse {
+   string id = 1;
+  string userId = 2;
+  string title = 3;
+  string description = 4;
+  bool active = 5;
+  string categories = 6;
+  repeated string subCategories = 7;
+  repeated string tags = 8;
+  double ratingsCount = 9;
+  double ratingSum = 10;
+  RatingCategories ratingCategories = 11;
+  string expectedDelivery = 12;
+  string basicTitle = 13;
+  string basicDescription = 14;
+  double price = 15;
+  string coverImage = 16;
+  google.protobuf.Timestamp createdAt = 17;
+  google.protobuf.Timestamp updatedAt = 18;
+  int32 sortId = 19;
+}
+
+message GetGigByIdRequest {
+  string id = 1;
+}
+
+message GetActiveGigByUserIdRequest {
+  int32 userId = 1;
+}
+
+message GetInactiveGigByUserIdRequest {
+  int32 userId = 1;
+}
+
+message ListGigsResponse {
+  repeated CreateGigResponse gigs = 1;
 }

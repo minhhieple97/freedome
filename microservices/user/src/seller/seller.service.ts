@@ -9,8 +9,6 @@ import {
   IUpdateTotalGigsCount,
   EXCHANGE_NAME,
   ROUTING_KEY,
-  USER_SELLER_QUEUE_NAME,
-  SELLER_REVIEW_QUEUE_NAME,
   IRatingTypes,
   dateToTimestamp,
 } from '@freedome/common';
@@ -33,7 +31,7 @@ export class SellerService {
   ) {}
 
   async getSellerById(sellerId: string) {
-    const seller = (await this.sellerRepository.findById(sellerId)).toObject();
+    const seller = await this.sellerRepository.findById(sellerId);
     if (!seller) {
       throw new RpcException({
         code: grpc.status.NOT_FOUND,
@@ -42,7 +40,7 @@ export class SellerService {
     }
     const result = {
       ...seller,
-      id: seller._id.toString(),
+      id: seller._id,
       createdAt: dateToTimestamp(seller.createdAt),
       updatedAt: dateToTimestamp(seller.updatedAt),
     };
@@ -63,14 +61,16 @@ export class SellerService {
 
   async createSeller(sellerData: CreateSellerRequest) {
     const { userId } = sellerData;
-    const user = (await this.userModel.findOne({ userId })).toObject();
+    const user = (await this.userModel.findOne({ userId })).toJSON();
     if (!user) {
       throw new RpcException({
         code: grpc.status.NOT_FOUND,
         message: `User not found`,
       });
     }
-    const existingSeller = await this.sellerRepository.findByUserId(user._id);
+    const existingSeller = await this.sellerRepository.findByUserId(
+      user._id.toString(),
+    );
     if (existingSeller) {
       throw new RpcException({
         code: grpc.status.ALREADY_EXISTS,
@@ -79,12 +79,13 @@ export class SellerService {
     }
     const seller = {
       ..._.omit(sellerData, ['userId']),
-      user: user._id,
-    } as any;
-    const createdSeller = (
-      await this.sellerRepository.create(seller)
-    ).toObject();
-    await this.buyerService.updateBuyerIsSellerProp(createdSeller.email);
+      user: user._id.toString(),
+    };
+    (await this.sellerRepository.create(seller)).save();
+    const createdSeller = await this.sellerRepository.findByUserId(
+      user._id.toString(),
+    );
+    await this.buyerService.updateBuyerIsSellerProp(createdSeller.user.email);
     return {
       ...createdSeller,
       id: createdSeller._id.toString(),
@@ -121,53 +122,49 @@ export class SellerService {
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.UPDATE_GIG_COUNT,
-    queue: USER_SELLER_QUEUE_NAME,
   })
   async updateTotalGigsCount({
-    sellerId,
+    userId,
     count,
   }: IUpdateTotalGigsCount): Promise<void> {
-    await this.sellerRepository.updateTotalGigsCount(sellerId, count);
+    await this.sellerRepository.updateTotalGigsCount(userId, count);
   }
 
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.CREATE_ORDER,
-    queue: USER_SELLER_QUEUE_NAME,
   })
   async updateSellerOngoingJobsProp({
-    sellerId,
+    userId,
     ongoingJobs,
   }: ICreateOrderForSeller): Promise<void> {
-    await this.sellerRepository.updateOngoingJobs(sellerId, ongoingJobs);
+    await this.sellerRepository.updateOngoingJobs(userId, ongoingJobs);
   }
 
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.CANCEL_ORDER,
-    queue: USER_SELLER_QUEUE_NAME,
   })
-  async updateSellerCancelledJobsProp(sellerId: string): Promise<void> {
-    await this.sellerRepository.updateCancelledJobs(sellerId);
+  async updateSellerCancelledJobsProp(userId: number): Promise<void> {
+    await this.sellerRepository.updateCancelledJobs(userId);
   }
 
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.USER_SELLER,
     routingKey: ROUTING_KEY.APPROVE_ORDER,
-    queue: USER_SELLER_QUEUE_NAME,
   })
   updateSellerCompletedJobsProp = async (
     data: IOrderMessage,
   ): Promise<void> => {
     const {
-      sellerId,
+      userSellerId,
       ongoingJobs,
       completedJobs,
       totalEarnings,
       recentDelivery,
     } = data;
     await this.sellerRepository.updateCompletedJobs(
-      sellerId,
+      userSellerId,
       ongoingJobs,
       completedJobs,
       totalEarnings,
@@ -177,7 +174,6 @@ export class SellerService {
 
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.SELLER_REVIEW,
-    queue: SELLER_REVIEW_QUEUE_NAME,
     routingKey: ROUTING_KEY.BUYER_REVIEW,
   })
   async updateSellerWhenBuyerReview(

@@ -3,8 +3,7 @@ import { GigModule } from './gig.module';
 import { Transport } from '@nestjs/microservices';
 
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { LoggerService, SERVICE_NAME } from '@freedome/common';
-import { join } from 'path';
+import { LoggerService } from '@freedome/common';
 import { AppConfigService } from './config/app/config.service';
 const logger = new LoggerService('Gig Service');
 async function bootstrap() {
@@ -14,14 +13,10 @@ async function bootstrap() {
   const appConfig: AppConfigService = app.get(AppConfigService);
   app.init();
   await app.startAllMicroservices();
-  app
+  await app
     .connectMicroservice({
-      transport: Transport.GRPC,
-      options: {
-        package: SERVICE_NAME.GIG,
-        protoPath: join(__dirname, '../../../../proto/gig.proto'),
-        url: appConfig.gigGrpcUrl,
-      },
+      transport: Transport.TCP,
+      options: { host: '0.0.0.0', port: appConfig.tcpPort },
     })
     .listen();
 }

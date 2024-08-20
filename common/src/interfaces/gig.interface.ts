@@ -1,12 +1,10 @@
+import { GigDocument } from 'microservices/gig/src/gig.schema';
 import { IRatingCategories, IReviewDocument } from './review.interface';
 import { ISellerDocument } from './seller.interface';
 
 export type GigType = string | string[] | number | unknown | undefined;
 
 export interface ICreateGig extends Record<string, GigType> {
-  // [key: string]: string | string[] | number | undefined;
-  sellerId?: string;
-  profilePicture?: string;
   title: string;
   categories: string;
   description: string;
@@ -82,4 +80,69 @@ export interface IGigTopProps {
   category?: string;
   width: string;
   type: string;
+}
+
+export type SearchQueryGigs =
+  | { query_string: { fields: string[]; query: string } }
+  | { term: { [key: string]: boolean } }
+  | { range: { [key: string]: { gte?: number; lte?: number } } };
+
+export interface GetInactiveGigByUserIdRequest {
+  userId: number;
+}
+
+export interface GetGigByIdRequest {
+  id: string;
+}
+
+export interface GetActiveGigByUserIdRequest {
+  userId: number;
+}
+
+export interface CreateGigRequest {
+  title: string;
+  description?: string;
+  categories?: string;
+  subCategories?: string[];
+  tags: string[];
+  expectedDelivery?: string;
+  basicTitle?: string;
+  basicDescription?: string;
+  price: number;
+  coverImage?: string;
+  userId: number;
+}
+
+export interface DeleteGigRequest {
+  id: string;
+  userId: number;
+}
+
+export interface UpdateGigStatusRequest {
+  id: string;
+  active: boolean;
+  userId: number;
+}
+
+export interface UpdateGigRequest {
+  title?: string;
+  description?: string;
+  categories?: string;
+  subCategories?: string[];
+  tags?: string[];
+  price?: number;
+  coverImage?: string;
+  expectedDelivery?: string;
+  basicTitle?: string;
+  basicDescription?: string;
+  id: string;
+  userId: number;
+}
+
+export interface IGigElasticSearchDocument
+  extends Omit<GigDocument, 'user' | '_id'> {
+  user: {
+    email: string;
+    username: string;
+  };
 }

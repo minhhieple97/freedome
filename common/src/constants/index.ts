@@ -34,7 +34,18 @@ export const PROTOBUF_PACKAGE = {
   SELLER: 'seller',
   SEARCH: 'search',
 };
-
 export const EMPTY_NUMBER = -1;
 export const EMPTY_STRING = '';
 export const DEFAULT_SIZE = 10;
+export const EVENTS_HTTP = {
+  SEARCH_GIGS: 'search-gigs',
+  MORE_LIKE_THIS: 'more-like-this',
+  SEED_GIG: 'seed-gig',
+  GET_INACTIVE_GIG_BY_USER_ID: 'get-inactive-gig-by-user-id',
+  GET_ACTIVE_GIG_BY_USER_ID: 'get-active-gig-by-user-id',
+  GET_GIG_BY_ID: 'get-gig-by-id',
+  CREATE_GIG: 'create-gig',
+  DELETE_GIG: 'delete-gig',
+  UPDATE_GIG: 'update-gig',
+  UPDATE_GIG_STATUS: 'update-gig-status',
+};

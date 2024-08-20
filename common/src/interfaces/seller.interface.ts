@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongoose';
 import { IRatingCategories } from './review.interface';
 import { UserTemporary } from './user.interface';
 
@@ -48,7 +49,7 @@ export interface ICertificate {
 }
 
 export interface ISellerDocument extends Record<string, SellerType> {
-  _id?: string;
+  _id: ObjectId;
   user: UserTemporary;
   fullName: string;
   description: string;
@@ -69,16 +70,16 @@ export interface ISellerDocument extends Record<string, SellerType> {
   cancelledJobs?: number;
   totalEarnings?: number;
   totalGigs?: number;
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ICreateOrderForSeller {
-  sellerId: string;
+  userId: number;
   ongoingJobs: number;
 }
 
 export interface IUpdateTotalGigsCount {
-  sellerId: string;
+  userId: number;
   count: number;
 }
