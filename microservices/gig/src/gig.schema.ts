@@ -14,7 +14,7 @@ export type GigDocument = Gig & Document;
   },
 })
 export class Gig {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
   user: Types.ObjectId;
 
   @Prop({ required: true })
@@ -29,11 +29,8 @@ export class Gig {
   @Prop({ required: true })
   basicDescription: string;
 
-  @Prop({ required: true })
-  categories: string;
-
-  @Prop({ type: [String], required: true })
-  subCategories: string[];
+  @Prop({ type: [String] })
+  categories: string[];
 
   @Prop({ type: [String] })
   tags: string[];
