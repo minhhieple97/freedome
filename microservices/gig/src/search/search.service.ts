@@ -213,7 +213,6 @@ export class SearchService {
             'basicDescription',
             'basicTitle',
             'categories',
-            'subCategories',
             'tags',
           ],
           query: `*${searchQuery}*`,
@@ -311,7 +310,6 @@ export class SearchService {
           'basicDescription',
           'basicTitle',
           'categories',
-          'subCategories',
           'tags',
         ],
         like: [

@@ -5,12 +5,12 @@
 // source: proto/auth.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Empty } from "google/protobuf/empty";
-import { Timestamp } from "google/protobuf/timestamp";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Empty } from 'google/protobuf/empty';
+import { Timestamp } from 'google/protobuf/timestamp';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "auth";
+export const protobufPackage = 'auth';
 
 export interface ResetPasswordRequest {
   userId: number;
@@ -80,9 +80,7 @@ export interface AuthPublic {
   /** The type of device used by the user. */
   deviceType: string;
   /** The date and time when the user was created. */
-  createdAt:
-    | Timestamp
-    | undefined;
+  createdAt: Timestamp | undefined;
   /** The date and time when the user was updated. */
   updatedAt: Timestamp | undefined;
 }
@@ -144,7 +142,6 @@ export interface GigResponse {
   title: string;
   description: string;
   categories: string;
-  subCategories: string[];
   tags: string[];
   active: boolean;
   expectedDelivery: string;
@@ -187,7 +184,7 @@ export interface SeedUserRequest {
   count: number;
 }
 
-export const AUTH_PACKAGE_NAME = "auth";
+export const AUTH_PACKAGE_NAME = 'auth';
 
 export interface AuthServiceClient {
   createUser(request: CreateAuthDto): Observable<CreateUserResponse>;
@@ -206,7 +203,9 @@ export interface AuthServiceClient {
 
   resetPassword(request: ResetPasswordRequest): Observable<Empty>;
 
-  resetPasswordWithToken(request: ResetPasswordWithTokenRequest): Observable<Empty>;
+  resetPasswordWithToken(
+    request: ResetPasswordWithTokenRequest,
+  ): Observable<Empty>;
 
   resendEmail(request: ResendEmailRequest): Observable<Empty>;
 
@@ -216,19 +215,35 @@ export interface AuthServiceClient {
 }
 
 export interface AuthServiceController {
-  createUser(request: CreateAuthDto): Promise<CreateUserResponse> | Observable<CreateUserResponse> | CreateUserResponse;
+  createUser(
+    request: CreateAuthDto,
+  ):
+    | Promise<CreateUserResponse>
+    | Observable<CreateUserResponse>
+    | CreateUserResponse;
 
-  getUserByCredential(request: LoginAuthRequest): Promise<AuthPublic> | Observable<AuthPublic> | AuthPublic;
+  getUserByCredential(
+    request: LoginAuthRequest,
+  ): Promise<AuthPublic> | Observable<AuthPublic> | AuthPublic;
 
-  createToken(request: CreateTokenRequest): Promise<TokenResponse> | Observable<TokenResponse> | TokenResponse;
+  createToken(
+    request: CreateTokenRequest,
+  ): Promise<TokenResponse> | Observable<TokenResponse> | TokenResponse;
 
   decodeToken(
     request: DecodeTokenRequest,
-  ): Promise<TokenDataResponse> | Observable<TokenDataResponse> | TokenDataResponse;
+  ):
+    | Promise<TokenDataResponse>
+    | Observable<TokenDataResponse>
+    | TokenDataResponse;
 
-  getUserById(request: GetUserByIdRequest): Promise<AuthPublic> | Observable<AuthPublic> | AuthPublic;
+  getUserById(
+    request: GetUserByIdRequest,
+  ): Promise<AuthPublic> | Observable<AuthPublic> | AuthPublic;
 
-  verifyEmail(request: VerifyEmailRequest): Promise<AuthPublic> | Observable<AuthPublic> | AuthPublic;
+  verifyEmail(
+    request: VerifyEmailRequest,
+  ): Promise<AuthPublic> | Observable<AuthPublic> | AuthPublic;
 
   forgotPassword(request: ForgotPasswordRequest): void;
 
@@ -240,7 +255,10 @@ export interface AuthServiceController {
 
   searchGigs(
     request: SearchGigsRequest,
-  ): Promise<SearchGigsResponse> | Observable<SearchGigsResponse> | SearchGigsResponse;
+  ):
+    | Promise<SearchGigsResponse>
+    | Observable<SearchGigsResponse>
+    | SearchGigsResponse;
 
   seedUser(request: SeedUserRequest): void;
 }
@@ -248,29 +266,43 @@ export interface AuthServiceController {
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "createUser",
-      "getUserByCredential",
-      "createToken",
-      "decodeToken",
-      "getUserById",
-      "verifyEmail",
-      "forgotPassword",
-      "resetPassword",
-      "resetPasswordWithToken",
-      "resendEmail",
-      "searchGigs",
-      "seedUser",
+      'createUser',
+      'getUserByCredential',
+      'createToken',
+      'decodeToken',
+      'getUserById',
+      'verifyEmail',
+      'forgotPassword',
+      'resetPassword',
+      'resetPasswordWithToken',
+      'resendEmail',
+      'searchGigs',
+      'seedUser',
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('AuthService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('AuthService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const AUTH_SERVICE_NAME = "AuthService";
+export const AUTH_SERVICE_NAME = 'AuthService';

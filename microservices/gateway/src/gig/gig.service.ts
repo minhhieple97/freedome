@@ -14,11 +14,12 @@ import {
 import {
   BadRequestException,
   HttpException,
+  HttpStatus,
   Inject,
   Injectable,
 } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { catchError, of, switchMap, throwError } from 'rxjs';
+import { catchError, Observable, of, switchMap, throwError } from 'rxjs';
 
 @Injectable()
 export class GigService {
@@ -212,5 +213,100 @@ export class GigService {
   }
   seedGig() {
     return this.gigClientHttp.send(EVENTS_HTTP.SEED_GIG, {});
+  }
+  addCategory(category: string): Observable<any> {
+    return this.gigClientHttp
+      .send('add_category', { category })
+      .pipe(
+        catchError((error) =>
+          throwError(
+            () =>
+              new HttpException(
+                error.message || 'An error occurred',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+              ),
+          ),
+        ),
+      );
+  }
+
+  addSubcategory(category: string, subcategory: string): Observable<any> {
+    return this.gigClientHttp
+      .send('add_subcategory', { category, subcategory })
+      .pipe(
+        catchError((error) =>
+          throwError(
+            () =>
+              new HttpException(
+                error.message || 'An error occurred',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+              ),
+          ),
+        ),
+      );
+  }
+
+  getCategories(): Observable<any> {
+    return this.gigClientHttp
+      .send('get_categories', {})
+      .pipe(
+        catchError((error) =>
+          throwError(
+            () =>
+              new HttpException(
+                error.message || 'An error occurred',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+              ),
+          ),
+        ),
+      );
+  }
+
+  getSubcategories(category: string): Observable<any> {
+    return this.gigClientHttp
+      .send('get_subcategories', { category })
+      .pipe(
+        catchError((error) =>
+          throwError(
+            () =>
+              new HttpException(
+                error.message || 'An error occurred',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+              ),
+          ),
+        ),
+      );
+  }
+
+  getAllCategoriesWithSubcategories(): Observable<any> {
+    return this.gigClientHttp
+      .send('get_all_categories_with_subcategories', {})
+      .pipe(
+        catchError((error) =>
+          throwError(
+            () =>
+              new HttpException(
+                error.message || 'An error occurred',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+              ),
+          ),
+        ),
+      );
+  }
+
+  searchCategoriesAndSubcategories(searchTerm: string): Observable<any> {
+    return this.gigClientHttp
+      .send('search_categories_and_subcategories', { searchTerm })
+      .pipe(
+        catchError((error) =>
+          throwError(
+            () =>
+              new HttpException(
+                error.message || 'An error occurred',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+              ),
+          ),
+        ),
+      );
   }
 }

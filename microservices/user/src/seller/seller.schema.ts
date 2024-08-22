@@ -12,7 +12,7 @@ export class Seller {
   @Prop({ required: true })
   fullName: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true, unique: true })
   user: Types.ObjectId;
 
   @Prop({ required: true })

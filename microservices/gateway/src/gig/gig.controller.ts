@@ -22,6 +22,7 @@ import { JwtAuthGuard } from '@gateway/common/guards/jwt-auth.guard';
 import {
   CreateGigDto,
   IAuthorizedRequest,
+  SearchCategoryByTermDto,
   SearchGigsParamDto,
   UpdateGigDto,
   UpdateGigStatusDto,
@@ -31,7 +32,44 @@ import {
 @Controller('gig')
 export class GigController {
   constructor(private readonly gigService: GigService) {}
+  @Get('/categories')
+  @ApiOperation({ summary: 'List all categories' })
+  @ApiResponse({ status: 200, description: 'Returns all categories.' })
+  listCategories() {
+    return this.gigService.getCategories();
+  }
 
+  @Get('/categories/:categoryId/subcategories')
+  @ApiOperation({ summary: 'List subcategories for a specific category' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns subcategories for the specified category.',
+  })
+  listSubcategories(@Param('categoryId') categoryId: string) {
+    return this.gigService.getSubcategories(categoryId);
+  }
+
+  @Get('/categories/tree')
+  @ApiOperation({ summary: 'Get all categories with their subcategories' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all categories with their subcategories.',
+  })
+  getCategoryTree() {
+    return this.gigService.getAllCategoriesWithSubcategories();
+  }
+
+  @Get('/categories/search')
+  @ApiOperation({ summary: 'Search categories and subcategories' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns search results for categories and subcategories.',
+  })
+  searchCategories(@Query('q') searchCategoryByTerm: SearchCategoryByTermDto) {
+    return this.gigService.searchCategoriesAndSubcategories(
+      searchCategoryByTerm.searchTerm,
+    );
+  }
   @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -133,7 +171,6 @@ export class GigController {
     return this.gigService.seedGig();
   }
   @Get('/:id')
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get gig by id' })
   async getGigById(@Param('id') id: string) {
     return this.gigService.getGigById(id);

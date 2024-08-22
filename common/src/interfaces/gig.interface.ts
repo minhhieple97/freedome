@@ -8,7 +8,6 @@ export interface ICreateGig extends Record<string, GigType> {
   title: string;
   categories: string;
   description: string;
-  subCategories: string[];
   tags: string[];
   price: number;
   coverImage: string;
@@ -24,7 +23,6 @@ export interface ISellerGig {
   description: string;
   active?: boolean;
   categories: string;
-  subCategories: string[];
   tags: string[];
   ratingsCount?: number; // make sure to add this to elasticsearch as a double
   ratingSum?: number; // make sure to add this to elasticsearch as a double
@@ -103,7 +101,6 @@ export interface CreateGigRequest {
   title: string;
   description?: string;
   categories?: string;
-  subCategories?: string[];
   tags: string[];
   expectedDelivery?: string;
   basicTitle?: string;
@@ -128,7 +125,6 @@ export interface UpdateGigRequest {
   title?: string;
   description?: string;
   categories?: string;
-  subCategories?: string[];
   tags?: string[];
   price?: number;
   coverImage?: string;

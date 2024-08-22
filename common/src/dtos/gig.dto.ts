@@ -8,6 +8,7 @@ import {
   IsBoolean,
   IsOptional,
   IsPositive,
+  Length,
 } from 'class-validator';
 
 export class CreateGigDto {
@@ -22,11 +23,6 @@ export class CreateGigDto {
   @IsString({ message: 'Please select a category' })
   @IsNotEmpty({ message: 'Gig category is required' })
   categories: string;
-
-  @IsArray({ message: 'Please add at least one subcategory' })
-  @ArrayMinSize(1, { message: 'Please add at least one subcategory' })
-  @IsString({ each: true, message: 'Each subcategory must be a string' })
-  subCategories: string[];
 
   @IsArray({ message: 'Please add at least one tag' })
   @ArrayMinSize(1, { message: 'Please add at least one tag' })
@@ -68,11 +64,6 @@ export class UpdateGigDto {
   categories?: string;
 
   @IsOptional()
-  @IsArray({ message: 'SubCategories must be an array.' })
-  @IsString({ each: true, message: 'Each subcategory must be a string.' })
-  subCategories?: string[];
-
-  @IsOptional()
   @IsArray({ message: 'Tags must be an array.' })
   @IsString({ each: true, message: 'Each tag must be a string.' })
   tags?: string[];
@@ -103,4 +94,10 @@ export class UpdateGigStatusDto {
   @IsBoolean({ message: 'Please add gig status' })
   @IsNotEmpty({ message: 'Gig stauts is required' })
   active: boolean;
+}
+
+export class SearchCategoryByTermDto {
+  @IsString()
+  @Length(2, 32)
+  searchTerm: string;
 }
