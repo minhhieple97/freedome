@@ -5,7 +5,6 @@ import {
   IReviewMessageDetails,
   ISellerGig,
   isValidBase64,
-  LoggerService,
   ROUTING_KEY,
 } from '@freedome/common';
 import { v4 as uuidV4 } from 'uuid';
@@ -14,8 +13,7 @@ import { AppConfigService } from './config/app/config.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Gig, GigDocument } from './gig.schema';
 import { Model } from 'mongoose';
-import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { RedisCacheService } from '@freedome/common/module';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { UploadService } from '@freedome/common/upload';
 import { BUCKET_S3_FOLDER_NAME } from '@auth/common/constants';
 import { RpcException } from '@nestjs/microservices';
@@ -45,11 +43,9 @@ export class GigService {
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
     private readonly amqpConnection: AmqpConnection,
-    private readonly redisCacheService: RedisCacheService,
     private readonly uploadService: UploadService,
   ) {}
   private readonly gigIndex = this.appConfigService.gigElasticSearchIndex;
-  private readonly logger = new LoggerService(GigService.name);
   private categories: string[] = [
     'Graphics & Design',
     'Digital Marketing',
@@ -131,7 +127,6 @@ export class GigService {
       title,
       description,
       categories,
-      subCategories,
       tags,
       price,
       expectedDelivery,
@@ -153,7 +148,6 @@ export class GigService {
       title: title,
       description: description,
       categories: categories,
-      subCategories: subCategories,
       tags: tags,
       price: price,
       expectedDelivery: expectedDelivery,
@@ -244,7 +238,6 @@ export class GigService {
       title,
       description,
       categories,
-      subCategories,
       tags,
       price,
       coverImage,
@@ -265,7 +258,6 @@ export class GigService {
               title,
               description,
               categories,
-              subCategories,
               tags,
               price,
               coverImage: covertImageId,
@@ -370,22 +362,22 @@ export class GigService {
     }
   }
 
-  @RabbitSubscribe({
-    exchange: EXCHANGE_NAME.UPDATE_GIG,
-    routingKey: ROUTING_KEY.UPDATE_GIG_FROM_BUYER_REVIEW,
-  })
-  async updateGigWhenBuyerReview(data: IReviewMessageDetails): Promise<void> {
-    await this.updateGigReview(data);
-  }
-  async getUserSelectedGigCategory(key: string): Promise<string> {
-    try {
-      const response = (await this.redisCacheService.get(key)) as string;
-      return response || '';
-    } catch (error) {
-      this.logger.error('Error in getUserSelectedGigCategory method:', error);
-      return '';
-    }
-  }
+  // @RabbitSubscribe({
+  //   exchange: EXCHANGE_NAME.UPDATE_GIG,
+  //   routingKey: ROUTING_KEY.UPDATE_GIG_FROM_BUYER_REVIEW,
+  // })
+  // async updateGigWhenBuyerReview(data: IReviewMessageDetails): Promise<void> {
+  //   await this.updateGigReview(data);
+  // }
+  // async getUserSelectedGigCategory(key: string): Promise<string> {
+  //   try {
+  //     const response = (await this.redisCacheService.get(key)) as string;
+  //     return response || '';
+  //   } catch (error) {
+  //     this.logger.error('Error in getUserSelectedGigCategory method:', error);
+  //     return '';
+  //   }
+  // }
   async uploadGigCover(coverImage: string): Promise<string | null> {
     if (!coverImage) return null;
     const coverImageId = uuidV4();
@@ -435,11 +427,6 @@ export class GigService {
             ? basicDescription
             : basicDescription.slice(0, 100),
         categories: `${sample(this.categories)}`,
-        subCategories: [
-          faker.commerce.department(),
-          faker.commerce.department(),
-          faker.commerce.department(),
-        ],
         description: faker.lorem.sentences({ min: 2, max: 4 }),
         tags: [
           faker.commerce.product(),

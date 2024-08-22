@@ -23,11 +23,6 @@ export class CreateGigDto {
   @IsNotEmpty({ message: 'Gig category is required' })
   categories: string;
 
-  @IsArray({ message: 'Please add at least one subcategory' })
-  @ArrayMinSize(1, { message: 'Please add at least one subcategory' })
-  @IsString({ each: true, message: 'Each subcategory must be a string' })
-  subCategories: string[];
-
   @IsArray({ message: 'Please add at least one tag' })
   @ArrayMinSize(1, { message: 'Please add at least one tag' })
   @IsString({ each: true, message: 'Each tag must be a string' })
@@ -66,11 +61,6 @@ export class UpdateGigDto {
   @IsOptional()
   @IsString({ message: 'Categories must be a string.' })
   categories?: string;
-
-  @IsOptional()
-  @IsArray({ message: 'SubCategories must be an array.' })
-  @IsString({ each: true, message: 'Each subcategory must be a string.' })
-  subCategories?: string[];
 
   @IsOptional()
   @IsArray({ message: 'Tags must be an array.' })
