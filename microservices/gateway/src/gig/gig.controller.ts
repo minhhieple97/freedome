@@ -22,6 +22,7 @@ import { JwtAuthGuard } from '@gateway/common/guards/jwt-auth.guard';
 import {
   CreateGigDto,
   IAuthorizedRequest,
+  SearchCategoryByTermDto,
   SearchGigsParamDto,
   UpdateGigDto,
   UpdateGigStatusDto,
@@ -64,8 +65,10 @@ export class GigController {
     status: 200,
     description: 'Returns search results for categories and subcategories.',
   })
-  searchCategories(@Query('q') searchTerm: string) {
-    return this.gigService.searchCategoriesAndSubcategories(searchTerm);
+  searchCategories(@Query('q') searchCategoryByTerm: SearchCategoryByTermDto) {
+    return this.gigService.searchCategoriesAndSubcategories(
+      searchCategoryByTerm.searchTerm,
+    );
   }
   @Post()
   @ApiBearerAuth()

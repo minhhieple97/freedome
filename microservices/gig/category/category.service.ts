@@ -1,25 +1,20 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Injectable, Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
-import { RedisClientType } from 'redis';
+import { RedisService } from '@freedome/common/module';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CategoryService {
   private readonly CATEGORY_SET_KEY = 'categories';
   private readonly SUBCATEGORY_HASH_PREFIX = 'subcategories:';
-  private redisClient: RedisClientType;
 
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {
-    this.redisClient = (this.cacheManager.store as any).getClient();
-  }
+  constructor(private readonly redisService: RedisService) {}
 
   async addCategory(category: string): Promise<void> {
-    await this.redisClient.sAdd(this.CATEGORY_SET_KEY, category);
+    await this.redisService.sadd(this.CATEGORY_SET_KEY, category);
   }
 
   async addSubcategory(category: string, subcategory: string): Promise<void> {
     await this.addCategory(category);
-    await this.redisClient.hSet(
+    await this.redisService.hset(
       `${this.SUBCATEGORY_HASH_PREFIX}${category}`,
       subcategory,
       '1',
@@ -27,11 +22,13 @@ export class CategoryService {
   }
 
   async getCategories(): Promise<string[]> {
-    return this.redisClient.sMembers(this.CATEGORY_SET_KEY);
+    return this.redisService.smembers(this.CATEGORY_SET_KEY);
   }
 
   async getSubcategories(category: string): Promise<string[]> {
-    return this.redisClient.hKeys(`${this.SUBCATEGORY_HASH_PREFIX}${category}`);
+    return this.redisService.hkeys(
+      `${this.SUBCATEGORY_HASH_PREFIX}${category}`,
+    );
   }
 
   async getAllCategoriesWithSubcategories(): Promise<Record<string, string[]>> {
@@ -46,41 +43,31 @@ export class CategoryService {
   }
 
   async searchCategoriesAndSubcategories(
-    searchTerm: string,
-  ): Promise<Record<string, string[]>> {
-    const result: Record<string, string[]> = {};
-    const pattern = `*${searchTerm}*`;
+    keyword: string,
+  ): Promise<{ categories: string[]; subcategories: string[] }> {
+    const categories = await this.redisService.scanSet(
+      this.CATEGORY_SET_KEY,
+      `*${keyword}*`,
+    );
+    const subcategories = await this.searchSubcategories(keyword, categories);
 
-    for await (const key of this.redisClient.scanIterator({
-      MATCH: pattern,
-      TYPE: 'set',
-    })) {
-      if (key === this.CATEGORY_SET_KEY) {
-        const categories = await this.redisClient.sScan(
-          this.CATEGORY_SET_KEY,
-          0,
-          { MATCH: pattern },
-        );
-        for (const category of categories.members) {
-          result[category] = await this.getSubcategories(category);
-        }
-      }
+    return { categories, subcategories };
+  }
+
+  private async searchSubcategories(
+    keyword: string,
+    categories: string[],
+  ): Promise<string[]> {
+    const subcategories: string[] = [];
+
+    for (const category of categories) {
+      const subcategoryResults = await this.redisService.scanHash(
+        `${this.SUBCATEGORY_HASH_PREFIX}${category}`,
+        `*${keyword}*`,
+      );
+      subcategories.push(...subcategoryResults);
     }
 
-    for await (const key of this.redisClient.scanIterator({
-      MATCH: `${this.SUBCATEGORY_HASH_PREFIX}*`,
-      TYPE: 'hash',
-    })) {
-      const category = key.split(':')[1];
-      const subcategories = await this.redisClient.hScan(key, 0, {
-        MATCH: pattern,
-      });
-      if (subcategories.tuples.length > 0) {
-        result[category] = result[category] || [];
-        result[category].push(...subcategories.tuples.map((t) => t.field));
-      }
-    }
-
-    return result;
+    return subcategories;
   }
 }

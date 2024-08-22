@@ -8,6 +8,7 @@ import {
   IsBoolean,
   IsOptional,
   IsPositive,
+  Length,
 } from 'class-validator';
 
 export class CreateGigDto {
@@ -93,4 +94,10 @@ export class UpdateGigStatusDto {
   @IsBoolean({ message: 'Please add gig status' })
   @IsNotEmpty({ message: 'Gig stauts is required' })
   active: boolean;
+}
+
+export class SearchCategoryByTermDto {
+  @IsString()
+  @Length(2, 32)
+  searchTerm: string;
 }

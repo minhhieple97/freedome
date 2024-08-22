@@ -148,7 +148,6 @@ message GigResponse {
   string title = 5;
   string description = 6;
   string categories = 7;
-  repeated string subCategories = 8;
   repeated string tags = 9;
   bool active = 10;
   string expectedDelivery = 11;
