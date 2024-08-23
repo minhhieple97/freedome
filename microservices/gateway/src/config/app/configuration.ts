@@ -26,4 +26,6 @@ export default registerAs('app', () => ({
   authGrpcUrl: process.env.AUTH_GRPC_URL,
   userGrpcUrl: process.env.USER_GRPC_URL,
   gigGrpcUrl: process.env.GIG_GRPC_URL,
+  redisHost: process.env.REDIS_HOST,
+  redisPort: process.env.REDIS_PORT,
 }));

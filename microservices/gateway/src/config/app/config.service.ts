@@ -102,4 +102,10 @@ export class AppConfigService {
   get gigGrpcUrl(): string {
     return this.configService.get<string>('GIG_GRPC_URL');
   }
+  get redisHost(): string {
+    return this.configService.get<string>('REDIS_HOST');
+  }
+  get redisPort(): number {
+    return this.configService.get<number>('REDIS_PORT');
+  }
 }
