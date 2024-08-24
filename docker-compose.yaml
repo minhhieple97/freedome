@@ -108,6 +108,25 @@ services:
     depends_on:
       - elasticsearch
       - rabbitmq
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./docker-volumes/redis-data:/data
+    networks:
+      - elastic
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - '8081:8081'
+    networks:
+      - elastic
   gateway:
     build:
       context: .
@@ -172,25 +191,6 @@ services:
       - mongodb
     expose:
       - '4000'
-  redis:
-    image: redis
-    ports:
-      - 6379:6379
-    volumes:
-      - ./docker-volumes/redis-data:/data
-    networks:
-      - elastic
-  redis-commander:
-    container_name: redis-commander
-    hostname: redis-commander
-    image: ghcr.io/joeferner/redis-commander:latest
-    restart: always
-    environment:
-      - REDIS_HOSTS=local:redis:6379
-    ports:
-      - '8081:8081'
-    networks:
-      - elastic
 networks:
   elastic:
     name: elastic
