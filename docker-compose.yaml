@@ -180,7 +180,6 @@ services:
       target: development
     volumes:
       - .:/usr/src/app
-      - ./proto:/proto
     env_file:
       - ./microservices/gig/.env
     networks:
@@ -189,8 +188,23 @@ services:
       - elasticsearch
       - redis
       - mongodb
-    expose:
-      - '4000'
+  chat:
+    build:
+      context: .
+      dockerfile: ./microservices/chat/Dockerfile
+      target: development
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - ./microservices/chat/.env
+    networks:
+      - elastic
+    depends_on:
+      - redis
+      - mongodb
+    ports:
+      - '3001:3001'
+
 networks:
   elastic:
     name: elastic
