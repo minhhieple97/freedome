@@ -12,13 +12,10 @@ import { join } from 'path';
 import { AUTH_PACKAGE_NAME } from 'proto/types/auth';
 import { GrpcClientModule } from '@freedome/common/module/grpc-client/grpc-client.module';
 import { GigModule } from './gig/gig.module';
-import { SocketModule } from './socket/socket.module';
-import { RedisModule } from '@freedome/common/module';
 import { GatewayService } from './gateway.service';
 
 @Module({
   imports: [
-    RedisModule,
     AuthModule,
     AppConfigModule,
     HealthModule,
@@ -53,7 +50,6 @@ import { GatewayService } from './gateway.service';
         inject: [AppConfigService],
       },
     ]),
-    SocketModule,
   ],
   controllers: [],
   providers: [GatewayService],
