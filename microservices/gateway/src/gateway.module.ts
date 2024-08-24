@@ -13,9 +13,12 @@ import { AUTH_PACKAGE_NAME } from 'proto/types/auth';
 import { GrpcClientModule } from '@freedome/common/module/grpc-client/grpc-client.module';
 import { GigModule } from './gig/gig.module';
 import { SocketModule } from './socket/socket.module';
+import { RedisModule } from '@freedome/common/module';
+import { GatewayService } from './gateway.service';
 
 @Module({
   imports: [
+    RedisModule,
     AuthModule,
     AppConfigModule,
     HealthModule,
@@ -53,5 +56,7 @@ import { SocketModule } from './socket/socket.module';
     SocketModule,
   ],
   controllers: [],
+  providers: [GatewayService],
+  exports: [GatewayService],
 })
 export class GatewayModule {}
