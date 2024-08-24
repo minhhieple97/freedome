@@ -73,4 +73,12 @@ export class RedisService {
 
     return results;
   }
+
+  async srem(key: string, member: string): Promise<number> {
+    return this.client.srem(key, member);
+  }
+
+  async sismember(key: string, member: string): Promise<number> {
+    return this.client.sismember(key, member);
+  }
 }
