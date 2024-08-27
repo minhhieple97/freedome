@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { Seller, SellerDocument } from './seller.schema';
-import { ISellerDocument } from '@freedome/common';
-import { User, UserDocument } from '../user/user.schema';
+import { ISellerDocument, User, UserDocument } from '@freedome/common';
 
 @Injectable()
 export class SellerRepository {

@@ -9,6 +9,7 @@ import {
   LoggerService,
   SearchGigsParamDto,
   SearchQueryGigs,
+  UserDocument,
 } from '@freedome/common';
 import {
   CountResponse,
@@ -17,7 +18,6 @@ import {
   SearchResponse,
 } from '@elastic/elasticsearch/lib/api/types';
 import { AppConfigService } from '@gig/config/app/config.service';
-import { UserDocument } from '../user/user.schema';
 import { GigDocument } from '../gig.schema';
 import { DEFAULT_PAGE_SIZE } from '@gig/common/constants';
 import * as _ from 'lodash';

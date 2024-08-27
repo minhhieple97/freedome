@@ -11,13 +11,14 @@ import {
   ROUTING_KEY,
   IRatingTypes,
   dateToTimestamp,
+  User,
+  UserDocument,
 } from '@freedome/common';
 import * as grpc from '@grpc/grpc-js';
 import { SellerDocument } from './seller.schema';
 import { RpcException } from '@nestjs/microservices';
 import { CreateSellerRequest, UpdateSellerRequest } from 'proto/types/user';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../user/user.schema';
 import { Model } from 'mongoose';
 import * as _ from 'lodash';
 @Injectable()

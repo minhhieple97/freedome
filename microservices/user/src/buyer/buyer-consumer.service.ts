@@ -6,9 +6,10 @@ import {
   ACCEPT_ALL_MESSAGE_FROM_TOPIC,
   EXCHANGE_NAME,
   ICreateUser,
+  User,
+  UserDocument,
 } from '@freedome/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { User, UserDocument } from '../user/user.schema';
 @Injectable()
 export class BuyerConsumerService {
   constructor(

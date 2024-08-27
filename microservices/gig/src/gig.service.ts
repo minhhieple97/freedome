@@ -6,6 +6,8 @@ import {
   ISellerGig,
   isValidBase64,
   ROUTING_KEY,
+  User,
+  UserDocument,
 } from '@freedome/common';
 import { v4 as uuidV4 } from 'uuid';
 import { SearchService } from './search/search.service';
@@ -18,7 +20,6 @@ import { UploadService } from '@freedome/common/upload';
 import { BUCKET_S3_FOLDER_NAME } from '@auth/common/constants';
 import { RpcException } from '@nestjs/microservices';
 import * as grpc from '@grpc/grpc-js';
-import { User, UserDocument } from './user/user.schema';
 import { sortBy } from 'lodash';
 import { GigType } from '@freedome/common/enums';
 import { faker } from '@faker-js/faker';

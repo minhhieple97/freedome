@@ -12,7 +12,6 @@ import { join } from 'path';
 import { AUTH_PACKAGE_NAME } from 'proto/types/auth';
 import { GrpcClientModule } from '@freedome/common/module/grpc-client/grpc-client.module';
 import { GigModule } from './gig/gig.module';
-import { GatewayService } from './gateway.service';
 
 @Module({
   imports: [
@@ -52,7 +51,7 @@ import { GatewayService } from './gateway.service';
     ]),
   ],
   controllers: [],
-  providers: [GatewayService],
-  exports: [GatewayService],
+  providers: [],
+  exports: [],
 })
 export class GatewayModule {}

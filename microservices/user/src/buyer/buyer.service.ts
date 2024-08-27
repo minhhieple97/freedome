@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Buyer, BuyerDocument } from './buyer.schema';
-import { User, UserDocument } from '../user/user.schema';
 import { RpcException } from '@nestjs/microservices';
 import * as grpc from '@grpc/grpc-js';
-import { dateToTimestamp, IBuyerDocument } from '@freedome/common';
+import {
+  dateToTimestamp,
+  IBuyerDocument,
+  User,
+  UserDocument,
+} from '@freedome/common';
 @Injectable()
 export class BuyerService {
   constructor(
@@ -27,7 +31,6 @@ export class BuyerService {
         .findOne({ user: user._id })
         .populate({
           path: 'user',
-          select: 'email username profilePublicId country -_id',
         })
         .exec()
     ).toJSON() as IBuyerDocument;

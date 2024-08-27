@@ -1,9 +1,9 @@
+import { User, UserSchema } from '@freedome/common';
 import { Gig, GigSchema } from './../gig.schema';
 import { AppConfigModule } from '@gig/config/app/config.module';
 import { AppConfigService } from '@gig/config/app/config.service';
 import { Module, DynamicModule } from '@nestjs/common';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
-import { User, UserSchema } from '../user/user.schema';
 
 @Module({})
 export class MongoDBModule {

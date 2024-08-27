@@ -5,8 +5,9 @@ import {
   ACCEPT_ALL_MESSAGE_FROM_TOPIC,
   EXCHANGE_NAME,
   IUpdateUser,
+  User,
+  UserDocument,
 } from '@freedome/common';
-import { User, UserDocument } from './user.schema';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 @Injectable()
