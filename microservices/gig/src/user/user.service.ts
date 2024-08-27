@@ -48,11 +48,11 @@ export class UserService {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
     const gigs = await this.gigModel.find({
-      userId: updatedUser._id,
+      userId: updatedUser.id,
     });
 
     const updates = gigs.map((gig) => ({
-      id: gig._id.toString(),
+      id: gig.id,
       doc: {
         ...gig.toObject(),
         user: {

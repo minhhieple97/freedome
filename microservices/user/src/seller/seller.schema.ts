@@ -5,10 +5,11 @@ import {
   RatingCategorySchema,
 } from '../ratting-category/ratting-category.schema';
 import { LanguageLevel } from '@freedome/common/enums';
+import { BaseDocument, baseSchemaOptions } from '@freedome/common';
 
 export type SellerDocument = Seller & Document;
-@Schema({ versionKey: false, timestamps: true })
-export class Seller {
+@Schema(baseSchemaOptions())
+export class Seller extends BaseDocument {
   @Prop({ required: true })
   fullName: string;
 
@@ -131,12 +132,6 @@ export class Seller {
 
   @Prop({ type: Number, default: 0 })
   totalGigs: number;
-
-  @Prop({ type: Date, default: Date.now })
-  createdAt: Date;
-
-  @Prop({ type: Date, default: Date.now })
-  updatedAt: Date;
 }
 
 export const SellerSchema = SchemaFactory.createForClass(Seller);

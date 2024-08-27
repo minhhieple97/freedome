@@ -41,7 +41,6 @@ export class SellerService {
     }
     const result = {
       ...seller,
-      id: seller._id,
       createdAt: dateToTimestamp(seller.createdAt),
       updatedAt: dateToTimestamp(seller.updatedAt),
     };
@@ -69,9 +68,7 @@ export class SellerService {
         message: `User not found`,
       });
     }
-    const existingSeller = await this.sellerRepository.findByUserId(
-      user._id.toString(),
-    );
+    const existingSeller = await this.sellerRepository.findByUserId(user.id);
     if (existingSeller) {
       throw new RpcException({
         code: grpc.status.ALREADY_EXISTS,
@@ -80,16 +77,13 @@ export class SellerService {
     }
     const seller = {
       ..._.omit(sellerData, ['userId']),
-      user: user._id.toString(),
+      user: user.id,
     };
     (await this.sellerRepository.create(seller)).save();
-    const createdSeller = await this.sellerRepository.findByUserId(
-      user._id.toString(),
-    );
+    const createdSeller = await this.sellerRepository.findByUserId(user.id);
     await this.buyerService.updateBuyerIsSellerProp(createdSeller.user.email);
     return {
       ...createdSeller,
-      id: createdSeller._id.toString(),
       createdAt: dateToTimestamp(createdSeller.createdAt),
       updatedAt: dateToTimestamp(createdSeller.updatedAt),
     };
@@ -107,7 +101,7 @@ export class SellerService {
       });
     }
     const existingSeller = await this.sellerRepository.findOne({
-      user: user._id,
+      user: user.id,
       _id: id,
     });
     if (existingSeller) {

@@ -135,8 +135,7 @@ export interface UpdateGigRequest {
   userId: number;
 }
 
-export interface IGigElasticSearchDocument
-  extends Omit<GigDocument, 'user' | '_id'> {
+export interface IGigElasticSearchDocument extends Omit<GigDocument, 'user'> {
   user: {
     email: string;
     username: string;

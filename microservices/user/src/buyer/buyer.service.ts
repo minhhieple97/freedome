@@ -28,7 +28,7 @@ export class BuyerService {
     }
     const buyer = (
       await this.buyerModel
-        .findOne({ user: user._id })
+        .findOne({ user: user.id })
         .populate({
           path: 'user',
         })
@@ -40,9 +40,9 @@ export class BuyerService {
         message: `Buyer not found`,
       });
     }
+    console.log({ buyer });
     const buyerData = {
       ...buyer,
-      id: buyer._id,
       purchasedGigs: buyer.purchasedGigs.map((gig) => gig.toString()),
       createdAt: dateToTimestamp(buyer.createdAt),
       updatedAt: dateToTimestamp(buyer.updatedAt),
@@ -61,16 +61,13 @@ export class BuyerService {
       });
     }
     const buyer = (
-      await this.buyerModel
-        .findOne({ userId: user._id })
-        .populate('user')
-        .exec()
+      await this.buyerModel.findOne({ userId: user.id }).populate('user').exec()
     ).toObject() as IBuyerDocument;
 
     if (!buyer) {
       throw new RpcException({
         code: grpc.status.NOT_FOUND,
-        message: `Buyer with user ID ${user._id} not found`,
+        message: `Buyer with user ID ${user.id} not found`,
       });
     }
     return buyer;

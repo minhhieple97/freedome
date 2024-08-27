@@ -50,7 +50,7 @@ export class BuyerConsumerService {
       purchasedGigs: [],
       createdAt,
       isSeller: false,
-      user: newUserData._id,
+      user: newUserData.id,
     };
     await this.buyerModel.create(buyer);
   }

@@ -94,7 +94,7 @@ export class GigService {
         message: 'User not found',
       });
     }
-    const gigs = await this.searchService.getGigsByUserId(user._id, true);
+    const gigs = await this.searchService.getGigsByUserId(user.id, true);
     for (const item of gigs.hits) {
       resultsHits.push(item._source as ISellerGig);
     }
@@ -114,7 +114,7 @@ export class GigService {
       });
     }
     const resultsHits: ISellerGig[] = [];
-    const gigs = await this.searchService.getGigsByUserId(user._id, false);
+    const gigs = await this.searchService.getGigsByUserId(user.id, false);
     for (const item of gigs.hits) {
       resultsHits.push(item._source as ISellerGig);
     }
@@ -145,7 +145,7 @@ export class GigService {
       });
     }
     const record = {
-      user: userObject._id,
+      user: userObject.id,
       title: title,
       description: description,
       categories: categories,
@@ -174,7 +174,7 @@ export class GigService {
       );
       await this.searchService.addDataToIndex(
         this.gigIndex,
-        `${createdGig._id.toString()}`,
+        createdGig.id,
         gigDataEs,
       );
     }
@@ -191,7 +191,7 @@ export class GigService {
     }
     const gig = (
       await this.gigModel.findOne({
-        userId: user._id,
+        userId: user.id,
         _id: id,
       })
     ).toObject();
@@ -224,7 +224,7 @@ export class GigService {
     }
     const gig = (
       await this.gigModel.findOne({
-        userId: user._id,
+        userId: user.id,
         _id: gigData.id,
       })
     ).toObject();
@@ -292,7 +292,7 @@ export class GigService {
     }
     const gig = (
       await this.gigModel.findOne({
-        userId: user._id,
+        userId: user.id,
         _id: id,
       })
     ).toObject();
@@ -357,7 +357,7 @@ export class GigService {
     if (updatedGig) {
       const data = updatedGig.toObject();
       await this.searchService.updateIndexedData(
-        String(updatedGig._id),
+        updatedGig.id,
         this.searchService.buildGigElasticSearchDocument(data, user),
       );
     }
