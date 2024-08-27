@@ -6,9 +6,10 @@ import {
   ACCEPT_ALL_MESSAGE_FROM_TOPIC,
   EXCHANGE_NAME,
   ICreateUser,
+  User,
+  UserDocument,
 } from '@freedome/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { User, UserDocument } from '../user/user.schema';
 @Injectable()
 export class BuyerConsumerService {
   constructor(
@@ -49,7 +50,7 @@ export class BuyerConsumerService {
       purchasedGigs: [],
       createdAt,
       isSeller: false,
-      user: newUserData._id,
+      user: newUserData.id,
     };
     await this.buyerModel.create(buyer);
   }

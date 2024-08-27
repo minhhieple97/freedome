@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { LoggerService } from '@freedome/common';
-import { SOCKET_EVENTS } from '@gateway/common/constants';
 import { Injectable } from '@nestjs/common';
 import {
   MessageBody,
@@ -11,7 +10,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { GatewayService } from '../gateway.service';
+import { ChatService } from './chat.service';
+import { SOCKET_EVENTS } from '../common/constants';
 
 @WebSocketGateway({
   cors: {
@@ -20,13 +20,13 @@ import { GatewayService } from '../gateway.service';
   transports: ['websocket'],
 })
 @Injectable()
-export class SocketGateway implements OnGatewayConnection {
+export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   io: Server;
 
-  constructor(private readonly gatewayService: GatewayService) {}
+  constructor(private readonly chatService: ChatService) {}
 
-  private readonly logger = new LoggerService(SocketGateway.name);
+  private readonly logger = new LoggerService(ChatGateway.name);
 
   afterInit() {
     this.logger.log('Initialized');
@@ -45,16 +45,16 @@ export class SocketGateway implements OnGatewayConnection {
 
   @SubscribeMessage(SOCKET_EVENTS.LOGIN)
   async saveUserLogin(@MessageBody() userId: string) {
-    await this.gatewayService.storeUserLogin(userId);
+    await this.chatService.storeUserLogin(userId);
   }
 
   @SubscribeMessage(SOCKET_EVENTS.LOGOUT)
   async removeUserLogout(@MessageBody() userId: string) {
-    await this.gatewayService.removeUserLogout(userId);
+    await this.chatService.removeUserLogout(userId);
   }
 
   @SubscribeMessage(SOCKET_EVENTS.GET_USER_ONLINE_STATUS)
   async getUserOnlineStatus(@MessageBody() userId: string) {
-    return await this.gatewayService.getUserOnlineStatus(userId);
+    return await this.chatService.getUserOnlineStatus(userId);
   }
 }

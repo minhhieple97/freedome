@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import {
   ACCEPT_ALL_MESSAGE_FROM_TOPIC,
   EXCHANGE_NAME,
+  ICreateUser,
   IUpdateUser,
   User,
   UserDocument,
@@ -13,6 +14,15 @@ import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+
+  @RabbitSubscribe({
+    exchange: EXCHANGE_NAME.CREATE_USER,
+    routingKey: ACCEPT_ALL_MESSAGE_FROM_TOPIC,
+  })
+  async create(createUserData: ICreateUser) {
+    const createdUser = new this.userModel(createUserData);
+    await createdUser.save();
+  }
 
   @RabbitSubscribe({
     exchange: EXCHANGE_NAME.UPDATE_USER,

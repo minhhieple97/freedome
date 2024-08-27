@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongoose';
 import { IRatingCategories } from './review.interface';
 import { UserTemporary } from './user.interface';
 
@@ -49,7 +48,7 @@ export interface ICertificate {
 }
 
 export interface ISellerDocument extends Record<string, SellerType> {
-  _id: ObjectId;
+  id: string;
   user: UserTemporary;
   fullName: string;
   description: string;

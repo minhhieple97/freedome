@@ -11,7 +11,6 @@ import * as cookieParser from 'cookie-parser';
 import * as hpp from 'hpp';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggerInterceptor } from '@freedome/common/interceptors';
-import { RedisIoAdapter } from './socket/socket.adapter';
 const logger = new LoggerService('APIGW Service');
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(GatewayModule, {
@@ -53,9 +52,6 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, options);
     SwaggerModule.setup('api', app, document);
   }
-  const redisIoAdapter = new RedisIoAdapter(app);
-  await redisIoAdapter.connectToRedis();
-  app.useWebSocketAdapter(redisIoAdapter);
   await app.listen(appConfig.appPort);
 }
 bootstrap();

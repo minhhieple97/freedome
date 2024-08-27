@@ -1,8 +1,7 @@
-import { ObjectId } from 'mongoose';
 import { UserTemporary } from './user.interface';
 
 export interface IBuyerDocument {
-  _id: ObjectId;
+  id: string;
   user: UserTemporary;
   isSeller: boolean;
   purchasedGigs: string[];

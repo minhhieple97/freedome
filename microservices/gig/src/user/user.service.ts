@@ -6,8 +6,9 @@ import {
   EXCHANGE_NAME,
   ICreateUser,
   IUpdateUser,
+  User,
+  UserDocument,
 } from '@freedome/common';
-import { User, UserDocument } from './user.schema';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Gig, GigDocument } from '../gig.schema';
 import { SearchService } from '../search/search.service';
@@ -47,11 +48,11 @@ export class UserService {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
     const gigs = await this.gigModel.find({
-      userId: updatedUser._id,
+      userId: updatedUser.id,
     });
 
     const updates = gigs.map((gig) => ({
-      id: gig._id.toString(),
+      id: gig.id,
       doc: {
         ...gig.toObject(),
         user: {

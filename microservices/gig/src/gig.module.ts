@@ -9,7 +9,7 @@ import { SearchService } from './search/search.service';
 import { MongoDBModule } from './mongodb/mongodb.module';
 import { UploadService } from '@freedome/common/upload';
 import { UserService } from './user/user.service';
-import { CategoryModule } from '../category/category.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [

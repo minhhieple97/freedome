@@ -3,8 +3,8 @@ import { ServerOptions } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient } from 'redis';
 import { INestApplication } from '@nestjs/common';
-import { AppConfigService } from '@gateway/config/app/config.service';
 import { LoggerService } from '@freedome/common';
+import { AppConfigService } from '../app/config.service';
 
 export class RedisIoAdapter extends IoAdapter {
   private adapterConstructor: ReturnType<typeof createAdapter>;

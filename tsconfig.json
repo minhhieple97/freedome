@@ -42,7 +42,11 @@
       "@gig/config": ["microservices/gig/src/config"],
       "@gig/config/*": ["microservices/gig/src/config/*"],
       "@gig/common": ["microservices/gig/src/common"],
-      "@gig/common/*": ["microservices/gig/src/common/*"]
+      "@gig/common/*": ["microservices/gig/src/common/*"],
+      "@chat/common": ["microservices/chat/src/common"],
+      "@chat/common/*": ["microservices/chat/src/common/*"],
+      "@chat/config": ["microservices/chat/src/config"],
+      "@chat/config/*": ["microservices/chat/src/config/*"]
     }
   },
   "types": ["node", "Multer"]

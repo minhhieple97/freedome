@@ -1,10 +1,8 @@
+import { AppConfigModule } from '@chat/config/app/config.module';
+import { AppConfigService } from '@chat/config/app/config.service';
+import { User, UserSchema } from '@freedome/common';
 import { Module, DynamicModule } from '@nestjs/common';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
-import { AppConfigModule } from '@user/config/app/config.module';
-import { AppConfigService } from '@user/config/app/config.service';
-import { Seller, SellerSchema } from '../seller/seller.schema';
-import { Buyer, BuyerSchema } from '../buyer/buyer.schema';
-import { User, UserSchema } from '@freedome/common';
 
 @Module({})
 export class MongoDBModule {
@@ -22,11 +20,7 @@ export class MongoDBModule {
           }),
           inject: [AppConfigService],
         }),
-        MongooseModule.forFeature([
-          { name: Seller.name, schema: SellerSchema },
-          { name: Buyer.name, schema: BuyerSchema },
-          { name: User.name, schema: UserSchema },
-        ]),
+        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
       ],
       exports: [MongooseModule],
       global: true,

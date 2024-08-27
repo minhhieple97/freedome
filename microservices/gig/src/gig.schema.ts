@@ -1,19 +1,9 @@
+import { BaseDocument, baseSchemaOptions } from '@freedome/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 export type GigDocument = Gig & Document;
-@Schema({
-  versionKey: false,
-  timestamps: true,
-  toJSON: {
-    virtuals: true,
-    transform: (_doc, ret) => {
-      ret.id = ret._id;
-      delete ret._id;
-      return ret;
-    },
-  },
-})
-export class Gig {
+@Schema(baseSchemaOptions())
+export class Gig extends BaseDocument {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
   user: Types.ObjectId;
 
@@ -81,16 +71,6 @@ export class Gig {
 
   @Prop({ required: true })
   coverImage: string;
-
-  @Prop({ type: Date, default: Date.now })
-  createdAt: Date;
-
-  @Prop({ type: Date, default: Date.now })
-  updatedAt: Date;
 }
 
 export const GigSchema = SchemaFactory.createForClass(Gig);
-
-GigSchema.virtual('id').get(function (this: GigDocument) {
-  return this._id;
-});

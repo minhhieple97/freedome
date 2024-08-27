@@ -1,8 +1,9 @@
+import { BaseDocument, baseSchemaOptions } from '@freedome/common/schemas';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema({ timestamps: true })
-export class User {
+@Schema(baseSchemaOptions())
+export class User extends BaseDocument {
   @Prop({ required: true, index: true, unique: true })
   userId: number;
 
@@ -20,12 +21,6 @@ export class User {
 
   @Prop({})
   country: string;
-
-  @Prop({ type: Date, default: Date.now })
-  createdAt: Date;
-
-  @Prop({ type: Date, default: Date.now })
-  updatedAt: Date;
 }
 
 export type UserDocument = User & Document;

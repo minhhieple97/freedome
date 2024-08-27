@@ -6,6 +6,8 @@ import {
   ISellerGig,
   isValidBase64,
   ROUTING_KEY,
+  User,
+  UserDocument,
 } from '@freedome/common';
 import { v4 as uuidV4 } from 'uuid';
 import { SearchService } from './search/search.service';
@@ -18,7 +20,6 @@ import { UploadService } from '@freedome/common/upload';
 import { BUCKET_S3_FOLDER_NAME } from '@auth/common/constants';
 import { RpcException } from '@nestjs/microservices';
 import * as grpc from '@grpc/grpc-js';
-import { User, UserDocument } from './user/user.schema';
 import { sortBy } from 'lodash';
 import { GigType } from '@freedome/common/enums';
 import { faker } from '@faker-js/faker';
@@ -93,7 +94,7 @@ export class GigService {
         message: 'User not found',
       });
     }
-    const gigs = await this.searchService.getGigsByUserId(user._id, true);
+    const gigs = await this.searchService.getGigsByUserId(user.id, true);
     for (const item of gigs.hits) {
       resultsHits.push(item._source as ISellerGig);
     }
@@ -113,7 +114,7 @@ export class GigService {
       });
     }
     const resultsHits: ISellerGig[] = [];
-    const gigs = await this.searchService.getGigsByUserId(user._id, false);
+    const gigs = await this.searchService.getGigsByUserId(user.id, false);
     for (const item of gigs.hits) {
       resultsHits.push(item._source as ISellerGig);
     }
@@ -144,7 +145,7 @@ export class GigService {
       });
     }
     const record = {
-      user: userObject._id,
+      user: userObject.id,
       title: title,
       description: description,
       categories: categories,
@@ -173,7 +174,7 @@ export class GigService {
       );
       await this.searchService.addDataToIndex(
         this.gigIndex,
-        `${createdGig._id.toString()}`,
+        createdGig.id,
         gigDataEs,
       );
     }
@@ -190,7 +191,7 @@ export class GigService {
     }
     const gig = (
       await this.gigModel.findOne({
-        userId: user._id,
+        userId: user.id,
         _id: id,
       })
     ).toObject();
@@ -223,7 +224,7 @@ export class GigService {
     }
     const gig = (
       await this.gigModel.findOne({
-        userId: user._id,
+        userId: user.id,
         _id: gigData.id,
       })
     ).toObject();
@@ -291,7 +292,7 @@ export class GigService {
     }
     const gig = (
       await this.gigModel.findOne({
-        userId: user._id,
+        userId: user.id,
         _id: id,
       })
     ).toObject();
@@ -356,7 +357,7 @@ export class GigService {
     if (updatedGig) {
       const data = updatedGig.toObject();
       await this.searchService.updateIndexedData(
-        String(updatedGig._id),
+        updatedGig.id,
         this.searchService.buildGigElasticSearchDocument(data, user),
       );
     }

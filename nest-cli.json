@@ -85,6 +85,16 @@
         "assets": ["proto/*.proto"],
         "watchAssets": true
       }
+    },
+    "chat": {
+      "type": "application",
+      "root": "microservices/chat",
+      "entryFile": "src/main",
+      "sourceRoot": "./",
+      "compilerOptions": {
+        "tsConfigPath": "microservices/chat/tsconfig.app.json",
+        "watchAssets": true
+      }
     }
   }
 }

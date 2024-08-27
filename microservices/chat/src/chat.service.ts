@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { RedisService } from 'common/src/module/redis/redis.service';
+import { RedisService } from 'common/src/module/redis';
 
 @Injectable()
-export class GatewayService {
+export class ChatService {
   private readonly USER_LOGIN_KEY = 'user:online';
 
   constructor(private readonly redisService: RedisService) {}

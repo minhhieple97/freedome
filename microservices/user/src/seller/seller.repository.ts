@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { Seller, SellerDocument } from './seller.schema';
-import { ISellerDocument } from '@freedome/common';
-import { User, UserDocument } from '../user/user.schema';
+import { ISellerDocument, User, UserDocument } from '@freedome/common';
 
 @Injectable()
 export class SellerRepository {
@@ -78,14 +77,14 @@ export class SellerRepository {
   async updateTotalGigsCount(userId: number, count: number): Promise<void> {
     const user = (await this.userModel.findOne({ userId })).toJSON();
     await this.sellerModel
-      .updateOne({ user: user._id }, { $inc: { totalGigs: count } })
+      .updateOne({ user: user.id }, { $inc: { totalGigs: count } })
       .exec();
   }
 
   async updateOngoingJobs(userId: number, ongoingJobs: number): Promise<void> {
     const user = (await this.userModel.findOne({ userId })).toJSON();
     await this.sellerModel
-      .updateOne({ user: user._id }, { $inc: { ongoingJobs } })
+      .updateOne({ user: user.id }, { $inc: { ongoingJobs } })
       .exec();
   }
 
@@ -93,7 +92,7 @@ export class SellerRepository {
     const user = (await this.userModel.findOne({ userId })).toJSON();
     await this.sellerModel
       .updateOne(
-        { _id: user._id },
+        { _id: user.id },
         { $inc: { ongoingJobs: -1, cancelledJobs: 1 } },
       )
       .exec();
@@ -111,7 +110,7 @@ export class SellerRepository {
     ).toJSON();
     await this.sellerModel
       .updateOne(
-        { user: user._id },
+        { user: user.id },
         {
           $inc: {
             ongoingJobs,
@@ -132,7 +131,7 @@ export class SellerRepository {
     const user = (await this.userModel.findOne({ userId })).toJSON();
     await this.sellerModel
       .updateOne(
-        { user: user._id },
+        { user: user.id },
         {
           $inc: {
             ratingsCount: 1,
